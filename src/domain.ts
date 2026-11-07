@@ -17,12 +17,12 @@ export const brands: BrandProfile[] = [
 ];
 
 export const SceneSchema = z.object({
-  id:z.string().min(1), order:z.number().int().nonnegative(), sceneType:z.enum(['cinematic-image','parallax','historical-map','data-chart','news-headline','evidence-timeline','medical-explainer','software-demo','document-highlight','quote','intro','outro']),
+  id:z.string().min(1).max(128).regex(/^[A-Za-z0-9_-]+$/), order:z.number().int().nonnegative(), sceneType:z.enum(['cinematic-image','parallax','historical-map','data-chart','news-headline','evidence-timeline','medical-explainer','software-demo','document-highlight','quote','intro','outro']),
   narration:z.string(), onScreenText:z.string(), estimatedDurationSeconds:z.number().positive(), visualDescription:z.string(), animation:z.enum(['zoom-in','pan-left','fade','rise']), approvalStatus:z.enum(['draft','approved']), sourceReferences:z.array(z.string()),
   camera:z.object({movement:z.enum(['zoom-in','zoom-out','pan-left','pan-right','rise','none']),intensity:z.number().min(0).max(1)}).optional(),
   transition:z.object({type:z.enum(['cut','fade','wipe']),durationSeconds:z.number().min(0).max(2)}).optional(),
-  audio:z.object({src:z.string(),durationSeconds:z.number().positive(),voice:z.string(),cacheKey:z.string()}).optional(),
-  assetPath:z.string().optional(),
+  audio:z.object({src:z.string().regex(/^(?:assets|generated-audio)\/[A-Za-z0-9._/-]+$/).refine(path=>!path.split('/').includes('..')),durationSeconds:z.number().positive(),voice:z.string(),cacheKey:z.string().regex(/^[a-f0-9]{64}$/)}).optional(),
+  assetPath:z.string().regex(/^assets\/[A-Za-z0-9._/-]+$/).refine(path=>!path.split('/').includes('..')).optional(),
 }).strict();
 export const StoryboardSchema = z.object({version:z.literal(1),title:z.string(),language:z.enum(['en','bn']),targetDurationSeconds:z.number().positive(),scenes:z.array(SceneSchema).min(1)});
 export type Scene = z.infer<typeof SceneSchema>;

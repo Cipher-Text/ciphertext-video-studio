@@ -9,34 +9,36 @@ The repository initially contained only Git metadata: no commits, package manife
 - Vite + React + strict TypeScript provide a small local dashboard without introducing a large framework.
 - `src/domain.ts` owns the six brand definitions and versioned Zod storyboard shape. `makeStoryboard()` is deterministic and leaves source citations empty rather than manufacturing them.
 - `src/web/` is the browser project and scene editor. It reads and writes projects through the local API and retains JSON import/export. Script and per-scene approvals are explicit; `ProjectPreview` uses Remotion Player to play the current storyboard.
-- `src/server/index.mjs` provides the loopback Node API and SQLite repository. `migrations/001_projects.sql` creates the project table; the default database is `data/ciphertext.sqlite` and `CIPHERTEXT_DATA_DIR` can relocate it.
-- `src/video/` contains the reusable Remotion `MasterDocumentary`, illustrative `CipherTextDemo`, and `CipherTextProject` composition. The latter validates serialized storyboard props and calculates duration and dimensions from scene timings and project format.
+- `src/server/index.mjs` provides the loopback Node API and SQLite repository. Configured loopback Origin checks, bounded JSON bodies, and strict Zod validation protect project writes. Migrations 001 and 002 add project and render-job tables; `CIPHERTEXT_DATA_DIR` relocates the database.
+- `src/server/render-worker.mjs` processes one render at a time, records progress and attempts, supports cancellation, writes a unique file for each attempt, and parses MP4 stream metadata before marking a job successful.
+- `src/server/azureSpeech.mjs` implements the speech-provider interface for Azure's `bn-BD` neural voices. Scene WAV files are cached in ignored `public/generated-audio/`; duration is detected from WAV metadata and influences preview and export timing.
+- `src/video/` contains shared preview/render metadata, nine typed scene visual treatments, the reusable Remotion timeline, illustrative `CipherTextDemo`, and project-specific `CipherTextProject` composition. Placeholder scenes carry visible disclaimers; historical map visuals are explicitly schematic.
 - `tests/` contains foundation tests for profiles and storyboard validation.
 
 ## Reuse and replacement
 
-There was nothing to reuse from the application baseline. The foundation deliberately avoids bringing in Next.js, SQLite, ORM, AI SDKs, Azure SDKs, or an asset service before they are needed. Browser local storage is a temporary persistence choice, not an intended multi-project database architecture. The composition accepts serializable props and can later be called by a local Remotion render worker.
+The original application foundation remains in place; this work extends its local server and Remotion pipeline without replacing its schema or database. Project JSON import/export remains supported, while SQLite is the project source of truth.
 
 ## Migration strategy
 
-1. Foundation (current): brand registry, manual project creation, storyboard schema/editor, JSON portability, illustrative Remotion demo.
-2. Durable local data (complete): SQLite migration and repository API, with project state moved out of browser local storage.
-3. Project render path (initial implementation): saved storyboard props, dynamic composition duration/format, synchronous local MP4 render and download. Queue/worker, cancellation/progress, output validation, thumbnails, and export package remain.
-4. Production storyboard: script versioning/approval history, claim and source records, optional AIProvider with mock and local-compatible implementations.
-5. Media and voice: safe local asset library, TTS capability model and Azure Speech adapter, generated audio metadata, subtitles.
-6. Quality: six illustrative demo projects, accessibility and deeper render-output verification.
+1. Foundation (complete): brand registry, manual project creation, storyboard schema/editor, JSON portability, illustrative Remotion demo.
+2. Durable local data (complete): SQLite project repository and additive render-job migration.
+3. Preview/render path (implemented): shared aspect and duration metadata, persistent worker jobs, progress/cancel/retry paths, unique output versions, MP4 verification.
+4. Scene treatments (implemented): nine typed illustrative components with local asset paths, camera options, transitions, and visible placeholder labeling.
+5. Bengali speech (implemented): Azure `bn-BD` speech preview, per-scene caching, and actual audio duration; more providers and timed subtitles remain.
+6. Next quality work: deterministic retry/recovery failure tests, asset library, thumbnails, export package, sample projects, and accessibility review.
 
 ## Technical risks
 
 - SQLite data remains local to the machine and is not a backup. Export project JSON for portability and backup.
-- The initial Remotion composition is an abstract visual treatment. It is not a full scene registry or asset-aware editor, and the demo is explicitly illustrative. Its caption band displays script text over music; it does not yet include spoken narration.
-- Uploaded media, TTS, caption alignment, and a durable render queue/worker do not exist yet. Project rendering currently runs synchronously in the local API process.
+- Scene visuals remain stylized; data charts, health diagrams, headlines, document highlights, and timeline graphics are labeled illustrative placeholders until reviewed sources or local assets are attached.
+- Uploaded media, word-level subtitle alignment, audio mixing/ducking, and render packaging do not exist. Retry after a real render failure and worker restart recovery still need deterministic end-to-end coverage.
 - Long or numerous scripts may exceed the fixed 15-second demo composition duration; production timing must derive from narration and configured padding.
 - Typography currently uses system fallbacks to keep the dashboard offline-capable.
 
 ## Local data and security
 
-There are no external API calls or credentials in this foundation. Project JSON is stored in local SQLite. Generated render output is directed to the ignored `out/` path. `.env.example` lists future optional provider variables and contains no secrets.
+Project data remains local in SQLite and render output is directed to ignored `out/`. Azure Speech calls occur only after the user requests preview or scene synthesis; secrets stay on the server in `.env` or process environment. `.env.example` contains empty placeholders only.
 
 ## Remotion guidance
 

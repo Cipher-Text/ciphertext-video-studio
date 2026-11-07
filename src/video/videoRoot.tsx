@@ -12,7 +12,7 @@ export const VideoRoot:React.FC=()=> <>
 </>;
 
 type SavedProjectProps={brandId:BrandId;title:string;format:'landscape'|'portrait'|'square';storyboard:Storyboard};
-const SavedProjectVideo:React.FC<SavedProjectProps>=({brandId,title,storyboard})=><MasterDocumentary brand={brands.find(b=>b.id===brandId)!} title={title} scenes={storyboard.scenes.map(scene=>({id:scene.id,text:scene.narration,label:scene.onScreenText,durationSeconds:scene.estimatedDurationSeconds}))}/>;
+const SavedProjectVideo:React.FC<SavedProjectProps>=({brandId,title,storyboard})=><MasterDocumentary brand={brands.find(b=>b.id===brandId)!} title={title} language={storyboard.language} scenes={storyboard.scenes.map(scene=>({id:scene.id,text:scene.narration,label:scene.onScreenText,durationSeconds:scene.estimatedDurationSeconds,animation:scene.animation,sceneType:scene.sceneType,visualDescription:scene.visualDescription,sourceReferences:scene.sourceReferences,camera:scene.camera,transition:scene.transition,audio:scene.audio,assetPath:scene.assetPath}))}/>;
 const projectMetadata:CalculateMetadataFunction<SavedProjectProps>=({props})=>{
   const storyboard=StoryboardSchema.parse(props.storyboard);
   const {width,height,durationInFrames}=getProjectVideoMetadata(props.format,storyboard);
