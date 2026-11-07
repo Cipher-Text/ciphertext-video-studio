@@ -1,0 +1,11 @@
+node_modules/
+out/
+build/
+dist/
+storage/
+data/
+.env
+.DS_Store
+coverage/
+playwright-report/
+test-results/

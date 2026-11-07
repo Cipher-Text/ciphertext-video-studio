@@ -1,0 +1,36 @@
+{
+  "name": "ciphertext-video-studio",
+  "version": "0.1.0",
+  "packageManager": "pnpm@12.3.4",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "studio": "remotion studio src/video/index.tsx",
+    "build": "vite build && remotion bundle src/video/index.tsx",
+    "build:web": "vite build",
+    "typecheck": "tsc --noEmit",
+    "lint": "tsc --noEmit",
+    "test": "vitest run",
+    "test:e2e": "playwright test",
+    "render:demo": "remotion render src/video/index.tsx CipherTextDemo out/demo.mp4",
+    "render": "remotion render src/video/index.tsx"
+  },
+  "dependencies": {
+    "@remotion/cli": "4.0.534",
+    "@remotion/player": "4.0.534",
+    "remotion": "4.0.534",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "zod": "4.5.4"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.55.0",
+    "@types/react": "19.1.13",
+    "@types/react-dom": "19.1.9",
+    "@vitejs/plugin-react": "5.0.2",
+    "typescript": "5.9.2",
+    "vite": "7.1.7",
+    "vitest": "3.2.4"
+  }
+}
