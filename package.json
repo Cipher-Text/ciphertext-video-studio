@@ -5,7 +5,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "node scripts/dev.mjs",
     "studio": "remotion studio src/video/index.tsx",
     "build": "vite build && remotion bundle src/video/index.tsx",
     "build:web": "vite build",
@@ -14,6 +14,7 @@
     "test": "vitest run",
     "test:e2e": "playwright test",
     "render:demo": "remotion render src/video/index.tsx CipherTextDemo out/demo.mp4",
+    "render:project": "remotion render src/video/index.tsx CipherTextProject",
     "render": "remotion render src/video/index.tsx"
   },
   "dependencies": {
