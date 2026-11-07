@@ -8,11 +8,13 @@ export function checkRequestOrigin(method,origin,allowedOrigins){
   return {ok:true};
 }
 
-export async function consumeRequestBody(req,maxBytes=2*1024*1024){
-  const declared=Number(req.headers?.['content-length']||0);if(declared>maxBytes)throw new RequestInputError(413,'BODY_TOO_LARGE','Request body exceeds the 2 MiB limit');
-  const chunks=[];let size=0;for await(const chunk of req){const buffer=Buffer.isBuffer(chunk)?chunk:Buffer.from(chunk);size+=buffer.length;if(size>maxBytes)throw new RequestInputError(413,'BODY_TOO_LARGE','Request body exceeds the 2 MiB limit');chunks.push(buffer)}
-  return Buffer.concat(chunks).toString('utf8');
+export async function consumeRequestBytes(req,maxBytes=2*1024*1024){
+  const limitLabel=maxBytes===2*1024*1024?'2 MiB':`${Math.floor(maxBytes/1024/1024)} MiB`;
+  const declared=Number(req.headers?.['content-length']||0);if(declared>maxBytes)throw new RequestInputError(413,'BODY_TOO_LARGE',`Request body exceeds the ${limitLabel} limit`);
+  const chunks=[];let size=0;for await(const chunk of req){const buffer=Buffer.isBuffer(chunk)?chunk:Buffer.from(chunk);size+=buffer.length;if(size>maxBytes)throw new RequestInputError(413,'BODY_TOO_LARGE',`Request body exceeds the ${limitLabel} limit`);chunks.push(buffer)}
+  return Buffer.concat(chunks);
 }
+export async function consumeRequestBody(req,maxBytes=2*1024*1024){return (await consumeRequestBytes(req,maxBytes)).toString('utf8')}
 export async function parseJsonBody(req,maxBytes=2*1024*1024){
   if(!String(req.headers?.['content-type']||'').toLowerCase().startsWith('application/json'))throw new RequestInputError(415,'UNSUPPORTED_MEDIA_TYPE','Expected application/json');
   const raw=await consumeRequestBody(req,maxBytes);

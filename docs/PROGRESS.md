@@ -12,11 +12,12 @@ Reviewed against main commit `12c380c` on 2026-11-07. Existing SQLite project ro
 - Added a typed registry with nine distinct treatments: cinematic image, parallax, historical map, data chart, news headline, evidence timeline, medical explainer, software demo, and document highlight. Placeholder content is labeled; map visuals state that they are schematic and are not historical reconstructions. Local image paths are constrained to `public/assets/`.
 - Added persistent SQLite render jobs, a separate single-concurrency worker, progress reporting, cancellation, automatic and manual retries, and unique output paths per attempt. The worker checks the output file and parses MP4 container/stream metadata before marking success. Previous project render paths are preserved.
 - Added an interchangeable speech-provider contract with Azure Speech, two `bn-BD` voices, on-demand voice preview, per-text/voice audio caching, WAV duration detection, scene audio status, and duration synchronization.
+- Added local PNG, JPEG, and WebP uploads with a 15 MiB limit, a reusable image library, per-scene attachment, and actual image display in the scene preview and render.
 - Added API security, aspect-ratio, speech adapter, scene-registry, and browser/API lifecycle regression tests.
 
 ## Not complete
 
-- Full media asset library, upload/licensing workflow, and asset management UI.
+- Asset licensing/credit metadata, image deletion/replacement management, thumbnails, and broader media-library management.
 - Word-level subtitle alignment, audio mixing/music ducking, additional TTS adapters, and non-Bengali Azure voice selection.
 - Render worker retry/failure branches have implementation coverage in code but were not forced through an actual failing Remotion process in this pass. The queued cancellation path and successful render path were exercised.
 - A visual export package, thumbnails, six sample projects, and broader accessibility review.

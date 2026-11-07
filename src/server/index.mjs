@@ -2,13 +2,13 @@ import {createServer} from 'node:http';
 import {DatabaseSync} from 'node:sqlite';
 import {spawn} from 'node:child_process';
 import {createReadStream} from 'node:fs';
-import {mkdir, readFile, writeFile} from 'node:fs/promises';
+import {mkdir, readFile, readdir, writeFile} from 'node:fs/promises';
 import {existsSync} from 'node:fs';
 import {join, dirname, resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {randomUUID} from 'node:crypto';
 import {projectSchema,decodeRouteId} from './validation.mjs';
-import {checkRequestOrigin,isSafeRenderPath,parseJsonBody,consumeRequestBody} from './security.mjs';
+import {checkRequestOrigin,isSafeRenderPath,parseJsonBody,consumeRequestBody,consumeRequestBytes} from './security.mjs';
 import {createAzureSpeechProvider,bnBdVoices} from './azureSpeech.mjs';
 import {createElevenLabsSpeechProvider} from './elevenLabsSpeech.mjs';
 
@@ -50,6 +50,7 @@ const startWorker=()=>{worker=spawn(process.execPath,[join(root,'src/server/rend
 startWorker();
 const speech=createAzureSpeechProvider({key:process.env.AZURE_SPEECH_KEY,region:process.env.AZURE_SPEECH_REGION,cacheDir:join(root,'public/generated-audio')});
 const elevenLabs=createElevenLabsSpeechProvider({key:process.env.ELEVENLABS_API_KEY,cacheDir:join(root,'public/generated-audio')});
+const assetsDir=join(root,'public/assets');
 
 const server = createServer(async (req,res) => {
   const origin=req.headers.origin;
@@ -62,12 +63,19 @@ const server = createServer(async (req,res) => {
   const params=rawPath.split('/');
   const routeProjectId=(raw)=>decodeRouteId(raw);
   try {
-    let requestBody;
+    let requestBody,uploadBytes;
     if(['POST','PUT','PATCH','DELETE'].includes(req.method||'')){
-      if(String(req.headers['content-type']||'').toLowerCase().startsWith('application/json'))requestBody=await body(req);
+      if(req.method==='POST'&&rawPath==='/api/assets'&&String(req.headers['content-type']||'').toLowerCase().startsWith('image/'))uploadBytes=await consumeRequestBytes(req,15*1024*1024);
+      else if(String(req.headers['content-type']||'').toLowerCase().startsWith('application/json'))requestBody=await body(req);
       else if(Number(req.headers['content-length']||0)>0||req.headers['transfer-encoding'])await consumeRequestBody(req);
     }
     if (url.pathname === '/api/health') return send(res,200,{ok:true},origin);
+    if(url.pathname==='/api/assets'&&req.method==='GET'){let names=[];try{names=await readdir(assetsDir)}catch(e){if(e.code!=='ENOENT')throw e}return send(res,200,{assets:names.filter(name=>/^[a-f0-9-]+\.(?:png|jpe?g|webp)$/i.test(name)).map(name=>({src:`assets/${name}`}))},origin)}
+    if(url.pathname==='/api/assets'&&req.method==='POST'){
+      if(!uploadBytes?.length)return fail(res,400,'EMPTY_IMAGE','Choose a non-empty PNG, JPEG, or WebP image',origin);
+      let extension;if(uploadBytes.length>=8&&uploadBytes.subarray(0,8).equals(Buffer.from([137,80,78,71,13,10,26,10])))extension='png';else if(uploadBytes.length>=3&&uploadBytes[0]===0xff&&uploadBytes[1]===0xd8&&uploadBytes[2]===0xff)extension='jpg';else if(uploadBytes.length>=12&&uploadBytes.toString('ascii',0,4)==='RIFF'&&uploadBytes.toString('ascii',8,12)==='WEBP')extension='webp';else return fail(res,415,'UNSUPPORTED_IMAGE','Only valid PNG, JPEG, and WebP images are supported',origin);
+      await mkdir(assetsDir,{recursive:true});const name=`${randomUUID()}.${extension}`;await writeFile(join(assetsDir,name),uploadBytes,{flag:'wx'});return send(res,201,{asset:{src:`assets/${name}`,bytes:uploadBytes.length}},origin);
+    }
     if(url.pathname==='/api/speech/status'&&req.method==='GET')return send(res,200,{providers:[{id:'azure',name:'Azure Speech',configured:speech.enabled,voices:bnBdVoices,models:[{id:'azure-neural',name:'Azure Neural'}]},{id:'elevenlabs',name:'ElevenLabs',configured:elevenLabs.enabled,voices:[],models:[]} ]},origin);
     if(url.pathname==='/api/speech/catalog'&&req.method==='GET'){const provider=url.searchParams.get('provider');if(provider==='elevenlabs')return send(res,200,await elevenLabs.catalog(),origin);if(provider==='azure')return send(res,200,{voices:bnBdVoices,models:[{id:'azure-neural',name:'Azure Neural'}]},origin);return fail(res,400,'INVALID_PROVIDER','Select Azure or ElevenLabs',origin)}
     if(url.pathname==='/api/speech/test'&&req.method==='POST'){const provider=requestBody?.provider;if(provider==='elevenlabs'){const catalog=await elevenLabs.catalog();return send(res,200,{ok:true,provider,voiceCount:catalog.voices.length,modelCount:catalog.models.length},origin)}if(provider==='azure'){if(!speech.enabled)throw Object.assign(new Error('Azure Speech is not configured'),{code:'SPEECH_NOT_CONFIGURED'});await speech.synthesize('বাংলাদেশের গল্প।','bn-BD-NabanitaNeural',{cache:false});return send(res,200,{ok:true,provider},origin)}return fail(res,400,'INVALID_PROVIDER','Select Azure or ElevenLabs',origin)}

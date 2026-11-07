@@ -26,13 +26,13 @@ The original application foundation remains in place; this work extends its loca
 3. Preview/render path (implemented): shared aspect and duration metadata, persistent worker jobs, progress/cancel/retry paths, unique output versions, MP4 verification.
 4. Scene treatments (implemented): nine typed illustrative components with local asset paths, camera options, transitions, and visible placeholder labeling.
 5. Bengali speech (implemented): Azure `bn-BD` speech preview, per-scene caching, and actual audio duration; more providers and timed subtitles remain.
-6. Next quality work: deterministic retry/recovery failure tests, asset library, thumbnails, export package, sample projects, and accessibility review.
+6. Next quality work: deterministic retry/recovery failure tests, asset licensing metadata and deletion management, thumbnails, export package, sample projects, and accessibility review.
 
 ## Technical risks
 
 - SQLite data remains local to the machine and is not a backup. Export project JSON for portability and backup.
 - Scene visuals remain stylized; data charts, health diagrams, headlines, document highlights, and timeline graphics are labeled illustrative placeholders until reviewed sources or local assets are attached.
-- Uploaded media, word-level subtitle alignment, audio mixing/ducking, and render packaging do not exist. Retry after a real render failure and worker restart recovery still need deterministic end-to-end coverage.
+- Local image upload and per-scene attachment are implemented for PNG, JPEG, and WebP. Licensing metadata, deletion management, video uploads, word-level subtitle alignment, audio mixing/ducking, and render packaging remain future work. Retry after a real render failure and worker restart recovery still need deterministic end-to-end coverage.
 - Long or numerous scripts may exceed the fixed 15-second demo composition duration; production timing must derive from narration and configured padding.
 - Typography currently uses system fallbacks to keep the dashboard offline-capable.
 
