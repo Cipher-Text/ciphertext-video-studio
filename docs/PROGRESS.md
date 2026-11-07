@@ -73,6 +73,9 @@ The Bengali project fixture (`bn-project-2026`) was created in the same isolated
 - Scene media now supports local MP4, MOV, and WebM upload (100 MiB limit), persisted trim in/out points, fill/fit framing, and horizontal/vertical object position. Remotion uses the attached clip and saved framing for both preview and project export. Browser interaction and actual encoded video rendering still need verification with a sample clip.
 - Data-chart scenes now accept 2–12 labeled nonnegative values, bar or line styles, units, periods/date ranges, and source citations. Values and marks animate into view; unit, period, and citation appear in the rendered scene. The editor supports adding and removing points, and approval/rendering are blocked until the chart has two labeled values and a source.
 - History timeline scenes now support 2–8 dated events, titles, descriptions, per-event citations, optional local images, and an explicit illustrative-reconstruction flag. Event cards enter in sequence during playback; citations and reconstruction/source-media labels remain visible. Scene and storyboard approval plus server render creation require dates, titles, and citations for every event.
+- Software-demo scenes now use attached screenshots or screen recordings as the scene background and support up to eight timed callouts. Each callout animates a target marker, connector, and label at editable positions; all data is stored in the project and used by both preview and export. The unprovided interface remains clearly labeled illustrative.
+- Generated narration is split into short caption phrases and paced proportionally by word count across the measured audio duration. The active phrase follows playback in preview and render; this estimates phrase timing and does not claim word-level alignment.
+- The media library now previews local images/videos, reuses or replaces media in a selected scene, stores per-asset credit/license metadata in SQLite, and shows how many scene references use each asset. Deletion is allowed only after every scene reference is removed or replaced.
 
 ## Latest verification (2026-11-08)
 
@@ -86,14 +89,15 @@ The Bengali project fixture (`bn-project-2026`) was created in the same isolated
 - The video media integration also passed `pnpm typecheck`; video upload and a rendered output have not yet been exercised end to end.
 - Data-chart editor and Remotion integration passed `pnpm typecheck`; end-to-end chart editing and rendered output remain to be checked in a browser.
 - History timeline editor, schema, preview, and render gating passed `pnpm typecheck`; end-to-end editor and rendered output remain to be checked in a browser.
-
-## Next implementation task
+- Software callout editor, schema, preview, and project-export wiring passed `pnpm typecheck`; browser interaction and a rendered callout scene remain pending.
+- Phrase caption generation and Remotion integration passed `pnpm typecheck`; playback and exported caption timing remain to be checked in a browser/render.
+- Media library UI, metadata migration/API, reuse flow, and safe deletion checks passed `pnpm typecheck` and server syntax checks; browser interaction remains pending.
 
 ## Pending work
 
-1. Build software marketing visuals with product screenshots, screen recordings, and animated callouts.
+1. Add CSV chart import with validation and source metadata.
 2. Verify local video upload, trim/framing, preview, and rendered output using a sample clip.
-3. Verify chart and history-timeline editing/rendering in a browser, including incomplete-data approval/render gates.
-4. Review accessibility across the editor, timeline, chart controls, history editor, and media controls.
+3. Verify chart, history-timeline, software-demo, caption, and media-library interactions in a browser, including incomplete-data approval/render gates.
+4. Review accessibility across the editor, timeline, chart, history, caption, and media controls.
 5. Validate render-worker recovery after restart, retry after a real renderer failure, and cancellation during active encoding.
-6. Continue roadmap follow-ups: CSV chart import, screenshot/crop tools, timed captions, and media library credit/license management.
+6. Continue roadmap follow-ups: screenshot/crop tools, richer software highlights, word-level caption alignment, manual caption editing, and fuller media credit/license display in exports.

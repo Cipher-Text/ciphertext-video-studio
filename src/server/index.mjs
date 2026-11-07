@@ -2,7 +2,7 @@ import {createServer} from 'node:http';
 import {DatabaseSync} from 'node:sqlite';
 import {spawn} from 'node:child_process';
 import {createReadStream} from 'node:fs';
-import {mkdir, readFile, readdir, writeFile} from 'node:fs/promises';
+import {mkdir, readFile, readdir, stat, unlink, writeFile} from 'node:fs/promises';
 import {existsSync} from 'node:fs';
 import {join, dirname, resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
@@ -21,6 +21,7 @@ const db = new DatabaseSync(dbPath);
 db.exec('PRAGMA journal_mode = WAL; PRAGMA foreign_keys = ON;');
 db.exec(await readFile(join(root, 'migrations/001_projects.sql'), 'utf8'));
 db.exec(await readFile(join(root, 'migrations/002_render_jobs.sql'), 'utf8'));
+db.exec(await readFile(join(root, 'migrations/003_media_assets.sql'), 'utf8'));
 
 const fields = 'id, brand_id AS brandId, title, language, format, script, script_approved AS scriptApproved, status, updated_at AS updatedAt, storyboard_json AS storyboard';
 const decode = (row) => row && ({...row, scriptApproved: Boolean(row.scriptApproved), storyboard: row.storyboard ? JSON.parse(row.storyboard) : undefined});
@@ -51,6 +52,14 @@ startWorker();
 const speech=createAzureSpeechProvider({key:process.env.AZURE_SPEECH_KEY,region:process.env.AZURE_SPEECH_REGION,cacheDir:join(root,'public/generated-audio')});
 const elevenLabs=createElevenLabsSpeechProvider({key:process.env.ELEVENLABS_API_KEY,cacheDir:join(root,'public/generated-audio')});
 const assetsDir=join(root,'public/assets');
+const mediaMeta=db.prepare('SELECT path,media_type AS type,bytes,credit,license,created_at AS createdAt,updated_at AS updatedAt FROM media_assets WHERE path=?');
+const saveMediaMeta=db.prepare('INSERT INTO media_assets(path,media_type,bytes,created_at,updated_at) VALUES(?,?,?,?,?) ON CONFLICT(path) DO NOTHING');
+const updateMediaMeta=db.prepare('UPDATE media_assets SET credit=?,license=?,updated_at=? WHERE path=?');
+const deleteMediaMeta=db.prepare('DELETE FROM media_assets WHERE path=?');
+const projectRows=db.prepare('SELECT id,title,storyboard_json FROM projects WHERE storyboard_json IS NOT NULL');
+const mediaTypeFor=(name)=>/\.(?:png|jpe?g|webp)$/i.test(name)?'image':/\.(?:mp4|mov|webm)$/i.test(name)?'video':null;
+const referencesTo=(value,path)=>value===path?1:Array.isArray(value)?value.reduce((sum,item)=>sum+referencesTo(item,path),0):value&&typeof value==='object'?Object.values(value).reduce((sum,item)=>sum+referencesTo(item,path),0):0;
+const listMedia=async()=>{let names=[];try{names=await readdir(assetsDir)}catch(e){if(e.code!=='ENOENT')throw e}const items=[];for(const name of names){if(!/^[a-f0-9-]+\.(?:png|jpe?g|webp|mp4|mov|webm)$/i.test(name))continue;const type=mediaTypeFor(name);if(!type)continue;const path=`assets/${name}`;const info=await stat(join(assetsDir,name));const now=new Date().toISOString();saveMediaMeta.run(path,type,info.size,now,now);const metadata=mediaMeta.get(path);const usageCount=projectRows.all().reduce((sum,row)=>sum+referencesTo(row.storyboard_json?JSON.parse(row.storyboard_json):null,path),0);items.push({...metadata,src:path,bytes:info.size,usageCount})}return items.sort((a,b)=>b.updatedAt.localeCompare(a.updatedAt))};
 
 const server = createServer(async (req,res) => {
   const origin=req.headers.origin;
@@ -71,17 +80,29 @@ const server = createServer(async (req,res) => {
       else if(Number(req.headers['content-length']||0)>0||req.headers['transfer-encoding'])await consumeRequestBody(req);
     }
     if (url.pathname === '/api/health') return send(res,200,{ok:true},origin);
-    if(url.pathname==='/api/assets'&&req.method==='GET'){let names=[];try{names=await readdir(assetsDir)}catch(e){if(e.code!=='ENOENT')throw e}return send(res,200,{assets:names.filter(name=>/^[a-f0-9-]+\.(?:png|jpe?g|webp)$/i.test(name)).map(name=>({src:`assets/${name}`}))},origin)}
-    if(url.pathname==='/api/video-assets'&&req.method==='GET'){let names=[];try{names=await readdir(assetsDir)}catch(e){if(e.code!=='ENOENT')throw e}return send(res,200,{assets:names.filter(name=>/^[a-f0-9-]+\.(?:mp4|mov|webm)$/i.test(name)).map(name=>({src:`assets/${name}`}))},origin)}
+    if(url.pathname==='/api/media'&&req.method==='GET')return send(res,200,{assets:await listMedia()},origin);
+    if(url.pathname==='/api/assets'&&req.method==='GET')return send(res,200,{assets:(await listMedia()).filter(asset=>asset.type==='image').map(asset=>({src:asset.path}))},origin);
+    if(url.pathname==='/api/video-assets'&&req.method==='GET')return send(res,200,{assets:(await listMedia()).filter(asset=>asset.type==='video').map(asset=>({src:asset.path}))},origin);
+    if(params.length===4&&params[1]==='api'&&params[2]==='media'&&['PUT','DELETE'].includes(req.method||'')){
+      const name=params[3];if(!/^[a-f0-9-]{36}\.(?:png|jpe?g|webp|mp4|mov|webm)$/i.test(name))return fail(res,400,'INVALID_MEDIA_ID','Invalid media filename',origin);
+      const path=`assets/${name}`;let info;try{info=await stat(join(assetsDir,name))}catch(e){if(e.code==='ENOENT')return fail(res,404,'MEDIA_NOT_FOUND','Media asset not found',origin);throw e}
+      if(req.method==='PUT'){
+        const credit=requestBody?.credit,license=requestBody?.license;if(typeof credit!=='string'||credit.length>1000||typeof license!=='string'||license.length>500)return fail(res,400,'INVALID_MEDIA_METADATA','Credit must be up to 1,000 characters and license up to 500 characters',origin);
+        const now=new Date().toISOString();saveMediaMeta.run(path,mediaTypeFor(name),info.size,now,now);updateMediaMeta.run(credit.trim(),license.trim(),now,path);return send(res,200,{asset:mediaMeta.get(path)},origin)
+      }
+      const users=[];for(const row of projectRows.all()){const count=referencesTo(row.storyboard_json?JSON.parse(row.storyboard_json):null,path);if(count)users.push({id:row.id,title:row.title,references:count})}
+      if(users.length)return send(res,409,{error:{code:'MEDIA_IN_USE',message:'Remove or replace this asset in the listed project scenes before deleting it',projects:users}},origin);
+      await unlink(join(assetsDir,name));deleteMediaMeta.run(path);return send(res,200,{ok:true,path},origin)
+    }
     if(url.pathname==='/api/assets'&&req.method==='POST'){
       if(!uploadBytes?.length)return fail(res,400,'EMPTY_IMAGE','Choose a non-empty PNG, JPEG, or WebP image',origin);
       let extension;if(uploadBytes.length>=8&&uploadBytes.subarray(0,8).equals(Buffer.from([137,80,78,71,13,10,26,10])))extension='png';else if(uploadBytes.length>=3&&uploadBytes[0]===0xff&&uploadBytes[1]===0xd8&&uploadBytes[2]===0xff)extension='jpg';else if(uploadBytes.length>=12&&uploadBytes.toString('ascii',0,4)==='RIFF'&&uploadBytes.toString('ascii',8,12)==='WEBP')extension='webp';else return fail(res,415,'UNSUPPORTED_IMAGE','Only valid PNG, JPEG, and WebP images are supported',origin);
-      await mkdir(assetsDir,{recursive:true});const name=`${randomUUID()}.${extension}`;await writeFile(join(assetsDir,name),uploadBytes,{flag:'wx'});return send(res,201,{asset:{src:`assets/${name}`,bytes:uploadBytes.length}},origin);
+      await mkdir(assetsDir,{recursive:true});const name=`${randomUUID()}.${extension}`;await writeFile(join(assetsDir,name),uploadBytes,{flag:'wx'});const now=new Date().toISOString();saveMediaMeta.run(`assets/${name}`,'image',uploadBytes.length,now,now);return send(res,201,{asset:{src:`assets/${name}`,bytes:uploadBytes.length}},origin);
     }
     if(url.pathname==='/api/video-assets'&&req.method==='POST'){
       if(!uploadBytes?.length)return fail(res,400,'EMPTY_VIDEO','Choose a non-empty MP4, MOV, or WebM video',origin);
       let extension;if(uploadBytes.length>=12&&uploadBytes.toString('ascii',4,8)==='ftyp')extension=uploadBytes.toString('ascii',8,12)==='qt  '?'mov':'mp4';else if(uploadBytes.length>=4&&uploadBytes.readUInt32BE(0)===0x1a45dfa3)extension='webm';else return fail(res,415,'UNSUPPORTED_VIDEO','Only valid MP4, MOV, and WebM video files are supported',origin);
-      await mkdir(assetsDir,{recursive:true});const name=`${randomUUID()}.${extension}`;await writeFile(join(assetsDir,name),uploadBytes,{flag:'wx'});return send(res,201,{asset:{src:`assets/${name}`,bytes:uploadBytes.length}},origin);
+      await mkdir(assetsDir,{recursive:true});const name=`${randomUUID()}.${extension}`;await writeFile(join(assetsDir,name),uploadBytes,{flag:'wx'});const now=new Date().toISOString();saveMediaMeta.run(`assets/${name}`,'video',uploadBytes.length,now,now);return send(res,201,{asset:{src:`assets/${name}`,bytes:uploadBytes.length}},origin);
     }
     if(url.pathname==='/api/speech/status'&&req.method==='GET')return send(res,200,{providers:[{id:'azure',name:'Azure Speech',configured:speech.enabled,voices:bnBdVoices,models:[{id:'azure-neural',name:'Azure Neural'}]},{id:'elevenlabs',name:'ElevenLabs',configured:elevenLabs.enabled,voices:[],models:[]} ]},origin);
     if(url.pathname==='/api/speech/catalog'&&req.method==='GET'){const provider=url.searchParams.get('provider');if(provider==='elevenlabs')return send(res,200,await elevenLabs.catalog(),origin);if(provider==='azure')return send(res,200,{voices:bnBdVoices,models:[{id:'azure-neural',name:'Azure Neural'}]},origin);return fail(res,400,'INVALID_PROVIDER','Select Azure or ElevenLabs',origin)}

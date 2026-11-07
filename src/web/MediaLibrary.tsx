@@ -1,0 +1,26 @@
+import React,{useEffect,useState} from 'react';
+
+export type MediaAsset={path:string;src:string;type:'image'|'video';bytes:number;credit:string;license:string;createdAt:string;updatedAt:string;usageCount:number};
+type Draft=Pick<MediaAsset,'credit'|'license'>;
+const api=async<T,>(path:string,init?:RequestInit):Promise<T>=>{const response=await fetch(path,{...init,headers:{'content-type':'application/json',...init?.headers}});const data=await response.json();if(!response.ok)throw new Error(data.error?.message||'Media library request failed');return data as T};
+const formatBytes=(bytes:number)=>bytes<1024*1024?`${Math.max(1,Math.round(bytes/1024))} KB`:`${(bytes/(1024*1024)).toFixed(1)} MB`;
+
+export const MediaLibrary:React.FC<{assets:MediaAsset[];scenes:{id:string;order:number;narration:string}[];onRefresh:()=>Promise<void>;onApply:(sceneId:string,asset:MediaAsset)=>Promise<void>}>=({assets,scenes,onRefresh,onApply})=>{
+  const [drafts,setDrafts]=useState<Record<string,Draft>>({});const [targetSceneId,setTargetSceneId]=useState(scenes[0]?.id??'');const [busy,setBusy]=useState<string|null>(null);const [message,setMessage]=useState('');
+  useEffect(()=>setDrafts(Object.fromEntries(assets.map(asset=>[asset.path,{credit:asset.credit,license:asset.license}]))),[assets]);
+  useEffect(()=>{if(!scenes.some(scene=>scene.id===targetSceneId))setTargetSceneId(scenes[0]?.id??'')},[scenes,targetSceneId]);
+  const save=async(asset:MediaAsset)=>{const draft=drafts[asset.path]??{credit:asset.credit,license:asset.license};setBusy(asset.path);try{await api(`/api/media/${encodeURIComponent(asset.path.split('/').pop()!)}`,{method:'PUT',body:JSON.stringify(draft)});await onRefresh();setMessage('Credit and license details saved.')}catch(error){setMessage((error as Error).message)}finally{setBusy(null)}};
+  const remove=async(asset:MediaAsset)=>{if(!window.confirm(`Remove ${asset.path.split('/').pop()} from the local media library?`))return;setBusy(asset.path);try{await api(`/api/media/${encodeURIComponent(asset.path.split('/').pop()!)}`,{method:'DELETE'});await onRefresh();setMessage('Asset removed from the library.')}catch(error){setMessage((error as Error).message)}finally{setBusy(null)}};
+  const attach=async(asset:MediaAsset)=>{if(!targetSceneId)return;setBusy(asset.path);try{await onApply(targetSceneId,asset);setMessage(`Asset applied to ${scenes.find(scene=>scene.id===targetSceneId)?.narration.slice(0,48)||'scene'}.`)}catch(error){setMessage((error as Error).message)}finally{setBusy(null)}};
+  return <section className="content media-library-view"><div className="section-heading"><div><div className="eyebrow">LOCAL ASSETS</div><h1>Media library</h1><p>Preview and reuse images and recordings. Keep credit and license details with each local asset.</p></div><span className="tag">{assets.length} assets</span></div>
+    {message&&<div className="media-library-message" role="status">{message}</div>}
+    {!assets.length?<div className="empty-state"><h3>Your library is empty.</h3><p>Upload an image or video from a scene editor to add it here.</p></div>:<div className="media-library-grid">{assets.map(asset=>{const draft=drafts[asset.path]??{credit:asset.credit,license:asset.license};const changed=draft.credit!==asset.credit||draft.license!==asset.license;return <article className="media-library-card" key={asset.path}>
+      <div className="media-library-preview">{asset.type==='image'?<img src={`/${asset.path}`} alt={`Preview of ${asset.path.split('/').pop()}`}/>:<video src={`/${asset.path}`} controls preload="metadata" aria-label={`Preview of ${asset.path.split('/').pop()}`}/>}</div>
+      <div className="media-library-file"><span className="tag">{asset.type.toUpperCase()} · {formatBytes(asset.bytes)}</span><code>{asset.path.split('/').pop()}</code><span className="muted">Used in {asset.usageCount} scene reference{asset.usageCount===1?'':'s'}</span></div>
+      <label>Credit<input maxLength={1000} value={draft.credit} placeholder="Creator, publisher, or source" onChange={e=>setDrafts(items=>({...items,[asset.path]:{...draft,credit:e.target.value}}))}/></label>
+      <label>License<input maxLength={500} value={draft.license} placeholder="License name or terms" onChange={e=>setDrafts(items=>({...items,[asset.path]:{...draft,license:e.target.value}}))}/></label>
+      <div className="media-library-actions"><label>Target scene<select value={targetSceneId} onChange={e=>setTargetSceneId(e.target.value)} disabled={!scenes.length}><option value="">Select a scene</option>{scenes.map((scene,index)=><option key={scene.id} value={scene.id}>Scene {index+1} · {scene.narration.slice(0,42)}</option>)}</select></label><button className="button ghost" disabled={!targetSceneId||busy===asset.path} onClick={()=>void attach(asset)}>Use / replace</button></div>
+      <div className="media-library-footer"><button className="button ghost" disabled={!changed||busy===asset.path} onClick={()=>void save(asset)}>{busy===asset.path?'Saving…':'Save details'}</button><button className="text-button danger-text" disabled={asset.usageCount>0||busy===asset.path} title={asset.usageCount?'Remove or replace this asset in every scene before deleting it.':''} onClick={()=>void remove(asset)}>{asset.usageCount?'In use':'Remove'}</button></div>
+    </article>})}</div>}
+  </section>;
+};
