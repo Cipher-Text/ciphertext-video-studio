@@ -2,6 +2,7 @@ import React from 'react';
 import {Composition, type CalculateMetadataFunction} from 'remotion';
 import {MasterDocumentary, type VideoProps} from './MasterDocumentary';
 import {brands,StoryboardSchema,type BrandId,type Storyboard} from '../domain';
+import {getProjectVideoMetadata} from './metadata';
 
 const demoProps:VideoProps={brand:brands[0],title:'The river remembers',musicSrc:'demo-bed.wav',scenes:[{id:'one',text:'A story carried across generations.',label:'THE BEGINNING'},{id:'two',text:'Along the great rivers of Bengal, history is always in motion.',label:'A LIVING DELTA'},{id:'three',text:'Every shore holds a story still waiting to be told.',label:'BENGAL UNFOLDED'}]};
 
@@ -14,7 +15,6 @@ type SavedProjectProps={brandId:BrandId;title:string;format:'landscape'|'portrai
 const SavedProjectVideo:React.FC<SavedProjectProps>=({brandId,title,storyboard})=><MasterDocumentary brand={brands.find(b=>b.id===brandId)!} title={title} scenes={storyboard.scenes.map(scene=>({id:scene.id,text:scene.narration,label:scene.onScreenText,durationSeconds:scene.estimatedDurationSeconds}))}/>;
 const projectMetadata:CalculateMetadataFunction<SavedProjectProps>=({props})=>{
   const storyboard=StoryboardSchema.parse(props.storyboard);
-  const fps=30;
-  const dimensions=props.format==='portrait'?{width:1080,height:1920}:props.format==='square'?{width:1080,height:1080}:{width:1920,height:1080};
-  return {...dimensions,durationInFrames:Math.max(1,Math.ceil(storyboard.scenes.reduce((sum,scene)=>sum+scene.estimatedDurationSeconds,0)*fps))};
+  const {width,height,durationInFrames}=getProjectVideoMetadata(props.format,storyboard);
+  return {width,height,durationInFrames};
 };
