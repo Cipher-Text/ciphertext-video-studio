@@ -62,4 +62,4 @@ The Bengali project fixture (`bn-project-2026`) was created in the same isolated
 
 ## Next implementation task
 
-Build the local asset library and extend narration/subtitle timing beyond scene-level audio durations, then test worker retry and interrupted-render recovery with deterministic failure fixtures.
+Use [ROADMAP.md](ROADMAP.md) as the prioritized product plan. Near-term engineering follow-up also includes deterministic worker retry and interrupted-render recovery fixtures.

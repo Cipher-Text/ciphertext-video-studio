@@ -14,7 +14,7 @@ ElevenLabs voice listing requires the key to have voice read access, and its ful
 
 ## Current scope
 
-The current application includes six brand profiles, manual project creation, deterministic storyboard preparation, scene editing/reordering/approval, SQLite persistence, JSON import/export, local image upload and per-scene attachment, aspect-matched Remotion previews, a persistent render queue, nine typed illustrative scene treatments, and Azure Speech or ElevenLabs narration for Bengali. Licensing metadata, broader asset management, word-level subtitle timing, and advanced render packaging remain future work. See [docs/PROGRESS.md](docs/PROGRESS.md) for verification status.
+The current application includes six brand profiles, manual project creation, deterministic storyboard preparation, scene editing/reordering/approval, SQLite persistence, JSON import/export, local image upload and per-scene attachment, aspect-matched Remotion previews, a persistent render queue, nine typed illustrative scene treatments, and Azure Speech or ElevenLabs narration for Bengali. See [docs/PROGRESS.md](docs/PROGRESS.md) for verification status and [docs/ROADMAP.md](docs/ROADMAP.md) for prioritized future features.
 
 ## Commands
 

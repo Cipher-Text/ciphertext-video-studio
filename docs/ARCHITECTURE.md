@@ -26,7 +26,7 @@ The original application foundation remains in place; this work extends its loca
 3. Preview/render path (implemented): shared aspect and duration metadata, persistent worker jobs, progress/cancel/retry paths, unique output versions, MP4 verification.
 4. Scene treatments (implemented): nine typed illustrative components with local asset paths, camera options, transitions, and visible placeholder labeling.
 5. Bengali speech (implemented): Azure `bn-BD` speech preview, per-scene caching, and actual audio duration; more providers and timed subtitles remain.
-6. Next quality work: deterministic retry/recovery failure tests, asset licensing metadata and deletion management, thumbnails, export package, sample projects, and accessibility review.
+6. Future product work: see [ROADMAP.md](ROADMAP.md) for the prioritized scene timeline, media editing, visual tools, captions, and asset management plan. Engineering quality work includes deterministic retry/recovery tests and accessibility review.
 
 ## Technical risks
 
