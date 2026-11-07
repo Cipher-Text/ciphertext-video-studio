@@ -41,7 +41,7 @@ const send = (res, status, data, origin) => { const headers={'content-type':'app
 const fail = (res,status,code,message,origin)=>send(res,status,{error:{code,message}},origin);
 const body = (req) => parseJsonBody(req);
 const persist = (p) => {
-  const parsed=projectSchema.safeParse(p);if(!parsed.success)throw Object.assign(new Error('Project validation failed'),{status:400,code:'INVALID_PROJECT'});p=parsed.data;
+  const parsed=projectSchema.safeParse(p);if(!parsed.success){const details=parsed.error.issues.map(issue=>`${issue.path.join('.')||'project'}: ${issue.message}`).join('; ');throw Object.assign(new Error(`Project validation failed: ${details}`),{status:400,code:'INVALID_PROJECT'})}p=parsed.data;
   put.run(p.id,p.brandId,p.title,p.language,p.format,p.script,p.scriptApproved?1:0,String(p.status || 'Script draft'),p.updatedAt || new Date().toISOString(),p.storyboard ? JSON.stringify(p.storyboard) : null);
   return decode(get.get(p.id));
 };
@@ -66,14 +66,21 @@ const server = createServer(async (req,res) => {
     let requestBody,uploadBytes;
     if(['POST','PUT','PATCH','DELETE'].includes(req.method||'')){
       if(req.method==='POST'&&rawPath==='/api/assets'&&String(req.headers['content-type']||'').toLowerCase().startsWith('image/'))uploadBytes=await consumeRequestBytes(req,15*1024*1024);
+      else if(req.method==='POST'&&rawPath==='/api/video-assets'&&String(req.headers['content-type']||'').toLowerCase().startsWith('video/'))uploadBytes=await consumeRequestBytes(req,100*1024*1024);
       else if(String(req.headers['content-type']||'').toLowerCase().startsWith('application/json'))requestBody=await body(req);
       else if(Number(req.headers['content-length']||0)>0||req.headers['transfer-encoding'])await consumeRequestBody(req);
     }
     if (url.pathname === '/api/health') return send(res,200,{ok:true},origin);
     if(url.pathname==='/api/assets'&&req.method==='GET'){let names=[];try{names=await readdir(assetsDir)}catch(e){if(e.code!=='ENOENT')throw e}return send(res,200,{assets:names.filter(name=>/^[a-f0-9-]+\.(?:png|jpe?g|webp)$/i.test(name)).map(name=>({src:`assets/${name}`}))},origin)}
+    if(url.pathname==='/api/video-assets'&&req.method==='GET'){let names=[];try{names=await readdir(assetsDir)}catch(e){if(e.code!=='ENOENT')throw e}return send(res,200,{assets:names.filter(name=>/^[a-f0-9-]+\.(?:mp4|mov|webm)$/i.test(name)).map(name=>({src:`assets/${name}`}))},origin)}
     if(url.pathname==='/api/assets'&&req.method==='POST'){
       if(!uploadBytes?.length)return fail(res,400,'EMPTY_IMAGE','Choose a non-empty PNG, JPEG, or WebP image',origin);
       let extension;if(uploadBytes.length>=8&&uploadBytes.subarray(0,8).equals(Buffer.from([137,80,78,71,13,10,26,10])))extension='png';else if(uploadBytes.length>=3&&uploadBytes[0]===0xff&&uploadBytes[1]===0xd8&&uploadBytes[2]===0xff)extension='jpg';else if(uploadBytes.length>=12&&uploadBytes.toString('ascii',0,4)==='RIFF'&&uploadBytes.toString('ascii',8,12)==='WEBP')extension='webp';else return fail(res,415,'UNSUPPORTED_IMAGE','Only valid PNG, JPEG, and WebP images are supported',origin);
+      await mkdir(assetsDir,{recursive:true});const name=`${randomUUID()}.${extension}`;await writeFile(join(assetsDir,name),uploadBytes,{flag:'wx'});return send(res,201,{asset:{src:`assets/${name}`,bytes:uploadBytes.length}},origin);
+    }
+    if(url.pathname==='/api/video-assets'&&req.method==='POST'){
+      if(!uploadBytes?.length)return fail(res,400,'EMPTY_VIDEO','Choose a non-empty MP4, MOV, or WebM video',origin);
+      let extension;if(uploadBytes.length>=12&&uploadBytes.toString('ascii',4,8)==='ftyp')extension=uploadBytes.toString('ascii',8,12)==='qt  '?'mov':'mp4';else if(uploadBytes.length>=4&&uploadBytes.readUInt32BE(0)===0x1a45dfa3)extension='webm';else return fail(res,415,'UNSUPPORTED_VIDEO','Only valid MP4, MOV, and WebM video files are supported',origin);
       await mkdir(assetsDir,{recursive:true});const name=`${randomUUID()}.${extension}`;await writeFile(join(assetsDir,name),uploadBytes,{flag:'wx'});return send(res,201,{asset:{src:`assets/${name}`,bytes:uploadBytes.length}},origin);
     }
     if(url.pathname==='/api/speech/status'&&req.method==='GET')return send(res,200,{providers:[{id:'azure',name:'Azure Speech',configured:speech.enabled,voices:bnBdVoices,models:[{id:'azure-neural',name:'Azure Neural'}]},{id:'elevenlabs',name:'ElevenLabs',configured:elevenLabs.enabled,voices:[],models:[]} ]},origin);
@@ -96,6 +103,11 @@ const server = createServer(async (req,res) => {
       const id=routeProjectId(params[3]);if(!id)return fail(res,400,'INVALID_PROJECT_ID','Invalid project ID',origin);
       const project=decode(get.get(id));if(!project)return fail(res,404,'PROJECT_NOT_FOUND','Project not found',origin);
       if(!project.storyboard?.scenes?.length)return fail(res,409,'STORYBOARD_REQUIRED','Prepare a storyboard before rendering',origin);
+      const incompleteChart=project.storyboard.scenes.some(scene=>scene.sceneType==='data-chart'&&(!scene.chartData||scene.chartData.points.length<2||scene.chartData.points.some(point=>!point.label.trim())||!scene.chartData.source.trim()));
+      if(incompleteChart)return fail(res,409,'CHART_DATA_INCOMPLETE','Add at least two labeled values and a source to every data chart before rendering',origin);
+      const incompleteHistory=project.storyboard.scenes.some(scene=>scene.sceneType==='history-timeline'&&(!scene.historyData||scene.historyData.events.length<2||scene.historyData.events.some(event=>!event.date.trim()||!event.title.trim()||!event.source.trim())));
+      if(incompleteHistory)return fail(res,409,'HISTORY_DATA_INCOMPLETE','Add at least two dated events with titles and citations to every history timeline before rendering',origin);
+      if(project.status!=='Storyboard approved'||project.storyboard.scenes.some(scene=>scene.approvalStatus!=='approved'))return fail(res,409,'STORYBOARD_NOT_APPROVED','Approve every scene and the storyboard before rendering',origin);
       const now=new Date().toISOString(),jobId=randomUUID();createJob.run(jobId,id,now,now);return send(res,202,{job:getJob.get(jobId)},origin);
     }
     if(params.length===7&&params[1]==='api'&&params[2]==='projects'&&params[4]==='scenes'&&params[6]==='audio'&&req.method==='POST'){
@@ -105,8 +117,8 @@ const server = createServer(async (req,res) => {
       const scene=project.storyboard.scenes.find(item=>item.id===sceneId);if(!scene)return fail(res,404,'SCENE_NOT_FOUND','Scene not found',origin);if(!scene.narration.trim())return fail(res,422,'NARRATION_REQUIRED','Add scene narration before generating speech',origin);
       const model=provider==='azure'?'azure-neural':data.model;if(provider==='azure'&&!bnBdVoices.some(v=>v.id===voice))return fail(res,422,'VOICE_NOT_SUPPORTED','Select a supported Azure voice',origin);if(provider==='elevenlabs'&&(!voice||!model))return fail(res,422,'INVALID_SPEECH_REQUEST','Select an ElevenLabs voice and model',origin);
       const result=provider==='azure'?await speech.synthesize(scene.narration,voice,{model}):await elevenLabs.synthesize(scene.narration,voice,model);const durationSeconds=result.durationSeconds,extension=provider==='azure'?'wav':'mp3';
-      const scenes=project.storyboard.scenes.map(item=>item.id===sceneId?{...item,estimatedDurationSeconds:Math.max(item.estimatedDurationSeconds,durationSeconds),audio:{src:`generated-audio/${result.cacheKey}.${extension}`,durationSeconds,voice:result.voice,provider,model,cacheKey:result.cacheKey}}:item);
-      const saved=persist({...project,updatedAt:new Date().toISOString(),storyboard:{...project.storyboard,scenes,targetDurationSeconds:scenes.reduce((total,item)=>total+Math.max(item.estimatedDurationSeconds,item.audio?.durationSeconds??0),0)}});
+      const scenes=project.storyboard.scenes.map(item=>item.id===sceneId?{...item,approvalStatus:'draft',estimatedDurationSeconds:Math.max(item.estimatedDurationSeconds,durationSeconds),audio:{src:`generated-audio/${result.cacheKey}.${extension}`,durationSeconds,voice:result.voice,provider,model,cacheKey:result.cacheKey}}:item);
+      const saved=persist({...project,status:'Storyboard draft',updatedAt:new Date().toISOString(),storyboard:{...project.storyboard,scenes,targetDurationSeconds:scenes.reduce((total,item)=>total+Math.max(item.estimatedDurationSeconds,item.audio?.durationSeconds??0),0)}});
       return send(res,200,{project:saved,audio:{cached:result.cached,durationSeconds,voice,provider,model}},origin);
     }
     if(params.length===5&&params[1]==='api'&&params[2]==='projects'&&params[4]==='render-jobs'&&req.method==='GET'){

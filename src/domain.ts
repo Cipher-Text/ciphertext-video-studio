@@ -17,12 +17,15 @@ export const brands: BrandProfile[] = [
 ];
 
 export const SceneSchema = z.object({
-  id:z.string().min(1).max(128).regex(/^[A-Za-z0-9_-]+$/), order:z.number().int().nonnegative(), sceneType:z.enum(['cinematic-image','parallax','historical-map','data-chart','news-headline','evidence-timeline','medical-explainer','software-demo','document-highlight','quote','intro','outro']),
+  id:z.string().min(1).max(128).regex(/^[A-Za-z0-9_-]+$/), order:z.number().int().nonnegative(), sceneType:z.enum(['cinematic-image','parallax','historical-map','history-timeline','data-chart','news-headline','evidence-timeline','medical-explainer','software-demo','document-highlight','quote','intro','outro']),
   narration:z.string(), onScreenText:z.string(), estimatedDurationSeconds:z.number().positive(), visualDescription:z.string(), animation:z.enum(['zoom-in','pan-left','fade','rise']), approvalStatus:z.enum(['draft','approved']), sourceReferences:z.array(z.string()),
   camera:z.object({movement:z.enum(['zoom-in','zoom-out','pan-left','pan-right','rise','none']),intensity:z.number().min(0).max(1)}).optional(),
   transition:z.object({type:z.enum(['cut','fade','wipe']),durationSeconds:z.number().min(0).max(2)}).optional(),
   audio:z.object({src:z.string().regex(/^(?:assets|generated-audio)\/[A-Za-z0-9._/-]+$/).refine(path=>!path.split('/').includes('..')),durationSeconds:z.number().positive(),voice:z.string(),provider:z.enum(['azure','elevenlabs']).optional(),model:z.string().optional(),cacheKey:z.string().regex(/^[a-f0-9]{64}$/)}).optional(),
   assetPath:z.string().regex(/^assets\/[A-Za-z0-9._/-]+$/).refine(path=>!path.split('/').includes('..')).optional(),
+  videoAsset:z.object({src:z.string().regex(/^assets\/[A-Za-z0-9._/-]+$/).refine(path=>!path.split('/').includes('..')),trimStartSeconds:z.number().min(0),trimEndSeconds:z.number().positive(),fit:z.enum(['cover','contain']),positionX:z.number().min(0).max(100),positionY:z.number().min(0).max(100)}).refine(media=>media.trimEndSeconds>media.trimStartSeconds,{message:'Video trim end must be after trim start'}).optional(),
+  chartData:z.object({chartType:z.enum(['bar','line']),unit:z.string().max(24),period:z.string().max(80),source:z.string().max(500),points:z.array(z.object({label:z.string().max(48),value:z.number().finite().min(0).max(1e15)})).min(2).max(12)}).optional(),
+  historyData:z.object({events:z.array(z.object({date:z.string().max(40),title:z.string().max(140),description:z.string().max(800),source:z.string().max(500),assetPath:z.string().regex(/^assets\/[A-Za-z0-9._/-]+$/).refine(path=>!path.split('/').includes('..')).optional(),illustrative:z.boolean()})).min(2).max(8)}).optional(),
 }).strict();
 export const StoryboardSchema = z.object({version:z.literal(1),title:z.string(),language:z.enum(['en','bn']),targetDurationSeconds:z.number().positive(),scenes:z.array(SceneSchema).min(1)});
 export type Scene = z.infer<typeof SceneSchema>;

@@ -1,13 +1,13 @@
 # Product roadmap
 
-This is the prioritized future feature list for CipherText Video Studio. The order reflects product impact and how the work builds toward finished, editable videos. These are plans, not implemented features.
+This is the prioritized product plan for CipherText Video Studio. Items marked implemented describe the current foundation; remaining details are still planned work. Order reflects product impact and how each capability builds toward finished, editable videos.
 
 ## Priorities
 
-1. **Scene timeline and preview** — Arrange scenes, adjust timing and transitions, and preview visuals, narration, and captions together. The current editor has scene cards, up/down reordering, scene durations, transition choices, and camera presets; this work should bring them into a cohesive timeline and playback workflow.
-2. **Per-scene media editing** — Attach images, video clips, screenshots, and screen recordings. Crop and position visuals, set clip in/out points, and frame media for landscape, portrait, or square output. Local still-image upload and attachment already work; video clips and detailed framing controls remain future work.
-3. **Data-driven charts** — Enter or import data, select chart styles, animate values and labels, and display units, dates, and sources. The current chart treatment uses illustrative bars and is not connected to user data.
-4. **History visuals** — Build sourced maps, dated timelines, and archival image sequences with visible source credits and clear treatment of illustrative reconstructions.
+1. **Scene timeline and preview (foundation implemented)** — Arrange scenes, adjust timing and transitions, and preview visuals and narration together. The preview now includes proportional scene blocks, live playhead and active-scene feedback, duration labels, format metadata, transition markers, and click-to-seek. Editing still happens in the scene cards; an integrated timeline editing surface and timed captions remain future work.
+2. **Per-scene media editing (video foundation implemented)** — Attach images, video clips, screenshots, and screen recordings. Crop and position visuals, set clip in/out points, and frame media for landscape, portrait, or square output. Local still and video upload, trim controls, fill/fit selection, and horizontal/vertical framing are implemented; screenshot and image-crop workflow refinements remain.
+3. **Data-driven charts (scene editor implemented)** — Enter or import data, select chart styles, animate values and labels, and display units, dates, and sources. Bar and line styles now use scene-entered values with units, periods, and citations; approval and rendering require at least two labeled values and a source. CSV import and richer chart labeling remain future work.
+4. **History visuals (timeline foundation implemented)** — Build sourced maps, dated timelines, and archival image sequences with visible source credits and clear treatment of illustrative reconstructions. The editor now supports 2–8 dated events, optional local images, per-event citations, and reconstruction labels; source maps and archival asset verification remain future work.
 5. **Software marketing visuals** — Add product screenshots and screen recordings, with animated callouts, highlights, and labels.
 6. **Timed captions** — Split narration into readable phrases and synchronize captions to measured audio timing.
 7. **Media library management** — Preview, reuse, replace, and remove uploaded assets, and record credit and license details.
@@ -19,7 +19,8 @@ The timeline and preview should provide a common editing surface for history, an
 ## Existing capabilities to build on
 
 - Scene editing, up/down reordering, estimated durations, camera movement and strength, and cut/fade/wipe transitions.
-- Still-image upload, reuse from the local image library, and attachment to a scene.
+- Still-image upload, reuse from the local image library, and attachment to a scene; local MP4, MOV, and WebM uploads with trim and framing controls.
+- Playback-synchronized scene timeline, user-data bar/line charts with citation display, and sourced history sequences with dated event cards.
 - Nine scene treatments, including historical map, data chart, document highlight, and software demo treatments.
 - Bengali Azure and ElevenLabs narration, measured audio duration, scene-level audio, and Remotion preview/render.
 

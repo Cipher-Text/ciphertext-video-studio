@@ -1,6 +1,6 @@
 # Implementation progress
 
-Reviewed against main commit `12c380c` on 2026-11-07. Existing SQLite project rows and migrations remain in place; this work adds migration `002_render_jobs.sql`.
+Historical implementation and verification snapshot from 2026-11-07, based on main commit `12c380c`. It is not a complete inventory of capabilities added afterward. Existing SQLite project rows and migrations remain in place; this work adds migration `002_render_jobs.sql`.
 
 ## Completed in this pass
 
@@ -11,7 +11,7 @@ Reviewed against main commit `12c380c` on 2026-11-07. Existing SQLite project ro
 - Made camera movement duration-aware and added configurable camera movement/intensity and cut/fade/wipe transitions to the scene editor.
 - Added a typed registry with nine distinct treatments: cinematic image, parallax, historical map, data chart, news headline, evidence timeline, medical explainer, software demo, and document highlight. Placeholder content is labeled; map visuals state that they are schematic and are not historical reconstructions. Local image paths are constrained to `public/assets/`.
 - Added persistent SQLite render jobs, a separate single-concurrency worker, progress reporting, cancellation, automatic and manual retries, and unique output paths per attempt. The worker checks the output file and parses MP4 container/stream metadata before marking success. Previous project render paths are preserved.
-- Added an interchangeable speech-provider contract with Azure Speech, two `bn-BD` voices, on-demand voice preview, per-text/voice audio caching, WAV duration detection, scene audio status, and duration synchronization.
+- Added an interchangeable speech-provider contract with Azure Speech, two `bn-BD` voices, on-demand voice preview, per-text/voice audio caching, WAV duration detection, scene audio status, and duration synchronization. ElevenLabs support was added after this verification snapshot; see the README for current provider setup.
 - Added local PNG, JPEG, and WebP uploads with a 15 MiB limit, a reusable image library, per-scene attachment, and actual image display in the scene preview and render.
 - Added API security, aspect-ratio, speech adapter, scene-registry, and browser/API lifecycle regression tests.
 
@@ -60,6 +60,40 @@ The Bengali project fixture (`bn-project-2026`) was created in the same isolated
 - The preview/render dimension contract is unit-tested for all three formats; the live MP4 was rendered in portrait format.
 - Scene registry mapping and production bundling passed; each of the nine scene types was not separately rendered to a standalone MP4 in this pass.
 
+## Current import and approval contract
+
+- Project JSON uses `landscape`, `portrait`, or `square` for `format`. Scene `animation` accepts `zoom-in`, `pan-left`, `fade`, or `rise`; `camera.movement` has its own set and additionally accepts `zoom-out`, `pan-right`, and `none`.
+- Import validation reports field paths for schema errors. Render jobs require project status `Storyboard approved` and every scene to be approved.
+- Editing scene content or settings returns that scene to draft approval; it must be approved again before the storyboard can be rendered.
+- The dashboard now explains render readiness, announces notifications to assistive technology, shows keyboard focus clearly, and resets the JSON file picker after selection so the same file can be retried.
+- These current import, approval, and UX changes were not included in the 2026-11-07 snapshot; their latest verification is recorded below.
+- The workspace save indicator now distinguishes connecting, saving, saved, unavailable, and failed writes. Failed project creation and updates expose the failure to the user.
+- Render worker retry and interrupted-job recovery transitions are centralized in `src/server/renderJobs.mjs`; interrupted jobs requeue at startup unless cancellation was pending. Deterministic unit fixtures cover retry exhaustion and both recovery outcomes.
+- The preview now includes a proportional scene timeline synchronized to Remotion playback, with click-to-seek scene blocks, a live playhead, active-scene narration, duration labels, transition markers, and output format dimensions. Scene content and timing remain editable from the existing cards.
+- Scene media now supports local MP4, MOV, and WebM upload (100 MiB limit), persisted trim in/out points, fill/fit framing, and horizontal/vertical object position. Remotion uses the attached clip and saved framing for both preview and project export. Browser interaction and actual encoded video rendering still need verification with a sample clip.
+- Data-chart scenes now accept 2–12 labeled nonnegative values, bar or line styles, units, periods/date ranges, and source citations. Values and marks animate into view; unit, period, and citation appear in the rendered scene. The editor supports adding and removing points, and approval/rendering are blocked until the chart has two labeled values and a source.
+- History timeline scenes now support 2–8 dated events, titles, descriptions, per-event citations, optional local images, and an explicit illustrative-reconstruction flag. Event cards enter in sequence during playback; citations and reconstruction/source-media labels remain visible. Scene and storyboard approval plus server render creation require dates, titles, and citations for every event.
+
+## Latest verification (2026-11-08)
+
+- `pnpm typecheck` — passed.
+- `pnpm test` — passed (15 tests across 6 files), including deterministic retry and interrupted-worker recovery cases.
+- `pnpm test:e2e` — passed (7 browser/API flows), covering project creation and scene-approval reset, field-level import feedback, save failure feedback, render approval enforcement, API security and render-job workflows, and a 390px mobile viewport without horizontal overflow.
+- Reviewed the dashboard at desktop size. The mobile layout was checked in the browser suite at 390×844.
+- `git diff --check` — passed.
+- The e2e setup now starts API and Vite separately on ports 4384 and 4383, uses a temporary SQLite directory, and runs serially to avoid shared-database test interference. The older 2026-11-07 command list and render evidence remain historical.
+- The latest timeline implementation passed `pnpm typecheck`; browser-level interaction verification remains pending.
+- The video media integration also passed `pnpm typecheck`; video upload and a rendered output have not yet been exercised end to end.
+- Data-chart editor and Remotion integration passed `pnpm typecheck`; end-to-end chart editing and rendered output remain to be checked in a browser.
+- History timeline editor, schema, preview, and render gating passed `pnpm typecheck`; end-to-end editor and rendered output remain to be checked in a browser.
+
 ## Next implementation task
 
-Use [ROADMAP.md](ROADMAP.md) as the prioritized product plan. Near-term engineering follow-up also includes deterministic worker retry and interrupted-render recovery fixtures.
+## Pending work
+
+1. Build software marketing visuals with product screenshots, screen recordings, and animated callouts.
+2. Verify local video upload, trim/framing, preview, and rendered output using a sample clip.
+3. Verify chart and history-timeline editing/rendering in a browser, including incomplete-data approval/render gates.
+4. Review accessibility across the editor, timeline, chart controls, history editor, and media controls.
+5. Validate render-worker recovery after restart, retry after a real renderer failure, and cancellation during active encoding.
+6. Continue roadmap follow-ups: CSV chart import, screenshot/crop tools, timed captions, and media library credit/license management.

@@ -3,6 +3,7 @@ import {spawn} from 'node:child_process';
 import {mkdir,readFile,stat,open,writeFile} from 'node:fs/promises';
 import {dirname,join,resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
+import {failureStatus,recoverInterruptedJobs} from './renderJobs.mjs';
 
 const root=resolve(dirname(fileURLToPath(import.meta.url)),'../..');
 const dataDir=resolve(process.env.CIPHERTEXT_DATA_DIR||join(root,'data'));
@@ -11,7 +12,7 @@ const db=new DatabaseSync(join(dataDir,'ciphertext.sqlite'));
 db.exec('PRAGMA journal_mode=WAL; PRAGMA foreign_keys=ON;');
 db.exec(await readFile(join(root,'migrations/001_projects.sql'),'utf8'));
 db.exec(await readFile(join(root,'migrations/002_render_jobs.sql'),'utf8'));
-db.prepare("UPDATE render_jobs SET status=CASE WHEN cancel_requested=1 THEN 'cancelled' ELSE 'queued' END,progress=0,updated_at=? WHERE status='running'").run(new Date().toISOString());
+recoverInterruptedJobs(db,new Date().toISOString());
 const nextJob=db.prepare("SELECT j.*,p.brand_id AS brandId,p.title,p.format,p.storyboard_json AS storyboard FROM render_jobs j JOIN projects p ON p.id=j.project_id WHERE j.status='queued' ORDER BY j.created_at LIMIT 1");
 const update=db.prepare('UPDATE render_jobs SET status=?,progress=?,attempt=?,updated_at=?,started_at=COALESCE(started_at,?),finished_at=?,output_path=?,metadata_json=?,error_code=?,error_message=? WHERE id=?');
 const get=db.prepare('SELECT * FROM render_jobs WHERE id=?');
@@ -41,7 +42,7 @@ async function processJob(job){
     const consume=(chunk)=>{output=(output+chunk.toString()).slice(-10000);for(const match of output.matchAll(/(?:Rendered|Encoded)\s+(\d+)\/(\d+)/g)){const value=Math.min(95,Math.floor(Number(match[1])/Number(match[2])*90)+5);if(value>last){last=value;const fresh=get.get(job.id);if(fresh?.status==='running')setJob(fresh,'running',value,attempt)}}};child.stdout.on('data',consume);child.stderr.on('data',consume);child.on('error',err=>{active=null;finishFailed(job,attempt,'RENDER_PROCESS_ERROR',err.message);resolveRun()});child.on('exit',async(code,signal)=>{active=null;const fresh=get.get(job.id);if(fresh?.cancel_requested){setJob(fresh,'cancelled',fresh.progress,attempt,{errorCode:'CANCELLED',errorMessage:'Render was cancelled'});resolveRun();return}if(code!==0){finishFailed(job,attempt,signal?'RENDER_CANCELLED':'RENDER_FAILED',output.slice(-1500)||`Renderer exited with code ${code}`);resolveRun();return}try{const info=await stat(outputPath);if(!info.isFile()||info.size<1024)throw new Error('Renderer produced no valid output file');const metadata=await inspectMp4(outputPath);const latest=get.get(job.id);if(latest?.cancel_requested){setJob(latest,'cancelled',latest.progress,attempt,{errorCode:'CANCELLED',errorMessage:'Render was cancelled'});resolveRun();return}setJob(job,'succeeded',100,attempt,{outputPath,metadata});}catch(error){finishFailed(job,attempt,'OUTPUT_VALIDATION_FAILED',error.message)}resolveRun()});
   });
 }
-function finishFailed(job,attempt,code,message){const latest=get.get(job.id);if(!latest)return;const status=attempt<job.max_attempts?'queued':'failed';const safeMessage=String(message).replaceAll(root,'<app>').replace(/(?:\/Users\/|\/tmp\/)[^\s]*/g,'<local-path>').slice(0,500);setJob(latest,status,0,attempt,{errorCode:code,errorMessage:safeMessage})}
+function finishFailed(job,attempt,code,message){const latest=get.get(job.id);if(!latest)return;const status=failureStatus(attempt,job.max_attempts);const safeMessage=String(message).replaceAll(root,'<app>').replace(/(?:\/Users\/|\/tmp\/)[^\s]*/g,'<local-path>').slice(0,500);setJob(latest,status,0,attempt,{errorCode:code,errorMessage:safeMessage})}
 process.on('message',message=>{if(message?.type==='cancel'&&active?.id===message.jobId)active.child.kill('SIGTERM');if(message?.type==='shutdown')stopped=true});
 while(!stopped){if(!active){const job=nextJob.get();if(job){try{await processJob(job)}catch(error){finishFailed(job,job.attempt+1,'WORKER_ERROR',error.message)}}}await new Promise(r=>setTimeout(r,400))}
 db.close();process.exit(0);
