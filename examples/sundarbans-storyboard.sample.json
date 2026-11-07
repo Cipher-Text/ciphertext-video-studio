@@ -1,0 +1,55 @@
+{
+  "id": "sample-sundarbans-story",
+  "brandId": "bengal-unfolded",
+  "title": "জোয়ারের সঙ্গে জীবন",
+  "language": "bn",
+  "format": "landscape",
+  "script": "ভোরের আলো ফুটতেই সুন্দরবনের খাঁড়িতে নৌকা ভাসে। জোয়ারের সঙ্গে বদলে যায় পথ, আর মানুষের দিনের কাজও। সন্ধ্যা নামলে নদী আবার ফিরিয়ে আনে দিনের গল্প।",
+  "scriptApproved": true,
+  "status": "Storyboard draft",
+  "updatedAt": "2026-11-07T00:00:00.000Z",
+  "storyboard": {
+    "version": 1,
+    "title": "জোয়ারের সঙ্গে জীবন",
+    "language": "bn",
+    "targetDurationSeconds": 26,
+    "scenes": [
+      {
+        "id": "sundarbans-dawn",
+        "order": 0,
+        "sceneType": "intro",
+        "narration": "ভোরের আলো ফুটতেই সুন্দরবনের খাঁড়িতে নৌকা ভাসে।",
+        "onScreenText": "জোয়ারের সঙ্গে জীবন",
+        "estimatedDurationSeconds": 8,
+        "visualDescription": "Illustrative dawn scene: a small wooden boat glides through a quiet mangrove creek; warm light breaks through the mist.",
+        "animation": "zoom-in",
+        "approvalStatus": "draft",
+        "sourceReferences": []
+      },
+      {
+        "id": "sundarbans-tide",
+        "order": 1,
+        "sceneType": "cinematic-image",
+        "narration": "জোয়ারের সঙ্গে বদলে যায় পথ, আর মানুষের দিনের কাজও।",
+        "onScreenText": "নদী বদলায় পথ",
+        "estimatedDurationSeconds": 10,
+        "visualDescription": "Illustrative close view of tidal water moving between mangrove roots as a boat follows the changing channel.",
+        "animation": "pan-left",
+        "approvalStatus": "draft",
+        "sourceReferences": []
+      },
+      {
+        "id": "sundarbans-evening",
+        "order": 2,
+        "sceneType": "outro",
+        "narration": "সন্ধ্যা নামলে নদী আবার ফিরিয়ে আনে দিনের গল্প।",
+        "onScreenText": "দিনের শেষে, নদীর কাছে",
+        "estimatedDurationSeconds": 8,
+        "visualDescription": "Illustrative sunset over a mangrove creek; the boat returns toward a distant riverside settlement.",
+        "animation": "fade",
+        "approvalStatus": "draft",
+        "sourceReferences": []
+      }
+    ]
+  }
+}
