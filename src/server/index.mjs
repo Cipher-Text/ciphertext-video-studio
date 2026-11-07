@@ -10,6 +10,7 @@ import {randomUUID} from 'node:crypto';
 import {projectSchema,decodeRouteId} from './validation.mjs';
 import {checkRequestOrigin,isSafeRenderPath,parseJsonBody,consumeRequestBody} from './security.mjs';
 import {createAzureSpeechProvider,bnBdVoices} from './azureSpeech.mjs';
+import {createElevenLabsSpeechProvider} from './elevenLabsSpeech.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 try{process.loadEnvFile(join(root,'.env'))}catch{}
@@ -48,7 +49,7 @@ let worker,shuttingDown=false;
 const startWorker=()=>{worker=spawn(process.execPath,[join(root,'src/server/render-worker.mjs')],{cwd:root,stdio:['ignore','inherit','inherit','ipc']});worker.on('error',error=>console.error('Render worker process error:',error.message));worker.on('exit',code=>{if(shuttingDown)return;console.error(`Render worker exited (${code}); restarting it`);setTimeout(startWorker,500)})};
 startWorker();
 const speech=createAzureSpeechProvider({key:process.env.AZURE_SPEECH_KEY,region:process.env.AZURE_SPEECH_REGION,cacheDir:join(root,'public/generated-audio')});
-const voiceIds=new Set(bnBdVoices.map(voice=>voice.id));
+const elevenLabs=createElevenLabsSpeechProvider({key:process.env.ELEVENLABS_API_KEY,cacheDir:join(root,'public/generated-audio')});
 
 const server = createServer(async (req,res) => {
   const origin=req.headers.origin;
@@ -67,9 +68,13 @@ const server = createServer(async (req,res) => {
       else if(Number(req.headers['content-length']||0)>0||req.headers['transfer-encoding'])await consumeRequestBody(req);
     }
     if (url.pathname === '/api/health') return send(res,200,{ok:true},origin);
-    if(url.pathname==='/api/speech/status'&&req.method==='GET')return send(res,200,{configured:speech.enabled,provider:speech.id,voices:bnBdVoices},origin);
+    if(url.pathname==='/api/speech/status'&&req.method==='GET')return send(res,200,{providers:[{id:'azure',name:'Azure Speech',configured:speech.enabled,voices:bnBdVoices,models:[{id:'azure-neural',name:'Azure Neural'}]},{id:'elevenlabs',name:'ElevenLabs',configured:elevenLabs.enabled,voices:[],models:[]} ]},origin);
+    if(url.pathname==='/api/speech/catalog'&&req.method==='GET'){const provider=url.searchParams.get('provider');if(provider==='elevenlabs')return send(res,200,await elevenLabs.catalog(),origin);if(provider==='azure')return send(res,200,{voices:bnBdVoices,models:[{id:'azure-neural',name:'Azure Neural'}]},origin);return fail(res,400,'INVALID_PROVIDER','Select Azure or ElevenLabs',origin)}
+    if(url.pathname==='/api/speech/test'&&req.method==='POST'){const provider=requestBody?.provider;if(provider==='elevenlabs'){const catalog=await elevenLabs.catalog();return send(res,200,{ok:true,provider,voiceCount:catalog.voices.length,modelCount:catalog.models.length},origin)}if(provider==='azure'){if(!speech.enabled)throw Object.assign(new Error('Azure Speech is not configured'),{code:'SPEECH_NOT_CONFIGURED'});await speech.synthesize('বাংলাদেশের গল্প।','bn-BD-NabanitaNeural',{cache:false});return send(res,200,{ok:true,provider},origin)}return fail(res,400,'INVALID_PROVIDER','Select Azure or ElevenLabs',origin)}
     if(url.pathname==='/api/speech/preview'&&req.method==='POST'){
-      const data=requestBody;if(typeof data?.text!=='string'||!data.text.trim()||data.text.length>1000||!voiceIds.has(data.voice))return fail(res,400,'INVALID_SPEECH_REQUEST','Provide up to 1,000 characters and a supported bn-BD voice',origin);
+      const data=requestBody,provider=data?.provider||'azure';if(typeof data?.text!=='string'||!data.text.trim()||data.text.length>1000)return fail(res,400,'INVALID_SPEECH_REQUEST','Provide up to 1,000 characters',origin);
+      if(provider==='elevenlabs'){if(!data.voice||!data.model)return fail(res,400,'INVALID_SPEECH_REQUEST','Select an ElevenLabs voice and model',origin);const result=await elevenLabs.synthesize(data.text,data.voice,data.model,{cache:false});res.writeHead(200,{'content-type':'audio/mpeg','cache-control':'no-store','vary':'Origin'});return res.end(result.audio)}
+      if(provider!=='azure'||!bnBdVoices.some(v=>v.id===data.voice))return fail(res,422,'VOICE_NOT_SUPPORTED','Select a supported voice for the selected provider',origin);
       const result=await speech.synthesize(data.text,data.voice,{cache:false});res.writeHead(200,{'content-type':'audio/wav','cache-control':'no-store','vary':'Origin'});return res.end(result.audio);
     }
     if (url.pathname === '/api/projects' && req.method === 'GET') return send(res,200,list.all().map(decode),origin);
@@ -88,12 +93,13 @@ const server = createServer(async (req,res) => {
     if(params.length===7&&params[1]==='api'&&params[2]==='projects'&&params[4]==='scenes'&&params[6]==='audio'&&req.method==='POST'){
       const id=routeProjectId(params[3]),sceneId=routeProjectId(params[5]);if(!id||!sceneId)return fail(res,400,'INVALID_SCENE_ID','Invalid project or scene ID',origin);
       const project=decode(get.get(id));if(!project)return fail(res,404,'PROJECT_NOT_FOUND','Project not found',origin);if(!project.storyboard)return fail(res,409,'STORYBOARD_REQUIRED','Prepare a storyboard first',origin);
-      const data=requestBody||{},voice=data.voice||'bn-BD-NabanitaNeural';if(!voiceIds.has(voice))return fail(res,422,'VOICE_NOT_SUPPORTED','Select a supported bn-BD voice',origin);
+      const data=requestBody||{},provider=data.provider||'azure',voice=data.voice||(provider==='azure'?'bn-BD-NabanitaNeural':'');if(provider!=='azure'&&provider!=='elevenlabs')return fail(res,422,'INVALID_PROVIDER','Select Azure or ElevenLabs',origin);
       const scene=project.storyboard.scenes.find(item=>item.id===sceneId);if(!scene)return fail(res,404,'SCENE_NOT_FOUND','Scene not found',origin);if(!scene.narration.trim())return fail(res,422,'NARRATION_REQUIRED','Add scene narration before generating speech',origin);
-      const result=await speech.synthesize(scene.narration,voice);const durationSeconds=result.durationSeconds;
-      const scenes=project.storyboard.scenes.map(item=>item.id===sceneId?{...item,estimatedDurationSeconds:Math.max(item.estimatedDurationSeconds,durationSeconds),audio:{src:`generated-audio/${result.cacheKey}.wav`,durationSeconds,voice:result.voice,cacheKey:result.cacheKey}}:item);
+      const model=provider==='azure'?'azure-neural':data.model;if(provider==='azure'&&!bnBdVoices.some(v=>v.id===voice))return fail(res,422,'VOICE_NOT_SUPPORTED','Select a supported Azure voice',origin);if(provider==='elevenlabs'&&(!voice||!model))return fail(res,422,'INVALID_SPEECH_REQUEST','Select an ElevenLabs voice and model',origin);
+      const result=provider==='azure'?await speech.synthesize(scene.narration,voice,{model}):await elevenLabs.synthesize(scene.narration,voice,model);const durationSeconds=result.durationSeconds,extension=provider==='azure'?'wav':'mp3';
+      const scenes=project.storyboard.scenes.map(item=>item.id===sceneId?{...item,estimatedDurationSeconds:Math.max(item.estimatedDurationSeconds,durationSeconds),audio:{src:`generated-audio/${result.cacheKey}.${extension}`,durationSeconds,voice:result.voice,provider,model,cacheKey:result.cacheKey}}:item);
       const saved=persist({...project,updatedAt:new Date().toISOString(),storyboard:{...project.storyboard,scenes,targetDurationSeconds:scenes.reduce((total,item)=>total+Math.max(item.estimatedDurationSeconds,item.audio?.durationSeconds??0),0)}});
-      return send(res,200,{project:saved,audio:{cached:result.cached,durationSeconds,voice}},origin);
+      return send(res,200,{project:saved,audio:{cached:result.cached,durationSeconds,voice,provider,model}},origin);
     }
     if(params.length===5&&params[1]==='api'&&params[2]==='projects'&&params[4]==='render-jobs'&&req.method==='GET'){
       const id=routeProjectId(params[3]);if(!id)return fail(res,400,'INVALID_PROJECT_ID','Invalid project ID',origin);
@@ -121,7 +127,7 @@ const server = createServer(async (req,res) => {
       if(!existsSync(output))return fail(res,404,'RENDER_NOT_FOUND','Render not found',origin);const headers={'content-type':'video/mp4','content-disposition':'attachment; filename="video.mp4"','cache-control':'no-store','vary':'Origin'};if(origin&&allowedOrigins.has(origin))headers['access-control-allow-origin']=origin;res.writeHead(200,headers);return createReadStream(output).pipe(res);
     }
     return fail(res,404,'NOT_FOUND','Route not found',origin);
-  } catch (error) {if(error?.code&&error?.status)return fail(res,error.status,error.code,error.message,origin);if(error?.code==='SPEECH_NOT_CONFIGURED')return fail(res,503,error.code,'Configure AZURE_SPEECH_KEY and AZURE_SPEECH_REGION in the local server environment',origin);if(error?.code==='VOICE_NOT_SUPPORTED')return fail(res,422,error.code,'Select a supported bn-BD voice',origin);if(error?.code==='SPEECH_PROVIDER_ERROR')return fail(res,502,error.code,'Azure Speech synthesis failed; check service configuration and try again',origin);console.error('Local API request failed:',error);return fail(res,500,'INTERNAL_ERROR','The local request could not be completed',origin);}
+  } catch (error) {if(error?.code&&error?.status)return fail(res,error.status,error.code,error.message,origin);if(error?.code==='SPEECH_NOT_CONFIGURED')return fail(res,503,error.code,'Configure provider credentials in the local server environment',origin);if(error?.code==='VOICE_NOT_SUPPORTED')return fail(res,422,error.code,'Select a supported voice for the selected provider',origin);if(error?.code==='SPEECH_QUOTA_LIMIT')return fail(res,429,error.code,error.message,origin);if(error?.code==='SPEECH_PROVIDER_ERROR')return fail(res,502,error.code,error.message||'Speech provider request failed; check configuration and try again',origin);console.error('Local API request failed:',error);return fail(res,500,'INTERNAL_ERROR','The local request could not be completed',origin);}
 });
 const port = Number(process.env.CIPHERTEXT_API_PORT || 4174);
 server.listen(port,'127.0.0.1',()=>console.log(`CipherText API listening on http://127.0.0.1:${port}`));

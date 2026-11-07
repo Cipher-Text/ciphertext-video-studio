@@ -8,11 +8,13 @@ Requires Node.js 22.13+ and pnpm. Install dependencies with `pnpm install`, then
 
 Use `pnpm studio` to open the Remotion composition preview after dependencies are installed. `pnpm render:demo` renders the illustrative demo composition to `out/demo.mp4`. Project previews and exports support landscape, portrait, and square formats. **Render MP4** creates a persistent job; the dashboard shows progress, errors, cancellation, retries, and a download link after output validation.
 
-For Bengali narration, set `AZURE_SPEECH_KEY` and `AZURE_SPEECH_REGION` in `.env`. The app supports Azure voices `bn-BD-NabanitaNeural` and `bn-BD-PradeepNeural`, caches generated scene audio, and derives scene duration from WAV metadata. Text is sent to Azure only when you request a preview or generate a scene voice.
+For Bengali narration, configure Azure with `AZURE_SPEECH_KEY` and `AZURE_SPEECH_REGION`, or ElevenLabs with `ELEVENLABS_API_KEY` in `.env`. The local server lists available ElevenLabs voices and Bengali-compatible TTS models, supports Bengali preview, and saves scene audio locally (WAV for Azure, MP3 for ElevenLabs). Generated audio is cached by provider, voice, model, and text; scene timing uses measured audio duration. Provider credentials remain server-side.
+
+ElevenLabs voice listing requires the key to have voice read access, and its full model catalog requires `models_read`. If model listing is restricted, the studio reports that limitation and offers Eleven v3 as a known Bengali-capable choice; synthesis errors are shown without changing the selected voice.
 
 ## Current scope
 
-The current application includes six brand profiles, manual project creation, deterministic storyboard preparation, scene editing/reordering/approval, SQLite persistence, JSON import/export, Zod API validation, aspect-matched Remotion previews, a persistent render queue, nine typed illustrative scene treatments, and Azure Speech narration for Bengali (Bangladesh). Full asset management, word-level subtitle timing, other speech providers, and advanced render packaging remain future work. See [docs/PROGRESS.md](docs/PROGRESS.md) for verification status.
+The current application includes six brand profiles, manual project creation, deterministic storyboard preparation, scene editing/reordering/approval, SQLite persistence, JSON import/export, Zod API validation, aspect-matched Remotion previews, a persistent render queue, nine typed illustrative scene treatments, and Azure Speech or ElevenLabs narration for Bengali. Full asset management, word-level subtitle timing, other speech providers, and advanced render packaging remain future work. See [docs/PROGRESS.md](docs/PROGRESS.md) for verification status.
 
 ## Commands
 
