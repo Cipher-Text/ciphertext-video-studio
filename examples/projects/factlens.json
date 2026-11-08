@@ -1,0 +1,33 @@
+{
+  "id": "example-factlens",
+  "brandId": "factlens",
+  "title": "How to read a developing story",
+  "language": "en",
+  "format": "landscape",
+  "script": "A developing story changes as evidence arrives. Check publication times, original sources, and later corrections.",
+  "scriptApproved": true,
+  "status": "Storyboard approved",
+  "updatedAt": "2026-11-08T06:44:53.104Z",
+  "storyboard": {
+    "version": 1,
+    "title": "How to read a developing story",
+    "language": "en",
+    "targetDurationSeconds": 6,
+    "scenes": [
+      {
+        "id": "factlens-scene-1",
+        "order": 0,
+        "sceneType": "news-headline",
+        "narration": "A developing story changes as evidence arrives. Check publication times, original sources, and later corrections.",
+        "onScreenText": "How to read a developing story",
+        "estimatedDurationSeconds": 6,
+        "visualDescription": "Editorial explainer with a visible update chronology.",
+        "animation": "rise",
+        "approvalStatus": "approved",
+        "sourceReferences": [
+          "Example source: original report and correction log"
+        ]
+      }
+    ]
+  }
+}

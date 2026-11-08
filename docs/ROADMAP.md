@@ -1,32 +1,28 @@
 # Product roadmap
 
-This is the prioritized product plan for CipherText Video Studio. Items marked implemented describe the current foundation; remaining details are still planned work. Order reflects product impact and how each capability builds toward finished, editable videos.
+This roadmap records the current product foundation and evidence-backed follow-up work from the 2026-11-08 production review. Existing project persistence and manual storyboarding remain supported.
 
-## Priorities
+## Implemented foundation
 
-1. **Scene timeline and preview (foundation implemented)** — Arrange scenes, adjust timing and transitions, and preview visuals, narration, and phrase-level captions together. The preview includes proportional scene blocks, a live playhead and active-scene feedback, duration labels, format metadata, transition markers, and click-to-seek. Editing still happens in the scene cards; a fully integrated timeline editing surface remains future work.
-2. **Per-scene media editing (video foundation implemented)** — Attach images, video clips, screenshots, and screen recordings. Crop and position visuals, set clip in/out points, and frame media for landscape, portrait, or square output. Local still and video upload, trim controls, fill/fit selection, and horizontal/vertical framing are implemented; screenshot and image-crop workflow refinements remain.
-3. **Data-driven charts (scene editor implemented)** — Enter or import data, select chart styles, animate values and labels, and display units, dates, and sources. Bar and line styles now use scene-entered values with units, periods, and citations; approval and rendering require at least two labeled values and a source. CSV import and richer chart labeling remain future work.
-4. **History visuals (timeline foundation implemented)** — Build sourced maps, dated timelines, and archival image sequences with visible source credits and clear treatment of illustrative reconstructions. The editor now supports 2–8 dated events, optional local images, per-event citations, and reconstruction labels; source maps and archival asset verification remain future work.
-5. **Software marketing visuals (callout foundation implemented)** — Attach screenshots or screen recordings and add timed callouts with target and label positions. The software-demo scene now uses attached product media and animated callouts; richer highlight shapes and multi-track editing remain future work.
-6. **Timed captions (phrase-level foundation implemented)** — Narration is split into readable phrases and timed across each generated audio clip using its measured duration. This deterministic pacing is approximate; word-level forced alignment and manual caption editing remain future work.
-7. **Media library management (foundation implemented)** — Preview, reuse, replace, and remove uploaded assets, and record credit and license details. The local library now manages uploaded images and videos, tracks scene usage, stores credit/license metadata, and blocks deletion until an asset is unused.
+1. **Manual and AI storyboarding** — Manual scenes remain editable. The provider-independent director accepts brand, script/topic, audience, language, duration, format, and available media; it returns narrative structure, narration, visuals, treatment, camera, animation, asset suggestions, durations, and source requirements. Zod validates input/output. Local OpenAI-compatible and configured remote chat-completions endpoints are supported. Real provider operation still needs deployment configuration and smoke testing.
+2. **Timeline, preview, and transitions** — Scene timeline, click-to-seek, playback feedback, and three formats are supported. Official Remotion TransitionSeries supplies overlapping fades/wipes with total frame duration preserved; a two-scene transition exported at the exact 12-second target. Full drag-and-drop timeline editing remains future work.
+3. **Video and media** — Image/video uploads, local media reuse, scene attachment, trim in/out, fit/fill, and position are supported. The API serves uploaded media with byte-range support through the Vite proxy, and browser decoder readiness is covered with a WebM fixture. Actual MP4 export with uploaded video, trim, contain framing, and ElevenLabs narration is verified. Crop/keyframe tooling and portable project media bundles remain future work.
+4. **Data visuals** — Bar/line charts use user data, units, period, citation, and separate deterministic geometry/animation. A square MP4 fixture is rendered. CSV import, uncertainty intervals, and richer labeling remain future work.
+5. **Geography and history** — GeoJSON point, line, and polygon types render with required source labels; a BAMIS Bangladesh boundary fixture is included. Confirm BAMIS reuse terms before external publishing. Sourced dated event cards animate in a portrait MP4. Historical boundary reconstruction and higher-detail projection/label controls require domain review and sourced datasets.
+6. **Software demo and narration** — Timed callouts render over supplied images/video; a scene with callout and a separate real uploaded-video/ElevenLabs export are in `examples/rendered/`. Speech phrase captions display over audio and are proportionally timed. Word alignment and manual caption edits remain future work.
+7. **Six brand examples** — One editable project JSON per brand is in `examples/projects/`. Rendered examples cover software demo, data chart, history timeline, and GeoJSON map.
 
-## Shared direction
+## Next priorities
 
-The timeline and preview should provide a common editing surface for history, analysis, software marketing, and climate videos. Scene-specific tools should then provide the right visual controls: maps and archival material for history; sourced charts for analysis and climate; and screenshots, recordings, and callouts for software marketing.
+1. Add a forced real-renderer failure/retry test and cancellation during active frame encoding; worker SIGKILL/restart recovery and transition duration preservation are verified.
+2. Review portrait safe areas and accessibility across each brand and scene family; review narration/caption timing by listening.
+3. Run the AI director against supported local/remote providers in an explicitly configured deployment; record latency, output quality, and rate-limit behavior.
+4. Add CSV import, forced alignment/manual phrase editing, image crop tools, richer callout shapes, and project media packaging.
 
-## Existing capabilities to build on
+## Product guardrails
 
-- Scene editing, up/down reordering, estimated durations, camera movement and strength, and cut/fade/wipe transitions.
-- Still-image upload, reuse from the local image library, and attachment to a scene; local MP4, MOV, and WebM uploads with trim and framing controls.
-- Playback-synchronized scene timeline, user-data bar/line charts with citation display, and sourced history sequences with dated event cards.
-- Typed scene treatments for historical maps, sourced history sequences, data charts, document highlights, and software demos.
-- Bengali Azure and ElevenLabs narration, measured audio duration, scene-level audio, and Remotion preview/render.
-
-## Cross-cutting requirements
-
-- Keep source, credit, and license information attached to the relevant media and visible where appropriate in the video.
-- Preserve human review for factual claims, data, maps, and archival material.
-- Keep scene timing synchronized with narration and media trim points.
-- Preview the actual output framing for all supported aspect ratios before rendering.
+- Keep scene schema additions optional and preserve existing project JSON compatibility.
+- Keep local API keys server-side; never accept provider URLs from storyboard requests.
+- Preserve review gates for chart data, map sources, historical claims, and health content.
+- Keep source credits attached to maps, data, narration, and media; identify illustrative reconstructions.
+- Keep exports deterministic, verify actual MP4 streams, and exercise landscape, portrait, and square output before release.

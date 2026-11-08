@@ -1,0 +1,51 @@
+{
+  "id": "example-kalokhata",
+  "brandId": "kalokhata",
+  "title": "Following a public expenditure record",
+  "language": "bn",
+  "format": "portrait",
+  "script": "একটি সরকারি ব্যয়ের নথি যাচাই করতে উৎস, তারিখ এবং সংশোধনের ইতিহাস মিলিয়ে দেখুন।",
+  "scriptApproved": true,
+  "status": "Storyboard approved",
+  "updatedAt": "2026-11-08T06:44:53.105Z",
+  "storyboard": {
+    "version": 1,
+    "title": "Following a public expenditure record",
+    "language": "bn",
+    "targetDurationSeconds": 6,
+    "scenes": [
+      {
+        "id": "kalokhata-scene-1",
+        "order": 0,
+        "sceneType": "history-timeline",
+        "narration": "একটি সরকারি ব্যয়ের নথি যাচাই করতে উৎস, তারিখ এবং সংশোধনের ইতিহাস মিলিয়ে দেখুন।",
+        "onScreenText": "Following a public expenditure record",
+        "estimatedDurationSeconds": 6,
+        "visualDescription": "Document-led accountability sequence. Replace this sample with primary records.",
+        "animation": "rise",
+        "approvalStatus": "approved",
+        "sourceReferences": [
+          "Sample citations only; replace with primary records."
+        ],
+        "historyData": {
+          "events": [
+            {
+              "date": "নমুনা ১",
+              "title": "প্রাথমিক নথি শনাক্ত",
+              "description": "প্রকাশিত নথির তারিখ ও উৎস মিলিয়ে দেখুন।",
+              "source": "নমুনা উদ্ধৃতি — আসল নথি দিয়ে প্রতিস্থাপন করুন।",
+              "illustrative": true
+            },
+            {
+              "date": "নমুনা ২",
+              "title": "পরবর্তী সংশোধন যাচাই",
+              "description": "সংস্করণ ও সংশোধনের ইতিহাস মিলিয়ে দেখুন।",
+              "source": "নমুনা উদ্ধৃতি — আসল সংশোধনী দিয়ে প্রতিস্থাপন করুন।",
+              "illustrative": true
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "id": "example-open-care",
+  "brandId": "open-care",
+  "title": "Preparing for a clinic visit",
+  "language": "bn",
+  "format": "portrait",
+  "script": "চিকিৎসকের কাছে যাওয়ার আগে আপনার প্রশ্ন, ওষুধের তালিকা এবং প্রাসঙ্গিক তথ্য প্রস্তুত রাখুন।",
+  "scriptApproved": true,
+  "status": "Storyboard approved",
+  "updatedAt": "2026-11-08T06:44:53.106Z",
+  "storyboard": {
+    "version": 1,
+    "title": "Preparing for a clinic visit",
+    "language": "bn",
+    "targetDurationSeconds": 6,
+    "scenes": [
+      {
+        "id": "open-care-scene-1",
+        "order": 0,
+        "sceneType": "medical-explainer",
+        "narration": "চিকিৎসকের কাছে যাওয়ার আগে আপনার প্রশ্ন, ওষুধের তালিকা এবং প্রাসঙ্গিক তথ্য প্রস্তুত রাখুন।",
+        "onScreenText": "Preparing for a clinic visit",
+        "estimatedDurationSeconds": 6,
+        "visualDescription": "Warm, accessible preparation steps; educational content only.",
+        "animation": "rise",
+        "approvalStatus": "approved",
+        "sourceReferences": [
+          "Example source: reviewed patient education material"
+        ]
+      }
+    ]
+  }
+}

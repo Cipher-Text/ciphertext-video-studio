@@ -1,4 +1,5 @@
 import {expect,test} from '@playwright/test';
+import {readFile} from 'node:fs/promises';
 
 const frontendOrigin=process.env.CIPHERTEXT_E2E_ORIGIN||'http://127.0.0.1:4383';
 const apiBase=frontendOrigin;
@@ -14,8 +15,13 @@ test('creates a branded manual project and prepares an editable storyboard',asyn
   await expect(page.getByRole('heading',{name:'River levels, explained'})).toBeVisible();
   await page.getByRole('button',{name:'Approve script'}).click();
   await page.getByRole('button',{name:'Prepare storyboard'}).click();
-  await expect(page.getByText('DATA CHART')).toBeVisible();
+  await expect(page.getByText('DATA CHART',{exact:true})).toBeVisible();
   await expect(page.getByLabel('Scene 2 narration')).toHaveValue('Readings are collected at stations.');
+  await page.getByLabel('Scene 2 data label 1').fill('North');
+  await page.getByLabel('Scene 2 data value 1').fill('12');
+  await page.getByLabel('Scene 2 data label 2').fill('South');
+  await page.getByLabel('Scene 2 data value 2').fill('18');
+  await page.getByLabel('Scene 2 chart source').fill('Test river monitoring dataset, 2026');
   await expect(page.getByRole('button',{name:'Approve storyboard'})).toBeDisabled();
   await page.getByRole('button',{name:'Approve',exact:true}).nth(0).click();
   await page.getByRole('button',{name:'Approve',exact:true}).nth(0).click();
@@ -99,4 +105,27 @@ test('render API requires approved storyboard and approved scenes',async({reques
   const response=await request.post(`${api}/api/projects/${project.id}/render`,{headers:origin,data:{}});
   expect(response.status()).toBe(409);
   expect((await response.json()).error).toMatchObject({code:'STORYBOARD_NOT_APPROVED'});
+});
+
+test('video upload is listed in the media library and plays in the browser',async({request,page})=>{
+  const fixture=await readFile(new URL('../examples/assets/video-playback-fixture.webm',import.meta.url));
+  const upload=await request.post(`${apiBase.replace(':4383',':4384')}/api/video-assets`,{headers:{Origin:frontendOrigin,'content-type':'video/webm'},data:fixture});
+  expect(upload.status()).toBe(201);
+  const {asset}=await upload.json();
+  try{
+    const media=await request.get(`${apiBase.replace(':4383',':4384')}/api/media`,{headers:{Origin:frontendOrigin}});
+    expect((await media.json()).assets.some((item:{path:string;type:string})=>item.path===asset.src&&item.type==='video')).toBe(true);
+    const playbackUrl=new URL(`/${asset.src}`,frontendOrigin).href;
+    const playbackResponse=await page.request.get(playbackUrl);
+    expect(playbackResponse.status()).toBe(200);
+    expect(playbackResponse.headers()['content-type']).toContain('video/webm');
+    await page.goto(frontendOrigin);
+    await page.setContent(`<video controls muted preload="auto" src="${playbackUrl}"></video>`);
+    const player=page.locator('video');
+    await expect(player).toBeVisible();
+    await expect.poll(()=>player.evaluate((video:HTMLVideoElement)=>video.error?-video.error.code:video.readyState)).toBeGreaterThanOrEqual(2);
+  }finally{
+    const name=asset.src.split('/').at(-1);
+    await request.delete(`${apiBase.replace(':4383',':4384')}/api/media/${name}`,{headers:{Origin:frontendOrigin}});
+  }
 });

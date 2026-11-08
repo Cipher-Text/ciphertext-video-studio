@@ -21,6 +21,7 @@
     "@elevenlabs/elevenlabs-js": "^2.76.0",
     "@remotion/cli": "4.0.534",
     "@remotion/player": "4.0.534",
+    "@remotion/transitions": "4.0.534",
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "remotion": "4.0.534",

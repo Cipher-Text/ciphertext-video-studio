@@ -1,0 +1,46 @@
+{
+  "id": "example-ciphertext-labs",
+  "brandId": "ciphertext-labs",
+  "title": "A clear software walkthrough",
+  "language": "en",
+  "format": "landscape",
+  "script": "A good product walkthrough shows the task, the action, and the result. Use real product media and explain each feature in context.",
+  "scriptApproved": true,
+  "status": "Storyboard approved",
+  "updatedAt": "2026-11-08T06:44:53.107Z",
+  "storyboard": {
+    "version": 1,
+    "title": "A clear software walkthrough",
+    "language": "en",
+    "targetDurationSeconds": 6,
+    "scenes": [
+      {
+        "id": "ciphertext-labs-scene-1",
+        "order": 0,
+        "sceneType": "software-demo",
+        "narration": "A good product walkthrough shows the task, the action, and the result. Use real product media and explain each feature in context.",
+        "onScreenText": "A clear software walkthrough",
+        "estimatedDurationSeconds": 6,
+        "visualDescription": "User-provided product screenshot or recording with timed callouts.",
+        "animation": "rise",
+        "approvalStatus": "approved",
+        "sourceReferences": [
+          "Replace with a real product recording before publication."
+        ],
+        "softwareData": {
+          "callouts": [
+            {
+              "text": "Start with the user task",
+              "startSeconds": 0.5,
+              "endSeconds": 2.5,
+              "targetX": 54,
+              "targetY": 47,
+              "labelX": 76,
+              "labelY": 28
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

@@ -1,6 +1,14 @@
 import {z} from 'zod';
 
 export const projectIdSchema = z.string().min(1).max(128).regex(/^[A-Za-z0-9_-]+$/);
+const geoPosition=z.tuple([z.number().finite().min(-180).max(180),z.number().finite().min(-90).max(90)]).rest(z.number().finite());
+const geoLine=z.array(geoPosition).min(2).max(10000),geoPolygon=z.array(geoLine).min(1).max(1000);
+const geoGeometry=z.discriminatedUnion('type',[
+  z.object({type:z.literal('Point'),coordinates:geoPosition}).strict(),z.object({type:z.literal('MultiPoint'),coordinates:z.array(geoPosition).min(1).max(10000)}).strict(),
+  z.object({type:z.literal('LineString'),coordinates:geoLine}).strict(),z.object({type:z.literal('MultiLineString'),coordinates:z.array(geoLine).min(1).max(1000)}).strict(),
+  z.object({type:z.literal('Polygon'),coordinates:geoPolygon}).strict(),z.object({type:z.literal('MultiPolygon'),coordinates:z.array(geoPolygon).min(1).max(1000)}).strict(),
+]);
+const geoFeature=z.object({type:z.literal('Feature'),geometry:geoGeometry,properties:z.record(z.string(),z.unknown()).optional(),id:z.union([z.string(),z.number()]).optional()}).strict();
 export const sceneSchema = z.object({
   id:projectIdSchema, order:z.number().int().min(0).max(999),
   sceneType:z.enum(['cinematic-image','parallax','historical-map','history-timeline','data-chart','news-headline','evidence-timeline','medical-explainer','software-demo','document-highlight','quote','intro','outro']),
@@ -10,6 +18,8 @@ export const sceneSchema = z.object({
   transition:z.object({type:z.enum(['cut','fade','wipe']),durationSeconds:z.number().min(0).max(2)}).strict().optional(),
   audio:z.object({src:z.string().max(500).regex(/^(?:assets|generated-audio)\/[A-Za-z0-9._/-]+$/).refine(path=>!path.split('/').includes('..')),durationSeconds:z.number().positive().max(600),voice:z.string().max(100),provider:z.enum(['azure','elevenlabs']).optional(),model:z.string().max(100).optional(),cacheKey:z.string().regex(/^[a-f0-9]{64}$/)}).strict().optional(),
   assetPath:z.string().max(500).regex(/^assets\/[A-Za-z0-9._/-]+$/).refine(path=>!path.split('/').includes('..'),{message:'Asset path must stay inside the public asset directory'}).optional(),
+  parallaxLayers:z.array(z.object({assetPath:z.string().max(500).regex(/^assets\/[A-Za-z0-9._/-]+$/).refine(path=>!path.split('/').includes('..')),depth:z.number().min(-1).max(1),opacity:z.number().min(0).max(1)}).strict()).max(8).optional(),
+  geoJson:z.object({type:z.literal('FeatureCollection'),source:z.string().min(1).max(500),features:z.array(geoFeature).min(1).max(1000)}).strict().optional(),
   videoAsset:z.object({src:z.string().max(500).regex(/^assets\/[A-Za-z0-9._/-]+$/).refine(path=>!path.split('/').includes('..')),trimStartSeconds:z.number().min(0).max(36000),trimEndSeconds:z.number().positive().max(36000),fit:z.enum(['cover','contain']),positionX:z.number().min(0).max(100),positionY:z.number().min(0).max(100)}).strict().superRefine((media,ctx)=>{if(media.trimEndSeconds<=media.trimStartSeconds)ctx.addIssue({code:'custom',path:['trimEndSeconds'],message:'Video trim end must be after trim start'})}).optional(),
   chartData:z.object({chartType:z.enum(['bar','line']),unit:z.string().max(24),period:z.string().max(80),source:z.string().max(500),points:z.array(z.object({label:z.string().max(48),value:z.number().finite().min(0).max(1e15)}).strict()).min(2).max(12)}).strict().optional(),
   historyData:z.object({events:z.array(z.object({date:z.string().max(40),title:z.string().max(140),description:z.string().max(800),source:z.string().max(500),assetPath:z.string().max(500).regex(/^assets\/[A-Za-z0-9._/-]+$/).refine(path=>!path.split('/').includes('..')).optional(),illustrative:z.boolean()}).strict()).min(2).max(8)}).strict().optional(),

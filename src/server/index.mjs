@@ -11,6 +11,7 @@ import {projectSchema,decodeRouteId} from './validation.mjs';
 import {checkRequestOrigin,isSafeRenderPath,parseJsonBody,consumeRequestBody,consumeRequestBytes} from './security.mjs';
 import {createAzureSpeechProvider,bnBdVoices} from './azureSpeech.mjs';
 import {createElevenLabsSpeechProvider} from './elevenLabsSpeech.mjs';
+import {createStoryboardDirector} from './storyboardDirector.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 try{process.loadEnvFile(join(root,'.env'))}catch{}
@@ -51,6 +52,7 @@ const startWorker=()=>{worker=spawn(process.execPath,[join(root,'src/server/rend
 startWorker();
 const speech=createAzureSpeechProvider({key:process.env.AZURE_SPEECH_KEY,region:process.env.AZURE_SPEECH_REGION,cacheDir:join(root,'public/generated-audio')});
 const elevenLabs=createElevenLabsSpeechProvider({key:process.env.ELEVENLABS_API_KEY,cacheDir:join(root,'public/generated-audio')});
+const storyboardDirector=createStoryboardDirector();
 const assetsDir=join(root,'public/assets');
 const mediaMeta=db.prepare('SELECT path,media_type AS type,bytes,credit,license,created_at AS createdAt,updated_at AS updatedAt FROM media_assets WHERE path=?');
 const saveMediaMeta=db.prepare('INSERT INTO media_assets(path,media_type,bytes,created_at,updated_at) VALUES(?,?,?,?,?) ON CONFLICT(path) DO NOTHING');
@@ -80,6 +82,23 @@ const server = createServer(async (req,res) => {
       else if(Number(req.headers['content-length']||0)>0||req.headers['transfer-encoding'])await consumeRequestBody(req);
     }
     if (url.pathname === '/api/health') return send(res,200,{ok:true},origin);
+    if(req.method==='GET'&&params.length===3&&params[1]==='assets'){
+      const name=params[2];if(!/^[a-f0-9-]{36}\.(?:png|jpe?g|webp|mp4|mov|webm)$/i.test(name))return fail(res,404,'MEDIA_NOT_FOUND','Media asset not found',origin);
+      const path=join(assetsDir,name);let info;try{info=await stat(path)}catch(error){if(error.code==='ENOENT')return fail(res,404,'MEDIA_NOT_FOUND','Media asset not found',origin);throw error}
+      const extension=name.split('.').pop().toLowerCase(),contentType={png:'image/png',jpg:'image/jpeg',jpeg:'image/jpeg',webp:'image/webp',mp4:'video/mp4',mov:'video/quicktime',webm:'video/webm'}[extension];
+      let start=0,end=info.size-1,status=200;const range=req.headers.range;
+      if(range){const match=/^bytes=(\d*)-(\d*)$/.exec(range);if(!match||(!match[1]&&!match[2])){res.writeHead(416,{'content-range':`bytes */${info.size}`,'cache-control':'no-store'});return res.end()}
+        if(!match[1]){const suffix=Number(match[2]);start=Math.max(0,info.size-suffix)}else{start=Number(match[1]);end=match[2]?Math.min(Number(match[2]),info.size-1):info.size-1}
+        if(start>=info.size||start>end){res.writeHead(416,{'content-range':`bytes */${info.size}`,'cache-control':'no-store'});return res.end()}status=206;
+      }
+      const headers={'content-type':contentType,'content-length':String(end-start+1),'accept-ranges':'bytes','cache-control':'no-store','x-content-type-options':'nosniff'};if(status===206)headers['content-range']=`bytes ${start}-${end}/${info.size}`;res.writeHead(status,headers);const stream=createReadStream(path,{start,end});stream.on('error',()=>res.destroy());return stream.pipe(res);
+    }
+    if(url.pathname==='/api/storyboard/director'&&req.method==='GET')return send(res,200,{configured:storyboardDirector.configured,provider:storyboardDirector.provider},origin);
+    if(url.pathname==='/api/storyboard/director'&&req.method==='POST'){
+      if(!requestBody)return fail(res,400,'INVALID_DIRECTOR_REQUEST','A JSON storyboard request is required',origin);
+      try{return send(res,200,{plan:await storyboardDirector.generate(requestBody)},origin)}
+      catch(error){return fail(res,error.status||400,error.code||'INVALID_DIRECTOR_REQUEST',error.message||'Storyboard generation failed',origin)}
+    }
     if(url.pathname==='/api/media'&&req.method==='GET')return send(res,200,{assets:await listMedia()},origin);
     if(url.pathname==='/api/assets'&&req.method==='GET')return send(res,200,{assets:(await listMedia()).filter(asset=>asset.type==='image').map(asset=>({src:asset.path}))},origin);
     if(url.pathname==='/api/video-assets'&&req.method==='GET')return send(res,200,{assets:(await listMedia()).filter(asset=>asset.type==='video').map(asset=>({src:asset.path}))},origin);

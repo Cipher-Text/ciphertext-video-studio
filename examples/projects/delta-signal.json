@@ -1,0 +1,53 @@
+{
+  "id": "example-delta-signal",
+  "brandId": "delta-signal",
+  "title": "Reading river gauge data",
+  "language": "en",
+  "format": "square",
+  "script": "River gauge readings are measurements from specific stations and times. Compare like periods and cite the monitoring source.",
+  "scriptApproved": true,
+  "status": "Storyboard approved",
+  "updatedAt": "2026-11-08T06:44:53.105Z",
+  "storyboard": {
+    "version": 1,
+    "title": "Reading river gauge data",
+    "language": "en",
+    "targetDurationSeconds": 6,
+    "scenes": [
+      {
+        "id": "delta-signal-scene-1",
+        "order": 0,
+        "sceneType": "data-chart",
+        "narration": "River gauge readings are measurements from specific stations and times. Compare like periods and cite the monitoring source.",
+        "onScreenText": "Reading river gauge data",
+        "estimatedDurationSeconds": 6,
+        "visualDescription": "A labeled chart using user-entered readings.",
+        "animation": "rise",
+        "approvalStatus": "approved",
+        "sourceReferences": [
+          "Example dataset only; replace with the original station record."
+        ],
+        "chartData": {
+          "chartType": "line",
+          "unit": "meters",
+          "period": "Example readings",
+          "source": "Example dataset only; replace with a verified station record.",
+          "points": [
+            {
+              "label": "Station A",
+              "value": 2.4
+            },
+            {
+              "label": "Station B",
+              "value": 3.1
+            },
+            {
+              "label": "Station C",
+              "value": 2.8
+            }
+          ]
+        }
+      }
+    ]
+  }
+}
