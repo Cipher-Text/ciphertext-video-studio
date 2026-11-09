@@ -9,12 +9,18 @@ const geoGeometry=z.discriminatedUnion('type',[
   z.object({type:z.literal('Polygon'),coordinates:geoPolygon}).strict(),z.object({type:z.literal('MultiPolygon'),coordinates:z.array(geoPolygon).min(1).max(1000)}).strict(),
 ]);
 const geoFeature=z.object({type:z.literal('Feature'),geometry:geoGeometry,properties:z.record(z.string(),z.unknown()).optional(),id:z.union([z.string(),z.number()]).optional()}).strict();
+const animationConfig=z.object({
+  mode:z.enum(['battlefield-intro','troop-advance','tank-battle','tank-retreat','battle-map','brand-outro','layered-parallax','camera-only']),
+  camera:z.object({movement:z.enum(['zoom-in','zoom-out','pan-left','pan-right','track-subject','none']),intensity:z.number().min(0).max(1),subject:z.enum(['pt76','m24']).optional()}).strict().optional(),
+  layers:z.array(z.object({id:z.enum(['background','midground','foreground']),depth:z.number().min(-1).max(1),offsetX:z.number().min(-500).max(500).optional(),offsetY:z.number().min(-500).max(500).optional(),scale:z.number().min(.8).max(1.4).optional(),opacity:z.number().min(0).max(1).optional()}).strict()).max(3).optional(),
+}).strict();
 export const sceneSchema = z.object({
   id:projectIdSchema, order:z.number().int().min(0).max(999),
   sceneType:z.enum(['cinematic-image','parallax','historical-map','history-timeline','data-chart','news-headline','evidence-timeline','medical-explainer','software-demo','document-highlight','quote','intro','outro']),
   narration:z.string().max(20000), onScreenText:z.string().max(4000), estimatedDurationSeconds:z.number().positive().max(600),
   visualDescription:z.string().max(20000), animation:z.enum(['zoom-in','pan-left','fade','rise']), approvalStatus:z.enum(['draft','approved']), sourceReferences:z.array(z.string().max(2000)).max(100),
   camera:z.object({movement:z.enum(['zoom-in','zoom-out','pan-left','pan-right','rise','none']),intensity:z.number().min(0).max(1)}).strict().optional(),
+  animationConfig:animationConfig.optional(),
   transition:z.object({type:z.enum(['cut','fade','wipe']),durationSeconds:z.number().min(0).max(2)}).strict().optional(),
   audio:z.object({src:z.string().max(500).regex(/^(?:assets|generated-audio)\/[A-Za-z0-9._/-]+$/).refine(path=>!path.split('/').includes('..')),durationSeconds:z.number().positive().max(600),voice:z.string().max(100),provider:z.enum(['azure','elevenlabs']).optional(),model:z.string().max(100).optional(),cacheKey:z.string().regex(/^[a-f0-9]{64}$/)}).strict().optional(),
   assetPath:z.string().max(500).regex(/^assets\/[A-Za-z0-9._/-]+$/).refine(path=>!path.split('/').includes('..'),{message:'Asset path must stay inside the public asset directory'}).optional(),

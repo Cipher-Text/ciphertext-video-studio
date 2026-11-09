@@ -1,0 +1,365 @@
+{
+  "id": "garibpur-1971",
+  "brandId": "bengal-unfolded",
+  "title": "গরিবপুরের ট্যাংকযুদ্ধ — ১৯৭১",
+  "language": "bn",
+  "format": "portrait",
+  "script": "৩ ডিসেম্বরের আগেই, যশোর সীমান্তে শুরু হয়েছিল ট্যাংকের ভয়ংকর লড়াই। কী ঘটেছিল গরিবপুরে? ১৯৭১ সালের নভেম্বর। যশোরের চৌগাছার কাছে গরিবপুর গ্রাম। মুক্তিযুদ্ধের সময় এই সীমান্ত অঞ্চল হয়ে উঠেছিল কৌশলগতভাবে গুরুত্বপূর্ণ। ২০ নভেম্বর রাতে ভারতীয় চৌদ্দ পাঞ্জাব ব্যাটালিয়ন গরিবপুরে অবস্থান নেয়। সঙ্গে ছিল পঁয়তাল্লিশ ক্যাভালরির পি টি-৭৬ ট্যাংক। শীতের কুয়াশায় টহলদল খবর পায়, চৌগাছার দিক থেকে এগিয়ে আসছে পাকিস্তানি সেনা ও ট্যাংক। প্রতিরক্ষার প্রস্তুতি দ্রুত বদলে যায়। ২১ নভেম্বর ভোরে পাকিস্তানি বাহিনী পাল্টা আক্রমণ শুরু করে। তাদের সঙ্গে ছিল এম-২৪ চ্যাফি ট্যাংক, পদাতিক সেনা ও গোলন্দাজ সমর্থন। এবার মুখোমুখি পি টি-৭৬ আর এম-২৪ চ্যাফি। ধোঁয়া, কুয়াশা আর গোলাবর্ষণের মধ্যে শুরু হয় তীব্র ট্যাংকযুদ্ধ। ভারতীয় ট্যাংক স্কোয়াড্রনের কমান্ডার মেজর দলজিৎ সিং নারাং যুদ্ধের সময় নিহত হন। তবু প্রতিরোধ ভেঙে পড়েনি। পাকিস্তানি সাঁজোয়া বাহিনী বড় ক্ষতির মুখে পড়ে। তাদের আক্রমণ ব্যর্থ হয়; গরিবপুরের অবস্থান ধরে রাখে ভারতীয় বাহিনী। এই লড়াই ছিল বাংলাদেশের মুক্তিযুদ্ধের বৃহত্তর প্রেক্ষাপটে। মুক্তিবাহিনীর অভিযান এবং সীমান্তজুড়ে সামরিক চাপ পাকিস্তানি বাহিনীকে ক্রমেই দুর্বল করছিল। গরিবপুরের সাফল্য যশোরমুখী অভিযানে গুরুত্বপূর্ণ সুবিধা দেয়। অথচ ভারত ও পাকিস্তানের আনুষ্ঠানিক যুদ্ধ শুরু হতে তখনও বাকি ছিল প্রায় দুই সপ্তাহ। ২১ নভেম্বরের গরিবপুর—বাংলাদেশের মুক্তিযুদ্ধের এক গুরুত্বপূর্ণ ট্যাংকযুদ্ধ। এমন আরও ইতিহাস জানতে সঙ্গে থাকুন Bengal Unfolded-এর।",
+  "scriptApproved": false,
+  "status": "Storyboard draft",
+  "updatedAt": "2026-11-09T20:18:42.916Z",
+  "storyboard": {
+    "version": 1,
+    "title": "গরিবপুরের ট্যাংকযুদ্ধ — ১৯৭১",
+    "language": "bn",
+    "targetDurationSeconds": 106,
+    "scenes": [
+      {
+        "id": "garibpur-hook",
+        "order": 0,
+        "sceneType": "intro",
+        "narration": "৩ ডিসেম্বরের আগেই, যশোর সীমান্তে শুরু হয়েছিল ট্যাংকের ভয়ংকর লড়াই। কী ঘটেছিল গরিবপুরে?",
+        "onScreenText": "যুদ্ধ ঘোষণার আগেই ট্যাংকযুদ্ধ!",
+        "estimatedDurationSeconds": 8,
+        "visualDescription": "Cinematic 1971 Jessore-sector landscape at predawn. Historically accurate silhouettes of PT-76 and M24 Chaffee tanks in separate layers, fog, paddy fields, restrained sepia, old-film texture; clearly a historical reconstruction, not purported archival photo.",
+        "animation": "zoom-in",
+        "approvalStatus": "draft",
+        "sourceReferences": [
+          "https://www.bharat-rakshak.com/army/history/1971war/battle-of-garibpur/",
+          "https://idsa.in/publisher/journal-of-defence-studies/the-battle-of-garibpur"
+        ],
+        "animationConfig": {
+          "mode": "battlefield-intro",
+          "camera": {
+            "movement": "zoom-in",
+            "intensity": 0.16
+          },
+          "layers": [
+            {
+              "id": "background",
+              "depth": 0.1,
+              "scale": 1.04
+            },
+            {
+              "id": "midground",
+              "depth": 0.42,
+              "scale": 1.08
+            },
+            {
+              "id": "foreground",
+              "depth": 0.76,
+              "opacity": 0.72
+            }
+          ]
+        },
+        "transition": {
+          "type": "fade",
+          "durationSeconds": 0.45
+        }
+      },
+      {
+        "id": "garibpur-map",
+        "order": 1,
+        "sceneType": "historical-map",
+        "narration": "১৯৭১ সালের নভেম্বর। যশোরের চৌগাছার কাছে গরিবপুর গ্রাম। মুক্তিযুদ্ধের সময় এই সীমান্ত অঞ্চল হয়ে উঠেছিল কৌশলগতভাবে গুরুত্বপূর্ণ।",
+        "onScreenText": "যশোরের গরিবপুর | নভেম্বর ১৯৭১",
+        "estimatedDurationSeconds": 10,
+        "visualDescription": "Schematic area-of-operations map using the MP-IDSA battle map for relative placement of Garibpur, Chaugacha, Bayra and Jessore. The map is explicitly not to scale; route animation is illustrative and does not depict precise troop coordinates.",
+        "animation": "pan-left",
+        "approvalStatus": "draft",
+        "sourceReferences": [
+          "https://www.bharat-rakshak.com/army/history/1971war/battle-of-garibpur/",
+          "https://www.aimh.gov.pk/wp-content/uploads/2025/04/9-Begs-Stories.pdf",
+          "https://www.idsa.in/system/files/jds/15_04_vijay_yeshvant_gidh.pdf"
+        ],
+        "animationConfig": {
+          "mode": "battle-map",
+          "camera": {
+            "movement": "zoom-in",
+            "intensity": 0.08
+          }
+        },
+        "transition": {
+          "type": "fade",
+          "durationSeconds": 0.45
+        }
+      },
+      {
+        "id": "garibpur-advance",
+        "order": 2,
+        "sceneType": "cinematic-image",
+        "narration": "২০ নভেম্বর রাতে ভারতীয় চৌদ্দ পাঞ্জাব ব্যাটালিয়ন গরিবপুরে অবস্থান নেয়। সঙ্গে ছিল পঁয়তাল্লিশ ক্যাভালরির পি টি-৭৬ ট্যাংক।",
+        "onScreenText": "২০ নভেম্বর: গরিবপুরে অবস্থান",
+        "estimatedDurationSeconds": 10,
+        "visualDescription": "Night crossing and field fortification: Indian 14 Punjab soldiers and C Squadron 45 Cavalry PT-76 amphibious tanks near rural wetlands. Avoid invented military insignia; use period-correct tank silhouette and terrain.",
+        "animation": "pan-left",
+        "approvalStatus": "draft",
+        "sourceReferences": [
+          "https://www.bharat-rakshak.com/army/history/1971war/battle-of-garibpur/",
+          "https://idsa.in/publisher/journal-of-defence-studies/the-battle-of-garibpur",
+          "https://www.penguin.co.in/the-tank-battle-begins/"
+        ],
+        "animationConfig": {
+          "mode": "troop-advance",
+          "camera": {
+            "movement": "track-subject",
+            "intensity": 0.1,
+            "subject": "pt76"
+          },
+          "layers": [
+            {
+              "id": "background",
+              "depth": 0.12
+            },
+            {
+              "id": "midground",
+              "depth": 0.45
+            },
+            {
+              "id": "foreground",
+              "depth": 0.72
+            }
+          ]
+        },
+        "transition": {
+          "type": "fade",
+          "durationSeconds": 0.45
+        }
+      },
+      {
+        "id": "garibpur-warning",
+        "order": 3,
+        "sceneType": "cinematic-image",
+        "narration": "শীতের কুয়াশায় টহলদল খবর পায়, চৌগাছার দিক থেকে এগিয়ে আসছে পাকিস্তানি সেনা ও ট্যাংক। প্রতিরক্ষার প্রস্তুতি দ্রুত বদলে যায়।",
+        "onScreenText": "কুয়াশার আড়ালে ট্যাংকের শব্দ",
+        "estimatedDurationSeconds": 10,
+        "visualDescription": "Night reconnaissance in November fog; low-angle view of distant advancing armoured silhouettes and a patrol observing discreetly. No invented identifiable historical faces.",
+        "animation": "zoom-in",
+        "approvalStatus": "draft",
+        "sourceReferences": [
+          "https://www.bharat-rakshak.com/army/history/1971war/battle-of-garibpur/",
+          "https://idsa.in/publisher/journal-of-defence-studies/the-battle-of-garibpur"
+        ],
+        "animationConfig": {
+          "mode": "battlefield-intro",
+          "camera": {
+            "movement": "pan-right",
+            "intensity": 0.1
+          }
+        },
+        "transition": {
+          "type": "fade",
+          "durationSeconds": 0.45
+        }
+      },
+      {
+        "id": "garibpur-counterattack",
+        "order": 4,
+        "sceneType": "cinematic-image",
+        "narration": "২১ নভেম্বর ভোরে পাকিস্তানি বাহিনী পাল্টা আক্রমণ শুরু করে। তাদের সঙ্গে ছিল এম-২৪ চ্যাফি ট্যাংক, পদাতিক সেনা ও গোলন্দাজ সমর্থন।",
+        "onScreenText": "২১ নভেম্বর: পাল্টা আক্রমণ",
+        "estimatedDurationSeconds": 10,
+        "visualDescription": "Dawn attack through wet Jessore-sector paddy fields, M24 Chaffee light tanks advancing with infantry. Period-accurate M24 silhouettes; no modern MBTs.",
+        "animation": "pan-left",
+        "approvalStatus": "draft",
+        "sourceReferences": [
+          "https://www.bharat-rakshak.com/army/history/1971war/battle-of-garibpur/",
+          "https://idsa.in/publisher/journal-of-defence-studies/the-battle-of-garibpur",
+          "https://www.aimh.gov.pk/wp-content/uploads/2025/04/9-Begs-Stories.pdf"
+        ],
+        "animationConfig": {
+          "mode": "tank-battle",
+          "camera": {
+            "movement": "track-subject",
+            "intensity": 0.13,
+            "subject": "m24"
+          },
+          "layers": [
+            {
+              "id": "background",
+              "depth": 0.1
+            },
+            {
+              "id": "midground",
+              "depth": 0.48
+            },
+            {
+              "id": "foreground",
+              "depth": 0.78
+            }
+          ]
+        },
+        "transition": {
+          "type": "fade",
+          "durationSeconds": 0.45
+        }
+      },
+      {
+        "id": "garibpur-clash",
+        "order": 5,
+        "sceneType": "cinematic-image",
+        "narration": "এবার মুখোমুখি পি টি-৭৬ আর এম-২৪ চ্যাফি। ধোঁয়া, কুয়াশা আর গোলাবর্ষণের মধ্যে শুরু হয় তীব্র ট্যাংকযুদ্ধ।",
+        "onScreenText": "PT-76 বনাম M24 Chaffee",
+        "estimatedDurationSeconds": 10,
+        "visualDescription": "Stylized SVG reconstructions of Indian PT-76 and Pakistani M24 Chaffee light tanks, distinct silhouettes, fog, paddy fields and restrained non-graphic muzzle flashes. No unit insignia or archival-footage claim; verify any future markings against licensed period references.",
+        "animation": "zoom-in",
+        "approvalStatus": "draft",
+        "sourceReferences": [
+          "https://www.bharat-rakshak.com/army/history/1971war/battle-of-garibpur/",
+          "https://www.penguin.co.in/the-tank-battle-begins/"
+        ],
+        "animationConfig": {
+          "mode": "tank-battle",
+          "camera": {
+            "movement": "track-subject",
+            "intensity": 0.16,
+            "subject": "pt76"
+          },
+          "layers": [
+            {
+              "id": "background",
+              "depth": 0.1
+            },
+            {
+              "id": "midground",
+              "depth": 0.5
+            },
+            {
+              "id": "foreground",
+              "depth": 0.8
+            }
+          ]
+        },
+        "transition": {
+          "type": "fade",
+          "durationSeconds": 0.45
+        }
+      },
+      {
+        "id": "garibpur-narang",
+        "order": 6,
+        "sceneType": "cinematic-image",
+        "narration": "ভারতীয় ট্যাংক স্কোয়াড্রনের কমান্ডার মেজর দলজিৎ সিং নারাং যুদ্ধের সময় নিহত হন। তবু প্রতিরোধ ভেঙে পড়েনি।",
+        "onScreenText": "মেজর নারাং নিহত",
+        "estimatedDurationSeconds": 9,
+        "visualDescription": "Respectful tribute to Major Daljit Singh Narang using verified archival portrait only if legally usable; otherwise silhouette with name and a PT-76 tank in subdued scene. Do not invent a likeness.",
+        "animation": "fade",
+        "approvalStatus": "draft",
+        "sourceReferences": [
+          "https://www.bharat-rakshak.com/army/history/1971war/battle-of-garibpur/",
+          "https://www.penguin.co.in/the-tank-battle-begins/"
+        ],
+        "transition": {
+          "type": "fade",
+          "durationSeconds": 0.45
+        }
+      },
+      {
+        "id": "garibpur-outcome",
+        "order": 7,
+        "sceneType": "cinematic-image",
+        "narration": "পাকিস্তানি সাঁজোয়া বাহিনী বড় ক্ষতির মুখে পড়ে। তাদের আক্রমণ ব্যর্থ হয়; গরিবপুরের অবস্থান ধরে রাখে ভারতীয় বাহিনী।",
+        "onScreenText": "পাল্টা আক্রমণ ব্যর্থ",
+        "estimatedDurationSeconds": 10,
+        "visualDescription": "Aftermath on foggy farmland: abandoned or damaged M24 Chaffee tanks, retreating infantry represented non-graphically. No exact number of destroyed tanks on screen due to varying sources.",
+        "animation": "pan-left",
+        "approvalStatus": "draft",
+        "sourceReferences": [
+          "https://www.bharat-rakshak.com/army/history/1971war/battle-of-garibpur/",
+          "https://idsa.in/publisher/journal-of-defence-studies/the-battle-of-garibpur",
+          "https://www.penguin.co.in/the-tank-battle-begins/"
+        ],
+        "animationConfig": {
+          "mode": "tank-retreat",
+          "camera": {
+            "movement": "pan-left",
+            "intensity": 0.12
+          }
+        },
+        "transition": {
+          "type": "fade",
+          "durationSeconds": 0.45
+        }
+      },
+      {
+        "id": "garibpur-bangladesh",
+        "order": 8,
+        "sceneType": "cinematic-image",
+        "narration": "এই লড়াই ছিল বাংলাদেশের মুক্তিযুদ্ধের বৃহত্তর প্রেক্ষাপটে। মুক্তিবাহিনীর অভিযান এবং সীমান্তজুড়ে সামরিক চাপ পাকিস্তানি বাহিনীকে ক্রমেই দুর্বল করছিল।",
+        "onScreenText": "মুক্তিযুদ্ধের বৃহত্তর প্রেক্ষাপট",
+        "estimatedDurationSeconds": 10,
+        "visualDescription": "Respectful composite of historical Mukti Bahini presence, border routes and archival-style Bangladesh independence imagery; avoid implying particular units fought at a precise location without documentation.",
+        "animation": "zoom-in",
+        "approvalStatus": "draft",
+        "sourceReferences": [
+          "https://www.aimh.gov.pk/wp-content/uploads/2025/04/9-Begs-Stories.pdf",
+          "https://issra.pk/pub/books/Pak-India-Wars-1965%261971.pdf"
+        ],
+        "animationConfig": {
+          "mode": "layered-parallax",
+          "camera": {
+            "movement": "pan-right",
+            "intensity": 0.1
+          }
+        },
+        "transition": {
+          "type": "fade",
+          "durationSeconds": 0.45
+        }
+      },
+      {
+        "id": "garibpur-impact",
+        "order": 9,
+        "sceneType": "cinematic-image",
+        "narration": "গরিবপুরের সাফল্য যশোরমুখী অভিযানে গুরুত্বপূর্ণ সুবিধা দেয়। অথচ ভারত ও পাকিস্তানের আনুষ্ঠানিক যুদ্ধ শুরু হতে তখনও বাকি ছিল প্রায় দুই সপ্তাহ।",
+        "onScreenText": "যশোর অভিযানের আগাম মোড়",
+        "estimatedDurationSeconds": 10,
+        "visualDescription": "Accurate stylized timeline showing 21 November Garibpur and 3 December formal war; restrained route on Jessore area map, unobtrusive dated labels. No unsupported claim of instant capture of Jessore.",
+        "animation": "pan-left",
+        "approvalStatus": "draft",
+        "sourceReferences": [
+          "https://www.bharat-rakshak.com/army/history/1971war/battle-of-garibpur/",
+          "https://idsa.in/publisher/journal-of-defence-studies/the-battle-of-garibpur",
+          "https://www.aimh.gov.pk/wp-content/uploads/2025/04/9-Begs-Stories.pdf"
+        ],
+        "animationConfig": {
+          "mode": "camera-only",
+          "camera": {
+            "movement": "zoom-out",
+            "intensity": 0.12
+          }
+        },
+        "transition": {
+          "type": "fade",
+          "durationSeconds": 0.45
+        }
+      },
+      {
+        "id": "garibpur-outro",
+        "order": 10,
+        "sceneType": "outro",
+        "narration": "২১ নভেম্বরের গরিবপুর—বাংলাদেশের মুক্তিযুদ্ধের এক গুরুত্বপূর্ণ ট্যাংকযুদ্ধ। এমন আরও ইতিহাস জানতে সঙ্গে থাকুন Bengal Unfolded-এর।",
+        "onScreenText": "গরিবপুরের ট্যাংকযুদ্ধ | ১৯৭১",
+        "estimatedDurationSeconds": 9,
+        "visualDescription": "Reflective dawn over paddy field with an accurate static PT-76 silhouette fading to Bengal Unfolded brand; small text: ঐতিহাসিক পুনর্নির্মাণ (if AI visual). Leave bottom and right edges clear of Shorts UI.",
+        "animation": "fade",
+        "approvalStatus": "draft",
+        "sourceReferences": [
+          "https://www.bharat-rakshak.com/army/history/1971war/battle-of-garibpur/",
+          "https://idsa.in/publisher/journal-of-defence-studies/the-battle-of-garibpur"
+        ],
+        "animationConfig": {
+          "mode": "brand-outro",
+          "camera": {
+            "movement": "zoom-out",
+            "intensity": 0.08
+          }
+        },
+        "transition": {
+          "type": "fade",
+          "durationSeconds": 0.45
+        }
+      }
+    ]
+  }
+}

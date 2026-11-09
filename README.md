@@ -16,6 +16,28 @@ ElevenLabs voice listing requires the key to have voice read access, and its ful
 
 The current application includes six brand profiles, manual project creation, deterministic storyboard preparation, scene editing/reordering/approval, SQLite persistence, JSON import/export, local image and video upload with per-scene trim and framing controls, a media library with preview/reuse and credit/license metadata, aspect-matched Remotion previews with a playback-synchronized scene timeline, a persistent render queue, data-driven bar and line charts with citations, dated history sequences with per-event sources and reconstruction labels, software-demo screenshots and recordings with timed callouts, phrase-level captions paced to measured Bengali narration, and Azure Speech or ElevenLabs providers. JSON imports must follow the exported project shape: `format` is `landscape`, `portrait`, or `square`; scene `animation` is `zoom-in`, `pan-left`, `fade`, or `rise`; and camera movement is `zoom-in`, `zoom-out`, `pan-left`, `pan-right`, `rise`, or `none`. Validation errors identify the offending fields. Editing a scene or generating narration resets its scene approval. Rendering requires all scenes and the storyboard to be approved. See [docs/PROGRESS.md](docs/PROGRESS.md) for historical and latest verification notes and [docs/ROADMAP.md](docs/ROADMAP.md) for prioritized future features.
 
+## Bengal Unfolded: Garibpur 1971
+
+`examples/garibpur-1971.project.json` is a portrait, 11-scene sample using the existing project and storyboard schema. Its optional per-scene `animationConfig` adds deterministic battlefield modes, subject tracking, and depth-based foreground, midground, and background movement. Scenes without `animationConfig` still use the legacy `animation` values. Image assets and trimmed video clips continue to use the existing asset fields. The battlefield SVGs are labeled historical illustrations. The animated locations use the published MP-IDSA area-of-operations map as a relative schematic and are explicitly not to scale. Unit insignia are omitted unless a verified, licensed reference is supplied.
+
+Open the project in Remotion Studio at half-scale and one render worker:
+
+```bash
+pnpm exec remotion studio src/video/index.tsx --props=examples/garibpur-1971.project.json --scale=0.5 --concurrency=1
+```
+
+Render a half-scale motion preview:
+
+```bash
+pnpm exec remotion render src/video/index.tsx CipherTextProject out/garibpur-preview.mp4 --props=examples/garibpur-1971.project.json --scale=0.5 --concurrency=1 --codec=h264 --crf=25
+```
+
+Render the final portrait video at 1080×1920, 30 FPS:
+
+```bash
+pnpm exec remotion render src/video/index.tsx CipherTextProject out/garibpur-1971.mp4 --props=examples/garibpur-1971.project.json --concurrency=1 --codec=h264 --crf=20
+```
+
 ## Commands
 
 | Command | Purpose |
