@@ -20,6 +20,12 @@ The current application includes six brand profiles, manual project creation, de
 
 `examples/garibpur-1971.project.json` is a portrait, 11-scene sample using the existing project and storyboard schema. Its optional per-scene `animationConfig` adds deterministic battlefield modes, subject tracking, and depth-based foreground, midground, and background movement. Scenes without `animationConfig` still use the legacy `animation` values. Image assets and trimmed video clips continue to use the existing asset fields. The battlefield SVGs are labeled historical illustrations. The animated locations use the published MP-IDSA area-of-operations map as a relative schematic and are explicitly not to scale. Unit insignia are omitted unless a verified, licensed reference is supplied.
 
+### Reusable animation presets
+
+`src/animations/catalog.json` defines the allow-listed preset catalog. On server startup, preset metadata is upserted into SQLite (`animation_presets`) and is available to the editor through `GET /api/animation-presets?brandId=...`. Scene components and renderer mappings remain version-controlled React/TypeScript; the database never evaluates stored code. A selected `animationPresetId` and optional `animationConfig.settings` are stored alongside each scene in `projects.storyboard_json`. Existing `animation` and `animationConfig.mode` values still resolve through compatibility aliases.
+
+To add a preset, implement or reuse a renderer in `src/video/genericAnimationScenes.tsx`, add a descriptor with its `rendererKey` and brand scope to `src/animations/catalog.json`, and add that renderer key to the allow-listed switch. Use deterministic Remotion frame math, label reconstructions, and require citations for case-specific or measured claims. Current packs include Garibpur battlefield treatments, generic Bengal infantry/routes, KaloKhata funds and records diagrams, Delta Signal rain/storm/water treatments, and shared camera/parallax presets.
+
 Open the project in Remotion Studio at half-scale and one render worker:
 
 ```bash

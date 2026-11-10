@@ -109,9 +109,10 @@ export const TroopMovementArrows:React.FC<{progress:number}>=({progress})=>{
 
 const Location:React.FC<{x:number;y:number;label:string;english:string;color:string;pulse:number}>=({x,y,label,english,color,pulse})=><g transform={`translate(${x},${y})`}><circle r={18*pulse} fill={color} opacity=".18"/><circle r="10" fill={color} stroke="#f0e2c4" strokeWidth="4"/><text x="20" y="-16" fill="#27302b" fontFamily={Bengali} fontWeight="700" fontSize="28">{label}</text><text x="20" y="12" fill="#554f40" fontFamily="Arial,sans-serif" letterSpacing="2" fontWeight="700" fontSize="13">{english}</text></g>;
 
-export const AnimatedBattleScene:React.FC<{brand:BrandProfile;scene:Scene;progress:number}>=({brand,scene,progress})=>{
+export const AnimatedBattleScene:React.FC<{brand:BrandProfile;scene:Scene;progress:number;mode?:SceneAnimationConfig['mode']}>=({brand,scene,progress,mode})=>{
   const frame=useCurrentFrame();
   const config=scene.animationConfig;
-  return config?.mode==='battle-map'?<AnimatedBattleMap progress={progress} frame={frame} brand={brand} scene={scene}/>:<BattlefieldStage mode={config?.mode??'tank-battle'} progress={progress} frame={frame} brand={brand} scene={scene}/>;
+  const resolvedMode=mode??config?.mode??'tank-battle';
+  return resolvedMode==='battle-map'?<AnimatedBattleMap progress={progress} frame={frame} brand={brand} scene={scene}/>:<BattlefieldStage mode={resolvedMode} progress={progress} frame={frame} brand={brand} scene={scene}/>;
 };
 

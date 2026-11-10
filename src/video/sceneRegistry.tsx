@@ -1,9 +1,11 @@
 import React from 'react';
 import {AbsoluteFill,Img,Video,staticFile} from 'remotion';
-import type {BrandProfile,Scene,SceneType} from '../domain';
+import type {BrandProfile,Scene,SceneType,SceneAnimationSettings} from '../domain';
 import {chartCoordinates} from './chartGeometry';
 import {projectGeoJson} from './geoJsonGeometry';
-import {AnimatedBattleScene} from './garibpurAnimations';
+import {AnimatedBattleScene} from './battlefieldAnimations';
+import {animationPresetById,presetIdForScene} from '../animations/catalog';
+import {GenericAnimationScene} from './genericAnimationScenes';
 
 export type SceneVisualProps={brand:BrandProfile;scene:Scene;progress:number;title:string;aspect:'landscape'|'portrait'|'square'};
 export type SceneVisualComponent=React.FC<SceneVisualProps>;
@@ -100,8 +102,31 @@ const GeneralScene:SceneVisualComponent=(props)=>{
   return <Frame brand={brand} eyebrow={scene.sceneType==='intro'?'Opening title':scene.sceneType==='outro'?'Closing title':'Editorial quote'} disclaimer="Illustrative visual"><Headline>{scene.sceneType==='intro'?title:scene.onScreenText||scene.narration}</Headline>{scene.sceneType!=='intro'&&<p style={{fontSize:28,color:'#d4cec3',maxWidth:1000}}>{scene.narration}</p>}</Frame>;
 };
 
-export const sceneRegistry:Record<SceneType,SceneVisualComponent>={
+const legacyModeForPreset:Record<string,NonNullable<Scene['animationConfig']>['mode']>={
+  'bengal.battlefield-intro':'battlefield-intro','bengal.battle-map':'battle-map','bengal.troop-advance':'troop-advance',
+  'bengal.tank-battle':'tank-battle','bengal.tank-retreat':'tank-retreat','bengal.brand-outro':'brand-outro',
+};
+
+const baseSceneRegistry:Record<SceneType,SceneVisualComponent>={
   'cinematic-image':CinematicImageScene,parallax:ParallaxScene,'historical-map':HistoricalMapScene,'history-timeline':HistoryTimelineScene,'data-chart':DataChartScene,
   'news-headline':NewsHeadlineScene,'evidence-timeline':EvidenceTimelineScene,'medical-explainer':MedicalExplainerScene,
   'software-demo':SoftwareDemoScene,'document-highlight':DocumentHighlightScene,quote:GeneralScene,intro:GeneralScene,outro:GeneralScene,
 };
+
+const withAnimationPreset=(fallback:SceneVisualComponent):SceneVisualComponent=>props=>{
+  const id=presetIdForScene(props.scene);
+  const preset=id?animationPresetById.get(id):undefined;
+  if(!preset)return fallback(props);
+  if(preset.rendererKey==='shared-camera')return fallback(props);
+  if(preset.rendererKey==='shared-parallax')return <ParallaxScene {...props}/>;
+  if(preset.rendererKey==='battlefield-scene'||preset.rendererKey==='battlefield-map'){
+    const mode=legacyModeForPreset[preset.id]??props.scene.animationConfig?.mode??'tank-battle';
+    return <AnimatedBattleScene brand={props.brand} scene={props.scene} progress={props.progress} mode={mode}/>;
+  }
+  const settings={...(preset.defaults as Partial<SceneAnimationSettings>),...props.scene.animationConfig?.settings};
+  return <GenericAnimationScene brand={props.brand} scene={props.scene} progress={props.progress} rendererKey={preset.rendererKey} settings={settings}/>;
+};
+
+export const sceneRegistry:Record<SceneType,SceneVisualComponent>=Object.fromEntries(
+  Object.entries(baseSceneRegistry).map(([type,component])=>[type,withAnimationPreset(component)]),
+) as Record<SceneType,SceneVisualComponent>;

@@ -32,12 +32,14 @@ const AnimationConfig=z.object({
   mode:z.enum(['battlefield-intro','troop-advance','tank-battle','tank-retreat','battle-map','brand-outro','layered-parallax','camera-only']),
   camera:z.object({movement:z.enum(['zoom-in','zoom-out','pan-left','pan-right','track-subject','none']),intensity:z.number().min(0).max(1),subject:z.enum(['pt76','m24']).optional()}).strict().optional(),
   layers:z.array(z.object({id:z.enum(['background','midground','foreground']),depth:z.number().min(-1).max(1),offsetX:z.number().min(-500).max(500).optional(),offsetY:z.number().min(-500).max(500).optional(),scale:z.number().min(.8).max(1.4).optional(),opacity:z.number().min(0).max(1).optional()}).strict()).max(3).optional(),
+  settings:z.object({intensity:z.number().min(0).max(1).optional(),speed:z.number().min(.1).max(4).optional(),labels:z.array(z.string().max(60)).max(3).optional(),sourceLabel:z.string().max(180).optional(),status:z.enum(['allegation','finding','unresolved','context']).optional()}).strict().optional(),
 }).strict();
 export const SceneSchema = z.object({
   id:z.string().min(1).max(128).regex(/^[A-Za-z0-9_-]+$/), order:z.number().int().nonnegative(), sceneType:z.enum(['cinematic-image','parallax','historical-map','history-timeline','data-chart','news-headline','evidence-timeline','medical-explainer','software-demo','document-highlight','quote','intro','outro']),
   narration:z.string(), onScreenText:z.string(), estimatedDurationSeconds:z.number().positive(), visualDescription:z.string(), animation:z.enum(['zoom-in','pan-left','fade','rise']), approvalStatus:z.enum(['draft','approved']), sourceReferences:z.array(z.string()),
   camera:z.object({movement:z.enum(['zoom-in','zoom-out','pan-left','pan-right','rise','none']),intensity:z.number().min(0).max(1)}).optional(),
   animationConfig:AnimationConfig.optional(),
+  animationPresetId:z.string().min(1).max(100).regex(/^[a-z0-9.-]+$/).optional(),
   transition:z.object({type:z.enum(['cut','fade','wipe']),durationSeconds:z.number().min(0).max(2)}).optional(),
   audio:z.object({src:z.string().regex(/^(?:assets|generated-audio)\/[A-Za-z0-9._/-]+$/).refine(path=>!path.split('/').includes('..')),durationSeconds:z.number().positive(),voice:z.string(),provider:z.enum(['azure','elevenlabs']).optional(),model:z.string().optional(),cacheKey:z.string().regex(/^[a-f0-9]{64}$/)}).optional(),
   assetPath:z.string().regex(/^assets\/[A-Za-z0-9._/-]+$/).refine(path=>!path.split('/').includes('..')).optional(),
@@ -51,6 +53,7 @@ export const SceneSchema = z.object({
 export const StoryboardSchema = z.object({version:z.literal(1),title:z.string(),language:z.enum(['en','bn']),targetDurationSeconds:z.number().positive(),scenes:z.array(SceneSchema).min(1)});
 export type Scene = z.infer<typeof SceneSchema>;
 export type SceneAnimationConfig = z.infer<typeof AnimationConfig>;
+export type SceneAnimationSettings = NonNullable<SceneAnimationConfig['settings']>;
 export type SceneType = Scene['sceneType'];
 export type Storyboard = z.infer<typeof StoryboardSchema>;
 export type StudioProject = {id:string;brandId:BrandId;title:string;language:'en'|'bn';format:'landscape'|'portrait'|'square';script:string;scriptApproved:boolean;status:string;updatedAt:string;storyboard?:Storyboard};

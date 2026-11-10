@@ -2,7 +2,7 @@ import {describe,expect,it} from 'vitest';
 import {isValidElement} from 'react';
 import {brands,makeStoryboard} from '../src/domain';
 import {sceneRegistry,CinematicImageScene,ParallaxScene,HistoricalMapScene,DataChartScene,NewsHeadlineScene,EvidenceTimelineScene,MedicalExplainerScene,SoftwareDemoScene,DocumentHighlightScene} from '../src/video/sceneRegistry';
-import {AnimatedBattleScene} from '../src/video/garibpurAnimations';
+import {AnimatedBattleScene} from '../src/video/battlefieldAnimations';
 
 describe('typed documentary scene registry',()=>{
   it('registers nine distinct visual treatments for the requested scene types',()=>{

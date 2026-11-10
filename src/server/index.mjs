@@ -23,6 +23,13 @@ db.exec('PRAGMA journal_mode = WAL; PRAGMA foreign_keys = ON;');
 db.exec(await readFile(join(root, 'migrations/001_projects.sql'), 'utf8'));
 db.exec(await readFile(join(root, 'migrations/002_render_jobs.sql'), 'utf8'));
 db.exec(await readFile(join(root, 'migrations/003_media_assets.sql'), 'utf8'));
+db.exec(await readFile(join(root, 'migrations/004_animation_presets.sql'), 'utf8'));
+
+const animationPresetCatalog=JSON.parse(await readFile(join(root,'src/animations/catalog.json'),'utf8'));
+const saveAnimationPreset=db.prepare('INSERT INTO animation_presets(id,brand_id,name,category,description,renderer_key,version,tags_json,defaults_json,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?) ON CONFLICT(id) DO UPDATE SET brand_id=excluded.brand_id,name=excluded.name,category=excluded.category,description=excluded.description,renderer_key=excluded.renderer_key,version=excluded.version,tags_json=excluded.tags_json,defaults_json=excluded.defaults_json,updated_at=excluded.updated_at');
+const now=new Date().toISOString();
+for(const preset of animationPresetCatalog)saveAnimationPreset.run(preset.id,preset.brandId,preset.name,preset.category,preset.description,preset.rendererKey,preset.version,JSON.stringify(preset.tags),JSON.stringify(preset.defaults),now);
+const listAnimationPresets=db.prepare('SELECT id,brand_id AS brandId,name,category,description,renderer_key AS rendererKey,version,tags_json AS tagsJson,defaults_json AS defaultsJson FROM animation_presets WHERE brand_id IS NULL OR brand_id=? ORDER BY category,name');
 
 const fields = 'id, brand_id AS brandId, title, language, format, script, script_approved AS scriptApproved, status, updated_at AS updatedAt, storyboard_json AS storyboard';
 const decode = (row) => row && ({...row, scriptApproved: Boolean(row.scriptApproved), storyboard: row.storyboard ? JSON.parse(row.storyboard) : undefined});
@@ -82,6 +89,11 @@ const server = createServer(async (req,res) => {
       else if(Number(req.headers['content-length']||0)>0||req.headers['transfer-encoding'])await consumeRequestBody(req);
     }
     if (url.pathname === '/api/health') return send(res,200,{ok:true},origin);
+    if(url.pathname==='/api/animation-presets'&&req.method==='GET'){
+      const brandId=url.searchParams.get('brandId');
+      const presets=(brandId?listAnimationPresets.all(brandId):db.prepare('SELECT id,brand_id AS brandId,name,category,description,renderer_key AS rendererKey,version,tags_json AS tagsJson,defaults_json AS defaultsJson FROM animation_presets ORDER BY COALESCE(brand_id,\'\'),category,name').all()).map(preset=>({...preset,tags:JSON.parse(preset.tagsJson),defaults:JSON.parse(preset.defaultsJson),tagsJson:undefined,defaultsJson:undefined}));
+      return send(res,200,{presets},origin);
+    }
     if(req.method==='GET'&&params.length===3&&params[1]==='assets'){
       const name=params[2];if(!/^[a-f0-9-]{36}\.(?:png|jpe?g|webp|mp4|mov|webm)$/i.test(name))return fail(res,404,'MEDIA_NOT_FOUND','Media asset not found',origin);
       const path=join(assetsDir,name);let info;try{info=await stat(path)}catch(error){if(error.code==='ENOENT')return fail(res,404,'MEDIA_NOT_FOUND','Media asset not found',origin);throw error}
