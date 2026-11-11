@@ -137,6 +137,94 @@ const DeltaWeather:React.FC<GenericAnimationProps>=({brand,scene,progress,render
  </AbsoluteFill>;
 };
 
+const WetlandIntro:React.FC<GenericAnimationProps>=({brand,scene,progress})=>{
+ const frame=useCurrentFrame();
+ const title=scene.onScreenText||scene.narration;
+ return <AbsoluteFill style={{background:'linear-gradient(180deg,#102126 0%,#1c3638 52%,#112a28 100%)',overflow:'hidden',color:'#f3f5ef'}}>
+  <svg viewBox="0 0 1000 1000" preserveAspectRatio="none" width="100%" height="100%" style={{position:'absolute',inset:0}}>
+   <defs><linearGradient id={`wetland-intro-water-${scene.id}`} x2="0" y2="1"><stop stopColor="#55978c" stopOpacity=".1"/><stop offset="1" stopColor="#55978c" stopOpacity=".8"/></linearGradient></defs>
+   {[0,1,2,3,4,5,6,7,8,9,10].map(i=>{const x=i*108-30;const h=180+(i*67%190);return <g key={i} opacity=".62"><rect x={x} y={545-h} width={72} height={h} rx="3" fill={i%3===0?'#b2aa91':'#647a76'}/><rect x={x+12} y={560-h} width={9} height={7} fill="#d6bd83" opacity=".6"/><rect x={x+32} y={560-h} width={9} height={7} fill="#d6bd83" opacity=".42"/></g>})}
+   <path d={`M0 ${650+progress*32}Q160 ${600+progress*24} 310 ${652+progress*30}T630 ${640+progress*23}T1000 ${654+progress*29}V1000H0Z`} fill={`url(#wetland-intro-water-${scene.id})`}/>
+   {[0,1,2,3,4,5,6].map(i=><path key={i} d={`M${-40+i*170} ${760+i%2*46+Math.sin(frame*.04+i)*5}q55 -15 110 0t110 0`} fill="none" stroke="#a8d5c5" strokeWidth="4" opacity=".42"/>)}
+  </svg>
+  <div style={{position:'absolute',inset:0,background:'linear-gradient(90deg,#0c181bd9,#0c181b35 86%),linear-gradient(0deg,#0a1719e8,transparent 62%)'}}/>
+  <div style={{position:'absolute',left:'8%',right:'8%',top:'12%'}}><div style={{color:brand.primaryColor,fontSize:18,fontWeight:700,letterSpacing:4}}>DELTA SIGNAL · DHAKA WETLANDS</div><div style={{fontFamily:'Noto Serif Bengali, Georgia, serif',fontSize:'clamp(31px,5.7vw,64px)',fontWeight:700,lineHeight:1.18,marginTop:22,textShadow:'0 4px 26px #000'}}>{title}</div></div>
+  <div style={{position:'absolute',left:'8%',right:'8%',bottom:'7%',padding:'14px 16px',background:'#101b1bdc',borderLeft:`3px solid ${brand.primaryColor}`,fontSize:18,letterSpacing:1.2,color:'#d9e5df'}}>CONCEPTUAL CITY AND WATER ILLUSTRATION · NOT SATELLITE FOOTAGE</div>
+ </AbsoluteFill>;
+};
+
+const WetlandStudyContext:React.FC<GenericAnimationProps>=({brand,scene,progress})=>{
+ const points=scene.chartData?.points??[];const years=points.map(point=>point.label);const shares=points.map(point=>point.value);
+ const area=scene.animationConfig?.settings?.labels?.[0]||'317.20 km² study area';
+ const source=scene.chartData?.source||scene.sourceReferences?.[0]||'Source citation required';
+ return <AbsoluteFill style={{background:'linear-gradient(145deg,#e8e0cc,#c7d4c8)',overflow:'hidden',color:'#1d2d2a',fontFamily:'Arial,sans-serif'}}>
+  <div style={{position:'absolute',inset:'7%',border:'1px solid #7a8a7d66',background:'linear-gradient(135deg,#f1ead9ed,#dfe6d8e8)',boxShadow:'0 25px 80px #1c302122'}}/>
+  <div style={{position:'absolute',left:'12%',right:'12%',top:'12%',fontSize:18,letterSpacing:3,color:'#537466',fontWeight:700}}>STUDY FRAME · LOCATION CONTEXT</div>
+  <div style={{position:'absolute',left:'12%',right:'12%',top:'18%',fontFamily:'Noto Serif Bengali, Georgia, serif',fontSize:'clamp(27px,4.5vw,50px)',lineHeight:1.16,fontWeight:700}}>{scene.onScreenText||'ঢাকা মহানগর অঞ্চল'}</div>
+  <div style={{position:'absolute',left:'12%',right:'12%',top:'32%',height:3,background:`${brand.primaryColor}99`,transform:`scaleX(${interpolate(progress,[0,.6],[0,1],clamp)})`,transformOrigin:'left'}}/>
+  <div style={{position:'absolute',left:'12%',right:'12%',top:'39%',display:'flex',alignItems:'center',gap:18}}><div style={{flex:1,border:'1px solid #89998b',background:'#f6f1e5',padding:'20px 16px'}}><div style={{fontSize:18,letterSpacing:2,color:'#62786b'}}>RESEARCH AREA</div><div style={{fontFamily:'Georgia,serif',fontWeight:700,fontSize:'clamp(25px,4vw,43px)',marginTop:10}}>317.20 km²</div><div style={{fontSize:18,color:'#647168',marginTop:8}}>Dhaka Metropolitan Region</div></div><div style={{color:brand.primaryColor,fontSize:32}}>→</div><div style={{width:84,height:84,borderRadius:'50%',background:`${brand.primaryColor}2a`,border:`2px solid ${brand.primaryColor}`,display:'grid',placeItems:'center',boxShadow:`0 0 ${18+Math.sin(progress*Math.PI)*12}px ${brand.primaryColor}55`}}><div style={{width:20,height:20,borderRadius:'50%',background:brand.primaryColor}}/></div></div>
+  <div style={{position:'absolute',left:'12%',right:'12%',top:'59%',display:'flex',gap:12}}>{years.slice(0,2).map((year,index)=><div key={year} style={{flex:1,borderTop:`3px solid ${brand.primaryColor}`,paddingTop:12,opacity:interpolate(progress,[index*.22,index*.22+.25],[.35,1],clamp)}}><div style={{display:'flex',alignItems:'baseline',justifyContent:'space-between',gap:8}}><div style={{fontSize:18,fontWeight:700,letterSpacing:2}}>{year}</div><div style={{fontSize:'clamp(24px,3.4vw,36px)',fontWeight:700,color:'#28796f'}}>{shares[index]??0}%</div></div><div style={{height:10,background:'#b5c0b2',marginTop:9,borderRadius:10,overflow:'hidden'}}><div style={{height:'100%',width:`${interpolate(progress,[.18+index*.24,.82],[0,Math.max(4,Math.min(100,shares[index]??0))],clamp)}%`,background:'#398c80'}}/></div><div style={{fontSize:16,color:'#586a60',marginTop:8}}>water-body area share</div></div>)}</div>
+  <div style={{position:'absolute',left:'12%',right:'12%',bottom:'7%',borderTop:'1px solid #68786d66',paddingTop:12,fontSize:16,color:'#506158',lineHeight:1.5}}>SCHEMATIC · NOT A GEOGRAPHIC BOUNDARY OR SATELLITE MAP<br/>SOURCE · {source}</div>
+ </AbsoluteFill>;
+};
+
+const WetlandLoss:React.FC<GenericAnimationProps>=({brand,scene,progress})=>{
+ const points=scene.chartData?.points??[];const first=points[0]?.value??68.92,last=points[1]?.value??29.41;const loss=first-last;const reduction=first?loss/first*100:57.3;
+ const yearRange=scene.chartData?.period||'2004–2021';const source=scene.chartData?.source||scene.sourceReferences?.[0]||'Source citation required';
+ return <AbsoluteFill style={{background:'radial-gradient(ellipse at 76% 22%,#2e554c,#172825 50%,#101918 100%)',overflow:'hidden',color:'#f1f5ee',fontFamily:'Arial,sans-serif'}}>
+  <div style={{position:'absolute',left:'9%',right:'9%',top:'11%',color:brand.primaryColor,fontSize:18,letterSpacing:3,fontWeight:700}}>WATER-BODY AREA · SAME STUDY AREA</div>
+  <div style={{position:'absolute',left:'8%',right:'8%',top:'18%',fontFamily:'Georgia,serif',fontSize:'clamp(80px,17vw,165px)',fontWeight:700,lineHeight:.95,letterSpacing:-7,color:'#e2c38c',textShadow:'0 12px 45px #0006'}}>{reduction.toFixed(1)}<span style={{fontSize:'.43em',letterSpacing:-2}}>%</span></div>
+  <div style={{position:'absolute',left:'10%',right:'10%',top:'15%',height:4,background:'#ffffff20'}}><div style={{height:'100%',width:`${interpolate(progress,[0,.35],[0,100],clamp)}%`,background:brand.primaryColor}}/></div>
+  <div style={{position:'absolute',left:'10%',right:'10%',top:'41%',fontFamily:'Noto Serif Bengali, Georgia, serif',fontSize:'clamp(21px,3.4vw,37px)',fontWeight:700}}>{scene.onScreenText||'জলাশয়ের আয়তন কমেছে'}</div>
+  <div style={{position:'absolute',left:'10%',right:'10%',top:'54%',display:'flex',alignItems:'center',gap:14}}>
+   <div style={{flex:1,background:'#ffffff12',padding:'17px 14px',borderTop:`2px solid ${brand.primaryColor}`}}>
+    <div style={{fontSize:18,color:'#c4d2ca',letterSpacing:2}}>{points[0]?.label||'2004'}</div>
+    <div style={{fontSize:32,fontWeight:700,marginTop:5}}>{first.toFixed(2)} km²</div>
+   </div>
+   <div style={{color:brand.primaryColor,fontSize:24}}>→</div>
+   <div style={{flex:1,background:'#ffffff12',padding:'17px 14px',borderTop:`2px solid ${brand.primaryColor}`}}>
+    <div style={{fontSize:18,color:'#c4d2ca',letterSpacing:2}}>{points[1]?.label||'2021'}</div>
+    <div style={{fontSize:32,fontWeight:700,marginTop:5}}>{last.toFixed(2)} km²</div>
+   </div>
+  </div>
+  <div style={{position:'absolute',left:'10%',right:'10%',top:'69%',fontSize:20,color:'#d9e4dc'}}>−{loss.toFixed(2)} km² · {yearRange}</div>
+  <div style={{position:'absolute',left:'8%',right:'8%',bottom:'6%',fontSize:16,lineHeight:1.5,color:'#aebeb5'}}>AREA CHANGE WITHIN THE RESEARCHED STUDY BOUNDARY · NOT A POND COUNT<br/>SOURCE · {source}</div>
+ </AbsoluteFill>;
+};
+
+const RunoffRetention:React.FC<GenericAnimationProps>=({brand,scene,progress})=>{
+ const frame=useCurrentFrame();const title=scene.onScreenText||scene.narration;
+ return <AbsoluteFill style={{background:'linear-gradient(180deg,#1b2c2d,#182928 58%,#14211f)',overflow:'hidden',color:'#f0f4ee',fontFamily:'Arial,sans-serif'}}>
+  <div style={{position:'absolute',left:'8%',right:'8%',top:'9%',fontFamily:'Noto Serif Bengali, Georgia, serif',fontSize:'clamp(24px,4.2vw,45px)',fontWeight:700,lineHeight:1.2}}>{title}</div>
+  <svg viewBox="0 0 1000 780" preserveAspectRatio="none" width="100%" height="78%" style={{position:'absolute',left:0,bottom:'7%'}}>
+   <path d="M0 350H500V780H0Z" fill="#354e3f"/><path d="M500 350H1000V780H500Z" fill="#47473d"/><path d="M0 350Q140 320 280 350T500 346V470Q370 445 250 478T0 466Z" fill="#387e72"/><path d="M500 348H1000V444Q845 430 700 455T500 448Z" fill="#2d6870"/>
+   <path d="M0 350H1000" stroke="#d2bd91" strokeWidth="5"/>
+   {[0,1,2,3,4,5].map(i=>{const x=80+i*74;const y=250+(i%3)*18;const shown=interpolate(progress,[.12+i*.04,.45+i*.04],[0,1],clamp);return <g key={`rain-${i}`} opacity={shown}><path d={`M${x} ${y}l-12 34`} stroke="#b9d9d4" strokeWidth="5"/><path d={`M${x+27} ${y+35}l-12 34`} stroke="#b9d9d4" strokeWidth="4"/></g>})}
+   {[0,1,2].map(i=>{const x=90+i*115;const y=395+Math.sin(frame*.045+i)*5;return <g key={`reed-${i}`}><path d={`M${x} 365Q${x-10} ${y-25} ${x-12} ${y}`} fill="none" stroke="#bad19e" strokeWidth="5"/><path d={`M${x} 365Q${x+18} ${y-22} ${x+24} ${y}`} fill="none" stroke="#8ea977" strokeWidth="5"/></g>})}
+   {[0,1,2].map(i=>{const x=585+i*110;const y=interpolate(progress,[.24,.9],[325,480],clamp)+Math.sin(frame*.05+i)*2;return <circle key={`pond-${i}`} cx={x} cy={y} r={8+i%2*3} fill="#7bd0c3" opacity=".8"/>})}
+   <path d={`M270 365C310 390 300 ${interpolate(progress,[.2,.8],[420,620],clamp)} 330 ${interpolate(progress,[.2,.8],[425,675],clamp)}`} fill="none" stroke="#9fd3bb" strokeWidth="5" strokeDasharray="10 12" strokeDashoffset={-progress*160}/>
+   <text x="230" y="120" textAnchor="middle" fill="#d7e4d7" fontSize="23" fontWeight="700">WETLAND · RETAINS RUNOFF</text><text x="740" y="120" textAnchor="middle" fill="#d7e4d7" fontSize="23" fontWeight="700">FILLED LOWLAND · PONDING</text>
+   <text x="500" y="735" textAnchor="middle" fill="#d4ded6" fontSize="16" letterSpacing="2">CONCEPTUAL CROSS-SECTION · NOT A FLOOD FORECAST</text>
+  </svg>
+  <div style={{position:'absolute',left:'8%',right:'8%',bottom:'2%',padding:'8px 11px',background:'#101817e8',fontSize:16,color:'#c5d1c9'}}>Illustrative mechanism only. Wetland loss is not shown as the sole cause of any specific flood.</div>
+ </AbsoluteFill>;
+};
+
+const WetlandOutro:React.FC<GenericAnimationProps>=({brand,scene,progress})=>{
+ const frame=useCurrentFrame();const source=scene.chartData?.source||scene.sourceReferences?.[0]||'Rayhan et al. · Discover Geoscience (2025)';
+ return <AbsoluteFill style={{background:'linear-gradient(180deg,#142225,#193633 54%,#102321)',overflow:'hidden',color:'#f0f3ed'}}>
+  <svg viewBox="0 0 1000 700" preserveAspectRatio="none" width="100%" height="70%" style={{position:'absolute',bottom:0}}>
+   <path d={`M0 ${460+Math.sin(frame*.035)*8}Q170 410 340 460T680 445T1000 455V700H0Z`} fill="#306f64" opacity=".8"/><path d="M0 520Q160 475 340 520T680 500T1000 514" fill="none" stroke="#add2bb" strokeWidth="4" opacity=".6"/>
+   {[0,1,2,3,4,5,6,7].map(i=>{const x=55+i*130;const h=80+(i*41%100);return <g key={i} opacity={.7+Math.sin(frame*.03+i)*.08}><path d={`M${x} 500Q${x-16} ${500-h} ${x-8} ${500-h-32}`} fill="none" stroke="#91b17e" strokeWidth="6"/><path d={`M${x} 500Q${x+20} ${500-h} ${x+25} ${500-h-26}`} fill="none" stroke="#bed09a" strokeWidth="5"/></g>})}
+  </svg>
+  <div style={{position:'absolute',inset:0,background:'linear-gradient(0deg,#0d1c1bd9,transparent 76%)'}}/>
+  <div style={{position:'absolute',left:'8%',right:'8%',top:'15%',color:brand.primaryColor,fontSize:18,letterSpacing:4,fontWeight:700}}>DELTA SIGNAL · FIELD NOTES</div>
+  <div style={{position:'absolute',left:'8%',right:'8%',top:'23%',fontFamily:'Noto Serif Bengali, Georgia, serif',fontSize:'clamp(27px,4.8vw,52px)',lineHeight:1.2,fontWeight:700}}>{scene.onScreenText||scene.narration}</div>
+  <div style={{position:'absolute',left:'8%',right:'8%',top:'48%',display:'flex',alignItems:'center',gap:12}}><div style={{width:36,height:36,border:`2px solid ${brand.primaryColor}`,borderRadius:'50%',display:'grid',placeItems:'center',color:brand.primaryColor,fontFamily:'Georgia,serif',fontWeight:700}}>Δ</div><div style={{fontFamily:'Georgia,serif',fontSize:25,fontWeight:700}}>DELTA SIGNAL</div></div>
+  <div style={{position:'absolute',left:'8%',right:'8%',bottom:'7%',fontSize:16,lineHeight:1.5,color:'#d0ddd5'}}>SOURCE · {source}<br/>Illustrative wetland scene · deltasignal.org</div>
+ </AbsoluteFill>;
+};
+
 export const GenericAnimationScene:React.FC<GenericAnimationProps>=props=>{
  switch(props.rendererKey){
   case 'bengal-soldiers':return <SoldierAdvance {...props}/>;
@@ -148,6 +236,11 @@ export const GenericAnimationScene:React.FC<GenericAnimationProps>=props=>{
   case 'delta-weather':case 'delta-storm':case 'delta-water':return <DeltaWeather {...props}/>;
   case 'campaign-map':return <CampaignMap {...props}/>;
   case 'delta-comparison':return <DeltaComparison {...props}/>;
+  case 'delta-wetland-intro':return <WetlandIntro {...props}/>;
+  case 'delta-study-context':return <WetlandStudyContext {...props}/>;
+  case 'delta-wetland-loss':return <WetlandLoss {...props}/>;
+  case 'delta-runoff-retention':return <RunoffRetention {...props}/>;
+  case 'delta-wetland-outro':return <WetlandOutro {...props}/>;
   case 'factlens-headline':case 'factlens-compare':case 'opencare-process':case 'opencare-awareness':case 'ciphertext-product':case 'ciphertext-architecture':case 'kalokhata-comparison':case 'kalokhata-network':return <EditorialMotion {...props}/>;
   default:return <div/>;
  }
