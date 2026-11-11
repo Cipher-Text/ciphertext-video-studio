@@ -42,6 +42,38 @@
       "approvalStatus": "draft",
       "sourceReferences": ["Replace with media credit"],
       "videoAsset": {"src": "assets/replace-with-video.mp4", "trimStartSeconds": 0, "trimEndSeconds": 5, "fit": "cover", "positionX": 50, "positionY": 50}
+    },
+    {
+      "id": "template-maplibre-offline",
+      "order": 3,
+      "sceneType": "historical-map",
+      "narration": "This synthetic geometry demonstrates the offline map renderer.",
+      "onScreenText": "Synthetic map fixture · no real locations",
+      "estimatedDurationSeconds": 6,
+      "visualDescription": "Illustrative test geometry only. Replace with locally attached, source-verified GeoJSON before factual use.",
+      "animation": "rise",
+      "approvalStatus": "draft",
+      "sourceReferences": ["Synthetic demo geometry; not a geographic claim."],
+      "mapEngine": "maplibre",
+      "geoJson": {"type": "FeatureCollection", "source": "Synthetic demo geometry; not a geographic claim.", "features": [
+        {"type": "Feature", "properties": {}, "geometry": {"type": "Polygon", "coordinates": [[[90, 22], [91, 22.15], [91.5, 22.65], [90.35, 22.9], [90, 22]]]}},
+        {"type": "Feature", "properties": {}, "geometry": {"type": "LineString", "coordinates": [[90.1, 22.1], [90.65, 22.3], [91.1, 22.55], [91.4, 22.72]]}},
+        {"type": "Feature", "properties": {"name": "Sample marker"}, "geometry": {"type": "Point", "coordinates": [90.65, 22.3]}}
+      ]}
+    },
+    {
+      "id": "template-procedural-three",
+      "order": 4,
+      "sceneType": "cinematic-image",
+      "narration": "A stylized vehicle advances across subdued terrain.",
+      "onScreenText": "Advance across the plain",
+      "estimatedDurationSeconds": 6,
+      "visualDescription": "Procedural 3D illustration; no specific historic vehicle model or unit is claimed.",
+      "animation": "fade",
+      "approvalStatus": "draft",
+      "sourceReferences": ["Procedural illustration; no historical unit or vehicle model claim."],
+      "sceneEngine": "three",
+      "threeConfig": {"subject": "armored-vehicle", "accentColor": "#db9b62"}
     }
   ]
 }

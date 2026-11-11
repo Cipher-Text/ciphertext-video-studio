@@ -26,4 +26,23 @@ describe('brand-aware storyboard foundation',()=>{
     scene.parallaxLayers[0]!.assetPath='assets/../outside.png';
     expect(SceneSchema.safeParse(scene).success).toBe(false);
   });
+  it('keeps SVG as the old-map default and validates explicit offline MapLibre inputs',()=>{
+    const scene=makeStoryboard('Map','A sourced river route.','en','delta-signal').scenes[0]!;
+    scene.sceneType='historical-map';
+    scene.geoJson={type:'FeatureCollection',source:'Reviewed local geometry',features:[{type:'Feature',geometry:{type:'LineString',coordinates:[[90,22],[91,23]]}}]};
+    expect(scene.mapEngine).toBeUndefined();
+    expect(SceneSchema.safeParse(scene).success).toBe(true);
+    scene.mapEngine='maplibre';
+    expect(SceneSchema.safeParse(scene).success).toBe(true);
+    scene.geoJson=undefined;
+    expect(SceneSchema.safeParse(scene).success).toBe(false);
+  });
+  it('keeps existing scene JSON valid and accepts opt-in procedural Three.js scenes',()=>{
+    const scene=makeStoryboard('Illustration','A stylized vehicle advances.','en','bengal-unfolded').scenes[0]!;
+    expect(SceneSchema.safeParse(scene).success).toBe(true);
+    scene.sceneEngine='three';scene.threeConfig={subject:'armored-vehicle',accentColor:'#db9b62'};
+    expect(SceneSchema.safeParse(scene).success).toBe(true);
+    scene.threeConfig.accentColor='javascript:alert(1)';
+    expect(SceneSchema.safeParse(scene).success).toBe(false);
+  });
 });

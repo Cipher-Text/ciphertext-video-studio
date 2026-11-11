@@ -8,6 +8,8 @@ Requires Node.js 22.13+ and pnpm. Install dependencies with `pnpm install`, then
 
 Use `pnpm studio` to open the Remotion composition preview after dependencies are installed. `pnpm render:demo` renders the illustrative demo composition to `out/demo.mp4`. Project previews and exports support landscape, portrait, and square formats. **Render MP4** creates a persistent job after every storyboard scene and the storyboard itself are approved; the dashboard shows progress, errors, cancellation, retries, and a download link after output validation.
 
+The optional 3D scene renderer is available per scene and has a dedicated Remotion preview at `/CipherTextThreeSceneDemo`. It uses local procedural geometry and deterministic frame-driven motion. For preview, use a reduced Studio scale and concurrency 1; full render instructions and examples are in [`docs/SCENE_ENGINE.md`](docs/SCENE_ENGINE.md).
+
 For Bengali narration, configure Azure with `AZURE_SPEECH_KEY` and `AZURE_SPEECH_REGION`, or ElevenLabs with `ELEVENLABS_API_KEY` in `.env`. The local server lists available ElevenLabs voices and Bengali-compatible TTS models, supports Bengali preview, and saves scene audio locally (WAV for Azure, MP3 for ElevenLabs). Generated audio is cached by provider, voice, model, and text; scene timing uses measured audio duration. Provider credentials remain server-side.
 
 ElevenLabs voice listing requires the key to have voice read access, and its full model catalog requires `models_read`. If model listing is restricted, the studio reports that limitation and offers Eleven v3 as a known Bengali-capable choice; synthesis errors are shown without changing the selected voice.
@@ -60,7 +62,7 @@ pnpm exec remotion render src/video/index.tsx CipherTextProject out/garibpur-197
 
 ## Commands
 
-The deterministic scene-engine contract, compatibility decisions, migration plan, and 8 GB Mac rendering workflow are documented in [docs/SCENE_ENGINE.md](docs/SCENE_ENGINE.md). Phase 1 uses the existing scene/schema/render architecture, D3 chart scales, frame-driven Remotion motion, and brand presentation tokens. MapLibre/Turf and Remotion Three/React Three Fiber remain optional later phases and are not loaded into the current runtime.
+The deterministic scene-engine contract, compatibility decisions, migration plan, and 8 GB Mac rendering workflow are documented in [docs/SCENE_ENGINE.md](docs/SCENE_ENGINE.md). Phase 1 uses the existing scene/schema/render architecture, D3 chart scales, frame-driven Remotion motion, and brand presentation tokens. Phase 2 adds an opt-in local MapLibre/Turf renderer for sourced GeoJSON while preserving the default SVG fallback. Remotion Three/React Three Fiber remains a later optional phase.
 
 | Command | Purpose |
 | --- | --- |

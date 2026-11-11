@@ -22,13 +22,19 @@ GSAP is not part of the export runtime. If a future authoring-only interaction u
 
 Keep the current React scene components and SQLite animation catalog. Strengthen the typed registry and reusable tokens, use D3 for chart geometry, add deterministic tests, and preserve the current media/audio/caption/render flow. Use one Remotion worker and Studio `--scale=0.5` for an 8 GB Mac.
 
-### Phase 2 (optional map runtime)
+### Phase 2 (implemented optional map runtime)
 
-Add MapLibre GL JS and Turf only when a real project needs richer map styling or geospatial calculations than the current offline GeoJSON/SVG path. Keep them behind a map scene renderer boundary and dynamic/optional import so dashboard, old maps, and render jobs do not load the additional runtime unless used. Default to local GeoJSON, local raster/vector tiles, and bundled styles; no hosted tile service is required. Turf should precompute bounded geometry, routes, or buffers from sourced inputs. The renderer should use frame-specified camera/marker state and wait for a stable map snapshot before composing it. Do not replace the current renderer or silently infer historical boundaries.
+Select **Map renderer → MapLibre · local GeoJSON** on a historical-map scene, or set optional `mapEngine: "maplibre"` in storyboard JSON. MapLibre scenes require GeoJSON with a source citation and are capped at 250 features / 25,000 coordinate positions for predictable local rendering. Scenes without `mapEngine` continue to use SVG; dynamic import keeps MapLibre out of the initial scene-engine chunk. Failed MapLibre setup falls back to the existing SVG renderer.
 
-### Phase 3 (optional 3D runtime)
+The MapLibre renderer uses a bundled worker and a style/source constructed from the scene's inline GeoJSON. It draws local polygons, lines, and point markers; it does not request remote styles, sprites, glyphs, tiles, or API keys. The source citation remains in frame. Turf `bbox` calculates the camera extent, and `length` / `lineSliceAlong` reveal linework from frame progress. Camera framing remains static for the shot to avoid live-map shimmer; polygons and markers are stable while routes draw by frame.
 
-Add `@remotion/three` and React Three Fiber as an opt-in renderer for scenes that have a reviewed model and clear value over 2D. Keep assets low-poly and local, cap pixel ratio and shadows, render with concurrency 1, and use a static/2D fallback when the optional packages or assets are unavailable. All camera, object, and material animation values must be functions of frame/fps. Avoid unbounded particle systems, live physics, and nondeterministic simulation.
+The in-Studio example at `CipherTextSceneEngineDemo` includes synthetic geometry clearly labeled as not representing a real location or boundary. Replace it with locally attached, sourced GeoJSON before factual production. Existing SVG, GeoJSON validation, campaign-map, and mapData renderers remain available.
+
+### Phase 3 (implemented optional 3D runtime)
+
+In a scene card, set **Scene renderer → 3D · procedural illustration** and choose **Armored vehicles**, **Terrain**, or **Globe**. This is a generic reusable treatment, not a project-specific scene or a historical model claim. Storyboard JSON can opt in with `sceneEngine: "three"` and optional `threeConfig: { "subject": "armored-vehicle", "accentColor": "#db9b62" }`. Existing scenes remain on their previous renderers; omitting `sceneEngine` changes nothing.
+
+`ThreeIllustrationScene` is dynamically imported and uses `@remotion/three`, React Three Fiber and low-poly procedural geometry. Vehicle travel, turret movement, camera shift and globe rotation are derived from Remotion frame progress. The canvas is fixed to DPR 1, uses low-power WebGL, and has no real-time physics, external models, textures or network assets. Renderer errors fall back to the original 2D scene renderer. Preview uses a dedicated 720p composition; production scenes inherit the project's output dimensions and should be rendered with concurrency 1 on an 8 GB Mac. This is an artistic reconstruction and must not be labeled as archival footage or as a specific verified vehicle/unit unless source-backed artwork is attached.
 
 ## Compatibility and authoring
 
@@ -47,6 +53,12 @@ pnpm exec remotion studio src/video/index.tsx --scale=0.5 --concurrency=1
 
 # Existing full project render pipeline (the app render worker also defaults to one job at a time)
 pnpm render:project -- --props=examples/garibpur-1971.project.json --concurrency=1 --codec=h264 --crf=20
+
+# Optional local MapLibre sample; the selected frame range covers the synthetic map scene
+pnpm exec remotion render src/video/index.tsx CipherTextSceneEngineDemo out/maplibre-demo.mp4 --frames=330-479 --concurrency=1 --codec=h264 --crf=24 --gl=angle
+
+# Optional procedural 3D illustration demo (6 seconds, 720p)
+pnpm exec remotion render src/video/index.tsx CipherTextThreeSceneDemo out/three-scene-demo.mp4 --concurrency=1 --codec=h264 --crf=24 --gl=angle
 ```
 
-MapLibre and 3D scenes should be smoke-tested separately with small representative scenes before they enter the production render worker. Keep preview and final output deterministic at the same input props and frame number.
+For preview, run `pnpm exec remotion studio src/video/index.tsx --scale=0.5 --concurrency=1`. Open `/CipherTextSceneEngineDemo` and scrub to about 11 seconds for MapLibre, or open `/CipherTextThreeSceneDemo` for the 3D scene. Keep preview and final output deterministic at the same input props and frame number. Both MapLibre and Three.js use WebGL; validate exports with ANGLE and one render worker before using either for production.

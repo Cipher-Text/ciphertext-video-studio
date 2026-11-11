@@ -2,8 +2,8 @@ import React from 'react';
 import {AbsoluteFill,Img,Video,staticFile} from 'remotion';
 import type {BrandProfile,Scene,SceneType,SceneAnimationSettings} from '../domain';
 import {chartCoordinates,chartYAxisTicks} from './chartGeometry';
-import {projectGeoJson} from './geoJsonGeometry';
 import {AnimatedBattleScene} from './battlefieldAnimations';
+import {StaticGeoMapScene} from './StaticGeoMapScene';
 import {animationPresetById,presetIdForScene} from '../animations/catalog';
 import {GenericAnimationScene} from './genericAnimationScenes';
 import {brandThemes} from './brandThemes';
@@ -26,13 +26,16 @@ export const ParallaxScene:SceneVisualComponent=({brand,scene,progress})=>{
   return <AbsoluteFill style={{background:brand.backgroundColor,overflow:'hidden'}}><div style={{position:'absolute',inset:'12% 9%',border:`1px solid ${brand.primaryColor}66`,background:`linear-gradient(130deg,${brand.primaryColor}33,transparent 60%)`,translate:`${-progress*28}px ${progress*14}px`,scale:1.08}}/><div style={{position:'absolute',inset:'22% 20%',background:`linear-gradient(40deg,${brand.secondaryColor}35,${brand.primaryColor}55)`,clipPath:'polygon(0 70%,25% 10%,54% 65%,72% 25%,100% 70%,100% 100%,0 100%)',translate:`${progress*22}px ${-progress*16}px`}}/><Frame brand={brand} eyebrow="Layered parallax" disclaimer="Illustrative layers · add multiple sourced image layers"><Headline brandId={brand.id} size={58}>{scene.onScreenText||scene.narration}</Headline><p style={{fontSize:22}}>{scene.visualDescription}</p></Frame></AbsoluteFill>;
 };
 
-export const HistoricalMapScene:SceneVisualComponent=(props)=>{
-  const {brand,scene}=props;
-  if(scene.animationConfig?.mode)return <AnimatedBattleScene brand={brand} scene={scene} progress={props.progress}/>;
-  const collection=scene.geoJson;
-  if(collection){const projected=projectGeoJson(collection);return <AbsoluteFill style={{background:'linear-gradient(145deg,#142126,#101617)',color:'#f4f0e9',fontFamily:'Arial,sans-serif'}}><svg viewBox="0 0 1000 620" preserveAspectRatio="xMidYMid meet" style={{position:'absolute',left:'5%',top:'12%',width:'90%',height:'72%'}}>{projected.paths.map((path,index)=><path key={`geo-path-${index}`} d={path} fill={path.endsWith('Z')?`${brand.primaryColor}28`:'none'} stroke={brand.primaryColor} strokeWidth="3" strokeLinejoin="round"/>)}{projected.points.map((point,index)=><circle key={`geo-point-${index}`} cx={point.x} cy={point.y} r="7" fill={brand.secondaryColor} stroke={brand.primaryColor} strokeWidth="3"/> )}</svg><div style={{position:'absolute',left:'7%',top:'5%',fontFamily:'Georgia,serif',fontSize:36,fontWeight:700}}>{scene.onScreenText||scene.narration}</div><div style={{position:'absolute',bottom:'5%',left:'7%',right:'7%',fontSize:13,color:'#c1c7c3'}}>GeoJSON · {collection.source} · coordinates shown in lon/lat</div></AbsoluteFill>}
-  return <AbsoluteFill style={{background:'#192126'}}><svg viewBox="0 0 1200 700" style={{position:'absolute',inset:'8%',width:'84%',height:'84%',opacity:.65}}><path d="M40 370 C150 280 245 350 350 245 S570 335 665 220 S890 270 1160 95 M80 580 C260 440 350 520 475 390 S730 500 840 345 S1010 400 1160 310" fill="none" stroke={brand.primaryColor} strokeWidth="5"/><path d="M260 50 Q350 190 290 280 T360 530 M660 55 Q580 180 650 300 T600 660 M920 50 Q850 160 920 260 T880 630" fill="none" stroke="#d7c8a2" strokeWidth="2" strokeDasharray="8 14"/></svg><Frame brand={brand} eyebrow="Historical map schematic" disclaimer="Schematic only · attach sourced GeoJSON for geographic reconstruction"><Headline brandId={brand.id} size={54}>{scene.onScreenText||scene.narration}</Headline><p style={{fontSize:21}}>No geographic dataset is attached to this scene.</p></Frame></AbsoluteFill>;
-};
+class MapRendererErrorBoundary extends React.Component<{fallback:React.ReactNode;children:React.ReactNode},{failed:boolean}>{
+  state={failed:false};
+  static getDerivedStateFromError(){return {failed:true}}
+  render(){return this.state.failed?this.props.fallback:this.props.children}
+}
+const LazyMapLibreScene=React.lazy(()=>import('./MapLibreHistoricalMap').then(module=>({default:module.MapLibreHistoricalMap})));
+const LazyThreeScene=React.lazy(()=>import('./ThreeIllustrationScene').then(module=>({default:module.ThreeIllustrationScene})));
+export const MapLibreSceneBoundary:SceneVisualComponent=props=><MapRendererErrorBoundary fallback={<StaticGeoMapScene {...props}/>}><React.Suspense fallback={<StaticGeoMapScene {...props}/>}><LazyMapLibreScene {...props}/></React.Suspense></MapRendererErrorBoundary>;
+export const ThreeSceneBoundary:React.FC<SceneVisualProps & {fallback:SceneVisualComponent}>=({fallback,...props})=>{const Fallback=fallback;return <MapRendererErrorBoundary fallback={<Fallback {...props}/>}><React.Suspense fallback={<Fallback {...props}/>}><LazyThreeScene {...props}/></React.Suspense></MapRendererErrorBoundary>};
+export const HistoricalMapScene:SceneVisualComponent=props=>props.scene.mapEngine==='maplibre'&&props.scene.geoJson?<MapLibreSceneBoundary {...props}/>:<StaticGeoMapScene {...props}/>;
 
 export const HistoryTimelineScene:SceneVisualComponent=({brand,scene,progress,aspect})=>{
   const events=scene.historyData?.events??[];
@@ -127,6 +130,8 @@ export const sceneDefinitions={
 const baseSceneRegistry:Record<SceneType,SceneVisualComponent>=Object.fromEntries(Object.entries(sceneDefinitions).map(([type,definition])=>[type,definition.component])) as Record<SceneType,SceneVisualComponent>;
 
 const withAnimationPreset=(fallback:SceneVisualComponent):SceneVisualComponent=>props=>{
+  if(props.scene.sceneEngine==='three')return <ThreeSceneBoundary {...props} fallback={fallback}/>;
+  if(props.scene.mapEngine==='maplibre'&&props.scene.geoJson)return <MapLibreSceneBoundary {...props}/>;
   const id=presetIdForScene(props.scene);
   const preset=id?animationPresetById.get(id):undefined;
   const legacyMode=props.scene.animationPresetId?undefined:props.scene.animationConfig?.mode;

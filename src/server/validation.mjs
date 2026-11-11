@@ -23,6 +23,9 @@ export const sceneSchema = z.object({
   camera:z.object({movement:z.enum(['zoom-in','zoom-out','pan-left','pan-right','rise','none']),intensity:z.number().min(0).max(1)}).strict().optional(),
   animationConfig:animationConfig.optional(),
   animationPresetId:z.string().min(1).max(100).regex(/^[a-z0-9.-]+$/).optional(),
+  mapEngine:z.enum(['svg','maplibre']).optional(),
+  sceneEngine:z.enum(['three']).optional(),
+  threeConfig:z.object({subject:z.enum(['armored-vehicle','terrain','globe']).default('armored-vehicle'),accentColor:z.string().regex(/^#[0-9a-fA-F]{6}$/).optional()}).strict().optional(),
   transition:z.object({type:z.enum(['cut','fade','wipe']),durationSeconds:z.number().min(0).max(2)}).strict().optional(),
   audio:z.object({src:z.string().max(500).regex(/^(?:assets|generated-audio)\/[A-Za-z0-9._/-]+$/).refine(path=>!path.split('/').includes('..')),durationSeconds:z.number().positive().max(600),voice:z.string().max(100),provider:z.enum(['azure','elevenlabs']).optional(),model:z.string().max(100).optional(),cacheKey:z.string().regex(/^[a-f0-9]{64}$/)}).strict().optional(),
   assetPath:z.string().max(500).regex(/^assets\/[A-Za-z0-9._/-]+$/).refine(path=>!path.split('/').includes('..'),{message:'Asset path must stay inside the public asset directory'}).optional(),
@@ -32,7 +35,14 @@ export const sceneSchema = z.object({
   chartData:z.object({chartType:z.enum(['bar','line']),unit:z.string().max(24),period:z.string().max(80),source:z.string().max(500),points:z.array(z.object({label:z.string().max(48),value:z.number().finite().min(0).max(1e15)}).strict()).min(2).max(12)}).strict().optional(),
   historyData:z.object({events:z.array(z.object({date:z.string().max(40),title:z.string().max(140),description:z.string().max(800),source:z.string().max(500),assetPath:z.string().max(500).regex(/^assets\/[A-Za-z0-9._/-]+$/).refine(path=>!path.split('/').includes('..')).optional(),illustrative:z.boolean()}).strict()).min(2).max(8)}).strict().optional(),
   softwareData:z.object({callouts:z.array(z.object({text:z.string().max(120),startSeconds:z.number().min(0).max(600),endSeconds:z.number().positive().max(600),targetX:z.number().min(0).max(100),targetY:z.number().min(0).max(100),labelX:z.number().min(0).max(100),labelY:z.number().min(0).max(100)}).strict()).max(8)}).strict().superRefine((data,ctx)=>data.callouts.forEach((callout,index)=>{if(callout.endSeconds<=callout.startSeconds)ctx.addIssue({code:'custom',path:['callouts',index,'endSeconds'],message:'Callout end must be after its start'})})).optional(),
-}).strict();
+}).strict().superRefine((scene,ctx)=>{
+  if(scene.mapEngine!=='maplibre')return;
+  if(!scene.geoJson){ctx.addIssue({code:'custom',path:['geoJson'],message:'MapLibre scenes require sourced GeoJSON'});return;}
+  if(scene.geoJson.features.length>250)ctx.addIssue({code:'custom',path:['geoJson','features'],message:'MapLibre scenes are limited to 250 GeoJSON features for local rendering'});
+  const countPositions=value=>Array.isArray(value)?(value.length>=2&&value.every(item=>typeof item==='number')?1:value.reduce((sum,item)=>sum+countPositions(item),0)):0;
+  const positionCount=scene.geoJson.features.reduce((sum,feature)=>sum+countPositions(feature.geometry.coordinates),0);
+  if(positionCount>25000)ctx.addIssue({code:'custom',path:['geoJson','features'],message:'MapLibre scenes are limited to 25,000 coordinates for local rendering'});
+});
 export const storyboardSchema=z.object({version:z.literal(1),title:z.string().max(300),language:z.enum(['en','bn']),targetDurationSeconds:z.number().positive().max(7200),scenes:z.array(sceneSchema).min(1).max(200)}).strict().superRefine((storyboard,ctx)=>{
   const ids=new Set(); storyboard.scenes.forEach((scene,index)=>{
     if(ids.has(scene.id))ctx.addIssue({code:'custom',path:['scenes',index,'id'],message:'Scene IDs must be unique'}); ids.add(scene.id);

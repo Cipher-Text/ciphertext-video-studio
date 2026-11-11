@@ -23,6 +23,13 @@ describe('local API validation and origin rules',()=>{
     expect(projectSchema.safeParse(bad).success).toBe(false);
     expect(storyboardSchema.safeParse(bad.storyboard).success).toBe(true);
     expect(storyboardSchema.safeParse({...bad.storyboard,scenes:[{...bad.storyboard.scenes[0],order:1}]}).success).toBe(false);
+    const mapScene={id:'map-scene',order:0,sceneType:'historical-map',narration:'A cited route.',onScreenText:'A cited route',estimatedDurationSeconds:4,visualDescription:'Offline map',animation:'rise',approvalStatus:'draft',sourceReferences:[],mapEngine:'maplibre',geoJson:{type:'FeatureCollection',source:'Reviewed local geometry',features:[{type:'Feature',geometry:{type:'LineString',coordinates:[[90,22],[91,23]]}}]}};
+    const mapStory={version:1,title:'Map',language:'bn',targetDurationSeconds:4,scenes:[mapScene]};
+    expect(storyboardSchema.safeParse(mapStory).success).toBe(true);
+    expect(storyboardSchema.safeParse({...mapStory,scenes:[{...mapScene,geoJson:undefined}]}).success).toBe(false);
+    const threeScene={id:'three-scene',order:0,sceneType:'cinematic-image',narration:'Illustrative scene.',onScreenText:'Advance',estimatedDurationSeconds:4,visualDescription:'Procedural 3D illustration',animation:'fade',approvalStatus:'draft',sourceReferences:[],sceneEngine:'three',threeConfig:{subject:'armored-vehicle',accentColor:'#db9b62'}};
+    expect(storyboardSchema.safeParse({...mapStory,title:'Three',scenes:[threeScene]}).success).toBe(true);
+    expect(storyboardSchema.safeParse({...mapStory,title:'Three',scenes:[{...threeScene,threeConfig:{subject:'armored-vehicle',accentColor:'javascript:alert(1)'}}]}).success).toBe(false);
   });
   it('rejects oversized and malformed JSON bodies',async()=>{
     const request=(body)=>Object.assign(Readable.from([body]),{headers:{'content-type':'application/json'}});
