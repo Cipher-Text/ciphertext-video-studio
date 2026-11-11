@@ -1,5 +1,15 @@
 # Implementation progress
 
+## Deterministic scene-engine increment — 2026-11-11
+
+- Reviewed README, scene registry, Zod storyboard schema, Remotion composition, SQLite/render-worker architecture, speech providers, and existing tests before implementation.
+- Added a complete typed scene-definition registry with purpose and motion-family metadata; retained the existing preset resolver and legacy animation mode precedence.
+- Added active brand-specific title/body typography tokens, plus a pure frame-to-camera transform utility used by the composition for legacy and advanced camera movements.
+- Added D3 `scaleBand`/`scaleLinear` geometry and deterministic tick generation for existing frame-revealed SVG charts.
+- Added three strict-schema sample scenes and regression tests. No storyboard schema or SQLite migration was needed.
+- Documented phased migration: Phase 2 MapLibre/Turf optional offline map runtime; Phase 3 `@remotion/three`/React Three Fiber opt-in renderer. Existing GeoJSON/SVG and 2D scenes stay as fallback. GSAP remains out of the export clock.
+- Verification: `pnpm typecheck`, `pnpm test` (38 tests / 14 files), `pnpm build`, and `git diff --check` passed. Build still reports existing upstream Zod annotation notes and a >500 kB Vite chunk warning; Remotion bundle completes.
+
 ## Animation visual rebuild — 2026-11-11
 
 - Added an additive SQLite preset-quality configuration table; every catalog entry now records required/optional inputs, asset requirements, camera/motion defaults, treatment/transition/atmosphere/type style, supported formats, preview settings, render-cost estimate, and quality criteria. Six brand collections now have dedicated renderer entries. Preset IDs still reference allow-listed renderers; renderer code is not stored or executed from SQLite.

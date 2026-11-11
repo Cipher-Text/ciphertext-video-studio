@@ -1,7 +1,7 @@
 import {describe,expect,it} from 'vitest';
 import {isValidElement} from 'react';
 import {brands,makeStoryboard} from '../src/domain';
-import {sceneRegistry,CinematicImageScene,ParallaxScene,HistoricalMapScene,DataChartScene,NewsHeadlineScene,EvidenceTimelineScene,MedicalExplainerScene,SoftwareDemoScene,DocumentHighlightScene} from '../src/video/sceneRegistry';
+import {sceneRegistry,sceneDefinitions,getSceneDefinition,CinematicImageScene,ParallaxScene,HistoricalMapScene,DataChartScene,NewsHeadlineScene,EvidenceTimelineScene,MedicalExplainerScene,SoftwareDemoScene,DocumentHighlightScene} from '../src/video/sceneRegistry';
 import {AnimatedBattleScene} from '../src/video/battlefieldAnimations';
 
 describe('typed documentary scene registry',()=>{
@@ -10,6 +10,8 @@ describe('typed documentary scene registry',()=>{
     const types=['cinematic-image','parallax','historical-map','data-chart','news-headline','evidence-timeline','medical-explainer','software-demo','document-highlight'];
     expect(types.every(type=>type in sceneRegistry)).toBe(true);
     expect(new Set(components).size).toBe(9);
+    expect(Object.keys(sceneDefinitions)).toHaveLength(13);
+    expect(getSceneDefinition('data-chart').motionFamily).toBe('data');
   });
 
   it('routes advanced opening and closing scenes to their animation component',()=>{

@@ -5,6 +5,17 @@ const clamp={extrapolateLeft:'clamp' as const,extrapolateRight:'clamp' as const}
 
 export const cinematicCameraProgress=(frame:number,duration:number)=>interpolate(frame,[0,Math.max(1,duration-1)],[0,1],{...clamp,easing:Easing.inOut(Easing.cubic)});
 
+export type CameraMovement='zoom-in'|'zoom-out'|'pan-left'|'pan-right'|'rise'|'track-subject'|'none';
+/** Pure frame-to-transform mapping shared by preview and render. */
+export function cameraTransformAtFrame(frame:number,duration:number,width:number,movement:CameraMovement,intensity:number,subject:'pt76'|'m24'='pt76'):{transform:string;progress:number}{
+ const progress=cinematicCameraProgress(frame,duration),amount=Math.max(0,Math.min(1,intensity));
+ const scale=interpolate(progress,[0,1],movement==='zoom-out'?[1+amount,1]:movement==='zoom-in'||movement==='pan-left'||movement==='pan-right'||movement==='rise'||movement==='track-subject'?[1,1+amount]:[1,1],clamp);
+ const shift=progress*amount*100,direction=subject==='pt76'?1:-1;
+ const x=movement==='pan-left'?-shift:movement==='pan-right'?shift:movement==='track-subject'?interpolate(progress,[0,1],[direction*width*.12,-direction*width*.12],clamp):0;
+ const y=movement==='rise'?-shift:0;
+ return {progress,transform:`translate(${x}px,${y}px) scale(${scale})`};
+}
+
 export const CinematicAtmosphere:React.FC<{frame:number;seed?:number;strength?:number;warmth?:string}>=({frame,seed=0,strength=.28,warmth='#d6c29c'})=>{
  const dust=Array.from({length:24},(_,i)=>{const phase=((i*173+seed*71)%997)/997;const x=((phase*1000+(frame*(i%3+1)*.28))%1080);const y=(i*149+seed*53)%1920-frame*(.12+(i%4)*.05);return{x,y,r:1+(i%3)*.7,opacity:.08+(i%4)*.035}});
  const safeId=`cinematic-atmosphere-${seed}`;

@@ -60,6 +60,8 @@ pnpm exec remotion render src/video/index.tsx CipherTextProject out/garibpur-197
 
 ## Commands
 
+The deterministic scene-engine contract, compatibility decisions, migration plan, and 8 GB Mac rendering workflow are documented in [docs/SCENE_ENGINE.md](docs/SCENE_ENGINE.md). Phase 1 uses the existing scene/schema/render architecture, D3 chart scales, frame-driven Remotion motion, and brand presentation tokens. MapLibre/Turf and Remotion Three/React Three Fiber remain optional later phases and are not loaded into the current runtime.
+
 | Command | Purpose |
 | --- | --- |
 | `pnpm dev` | Start local dashboard |

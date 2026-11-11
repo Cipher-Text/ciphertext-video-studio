@@ -1,5 +1,12 @@
 # Product roadmap
 
+## Documentary scene engine phases — 2026-11-11
+
+- **Phase 1 implemented:** typed scene descriptors, six brand presentation themes, a pure frame-to-camera transform helper, D3 chart scales/ticks with Remotion-controlled SVG reveals, strict-schema sample scenes, and deterministic unit/schema tests. No SQLite or storyboard migration was required.
+- **Phase 2 planned/optional:** add MapLibre GL JS and Turf behind an optional map-renderer boundary only when sourced offline geographic styles/tiles or geoprocessing needs justify the dependency. Keep the current GeoJSON/SVG render path as fallback; no hosted tile provider is required.
+- **Phase 3 planned/optional:** add `@remotion/three` and React Three Fiber behind an opt-in renderer for reviewed local 3D assets. Preserve a 2D fallback, reduced pixel ratio, and single-worker rendering. All scene state remains frame-derived.
+- **GSAP:** not needed for exported animation. If used for future authoring interactions, its output must be converted to deterministic frame-addressable values before Remotion rendering.
+
 ## Animation quality rebuild — 2026-11-11
 
 1. **Reusable motion contracts** — Catalog entries include source/data requirements, camera and motion defaults, compatible aspect ratios, render-cost estimates, preview configuration, and quality criteria. SQLite stores metadata independent of projects. A project stores an optional preset reference and per-scene settings. These are renderer templates, not rendered video files.

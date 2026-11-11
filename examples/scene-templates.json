@@ -1,0 +1,47 @@
+{
+  "format": "ciphertext-scene-templates-v1",
+  "notes": "Template scenes use the existing SceneSchema. Replace illustrative labels with reviewed copy and attach source data/assets before approval.",
+  "scenes": [
+    {
+      "id": "template-cinematic-map",
+      "order": 0,
+      "sceneType": "historical-map",
+      "narration": "A sourced route connects the two documented locations.",
+      "onScreenText": "A sourced route",
+      "estimatedDurationSeconds": 6,
+      "visualDescription": "Historical illustration based on the attached geographic source.",
+      "animation": "rise",
+      "approvalStatus": "draft",
+      "sourceReferences": ["Replace with geographic source and date"],
+      "animationPresetId": "bengal.battle-map",
+      "animationConfig": {"mode": "battle-map", "camera": {"movement": "track-subject", "intensity": 0.04, "subject": "pt76"}, "settings": {"sourceLabel": "Replace with cited map source"}},
+      "mapData": {"source": "Replace with cited source", "date": "YYYY-MM-DD", "scale": "schematic-not-to-scale", "locations": [{"name": "Origin", "x": 260, "y": 720}, {"name": "Destination", "x": 760, "y": 300}], "routes": [{"name": "Illustrative route", "points": [[260, 720], [430, 610], [590, 460], [760, 300]], "status": "illustrative"}]}
+    },
+    {
+      "id": "template-sourced-chart",
+      "order": 1,
+      "sceneType": "data-chart",
+      "narration": "The cited comparison shows the measured change over time.",
+      "onScreenText": "Measured change over time",
+      "estimatedDurationSeconds": 7,
+      "visualDescription": "Frame-revealed SVG chart generated from reviewed values.",
+      "animation": "rise",
+      "approvalStatus": "draft",
+      "sourceReferences": ["Replace with source citation"],
+      "chartData": {"chartType": "line", "unit": "km²", "period": "2004–2021", "source": "Replace with source citation", "points": [{"label": "2004", "value": 68.92}, {"label": "2021", "value": 29.41}]}
+    },
+    {
+      "id": "template-user-video",
+      "order": 2,
+      "sceneType": "cinematic-image",
+      "narration": "Narration remains synchronized to the measured scene duration.",
+      "onScreenText": "User-provided footage",
+      "estimatedDurationSeconds": 5,
+      "visualDescription": "Rights-cleared user-provided clip; never imply illustrative footage is archival.",
+      "animation": "fade",
+      "approvalStatus": "draft",
+      "sourceReferences": ["Replace with media credit"],
+      "videoAsset": {"src": "assets/replace-with-video.mp4", "trimStartSeconds": 0, "trimEndSeconds": 5, "fit": "cover", "positionX": 50, "positionY": 50}
+    }
+  ]
+}
