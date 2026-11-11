@@ -129,3 +129,18 @@ test('video upload is listed in the media library and plays in the browser',asyn
     await request.delete(`${apiBase.replace(':4383',':4384')}/api/media/${name}`,{headers:{Origin:frontendOrigin}});
   }
 });
+
+test('animation library previews independently of projects',async({page})=>{
+  await page.goto(frontendOrigin);
+  await page.getByRole('button',{name:/Animations/}).click();
+  await expect(page.getByRole('heading',{name:'Browse animations'})).toBeVisible();
+  await expect(page.getByText('SHARED MOTION LIBRARY')).toBeVisible();
+  await expect(page.getByLabel('Optional project scene')).toHaveValue('');
+  const card=page.getByRole('article').filter({hasText:'Funds flow diagram'});
+  await card.getByRole('button',{name:'Preview'}).click();
+  const dialog=page.getByRole('dialog',{name:'Preview Funds flow diagram'});
+  await expect(dialog).toBeVisible();
+  await expect(dialog.getByText(/CONCEPTUAL FLOW · NOT A CASE CLAIM/)).toBeVisible();
+  await expect(dialog.getByRole('button',{name:'Pause preview'})).toBeVisible();
+  await expect(dialog.getByRole('button',{name:'Open a project to apply'})).toBeDisabled();
+});

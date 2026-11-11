@@ -16,7 +16,7 @@ const Headline:React.FC<{children:React.ReactNode;size?:number}> = ({children,si
 export const CinematicImageScene:SceneVisualComponent=(props)=>{
   const {brand,scene}=props;
   if(scene.animationConfig?.mode==='layered-parallax')return <ParallaxScene {...props}/>;
-  if(scene.animationConfig&&scene.animationConfig.mode!=='camera-only')return <AnimatedBattleScene brand={brand} scene={scene} progress={props.progress}/>;
+  if(scene.animationConfig?.mode&&scene.animationConfig.mode!=='camera-only')return <AnimatedBattleScene brand={brand} scene={scene} progress={props.progress}/>;
   return <AbsoluteFill style={{background:`radial-gradient(ellipse at 70% 25%,${brand.primaryColor}66,transparent 35%),linear-gradient(145deg,${brand.backgroundColor},#08090c)`}}>{scene.videoAsset?<Video src={staticFile(scene.videoAsset.src)} startFrom={Math.round(scene.videoAsset.trimStartSeconds*30)} endAt={Math.round(scene.videoAsset.trimEndSeconds*30)} style={{width:'100%',height:'100%',objectFit:scene.videoAsset.fit,objectPosition:`${scene.videoAsset.positionX}% ${scene.videoAsset.positionY}%`}}/>:scene.assetPath?<Img src={staticFile(scene.assetPath)} style={{width:'100%',height:'100%',objectFit:'cover',opacity:.82}}/>:<Frame brand={brand} eyebrow="Cinematic image placeholder" disclaimer="Illustrative visual · add a licensed local image"><Headline>{scene.onScreenText||scene.narration}</Headline><p style={{fontSize:25,color:'#d5d0c9',maxWidth:850}}>{scene.visualDescription}</p></Frame>}</AbsoluteFill>;
 };
 
@@ -27,7 +27,7 @@ export const ParallaxScene:SceneVisualComponent=({brand,scene,progress})=>{
 
 export const HistoricalMapScene:SceneVisualComponent=(props)=>{
   const {brand,scene}=props;
-  if(scene.animationConfig)return <AnimatedBattleScene brand={brand} scene={scene} progress={props.progress}/>;
+  if(scene.animationConfig?.mode)return <AnimatedBattleScene brand={brand} scene={scene} progress={props.progress}/>;
   const collection=scene.geoJson;
   if(collection){const projected=projectGeoJson(collection);return <AbsoluteFill style={{background:'linear-gradient(145deg,#142126,#101617)',color:'#f4f0e9',fontFamily:'Arial,sans-serif'}}><svg viewBox="0 0 1000 620" preserveAspectRatio="xMidYMid meet" style={{position:'absolute',left:'5%',top:'12%',width:'90%',height:'72%'}}>{projected.paths.map((path,index)=><path key={`geo-path-${index}`} d={path} fill={path.endsWith('Z')?`${brand.primaryColor}28`:'none'} stroke={brand.primaryColor} strokeWidth="3" strokeLinejoin="round"/>)}{projected.points.map((point,index)=><circle key={`geo-point-${index}`} cx={point.x} cy={point.y} r="7" fill={brand.secondaryColor} stroke={brand.primaryColor} strokeWidth="3"/> )}</svg><div style={{position:'absolute',left:'7%',top:'5%',fontFamily:'Georgia,serif',fontSize:36,fontWeight:700}}>{scene.onScreenText||scene.narration}</div><div style={{position:'absolute',bottom:'5%',left:'7%',right:'7%',fontSize:13,color:'#c1c7c3'}}>GeoJSON · {collection.source} · coordinates shown in lon/lat</div></AbsoluteFill>}
   return <AbsoluteFill style={{background:'#192126'}}><svg viewBox="0 0 1200 700" style={{position:'absolute',inset:'8%',width:'84%',height:'84%',opacity:.65}}><path d="M40 370 C150 280 245 350 350 245 S570 335 665 220 S890 270 1160 95 M80 580 C260 440 350 520 475 390 S730 500 840 345 S1010 400 1160 310" fill="none" stroke={brand.primaryColor} strokeWidth="5"/><path d="M260 50 Q350 190 290 280 T360 530 M660 55 Q580 180 650 300 T600 660 M920 50 Q850 160 920 260 T880 630" fill="none" stroke="#d7c8a2" strokeWidth="2" strokeDasharray="8 14"/></svg><Frame brand={brand} eyebrow="Historical map schematic" disclaimer="Schematic only · attach sourced GeoJSON for geographic reconstruction"><Headline size={54}>{scene.onScreenText||scene.narration}</Headline><p style={{fontSize:21}}>No geographic dataset is attached to this scene.</p></Frame></AbsoluteFill>;
@@ -98,7 +98,7 @@ export const DocumentHighlightScene:SceneVisualComponent=({brand,scene})=><Absol
 const GeneralScene:SceneVisualComponent=(props)=>{
   const {brand,scene,title}=props;
   if(scene.animationConfig?.mode==='layered-parallax')return <ParallaxScene {...props}/>;
-  if(scene.animationConfig&&scene.animationConfig.mode!=='camera-only')return <AnimatedBattleScene brand={brand} scene={scene} progress={props.progress}/>;
+  if(scene.animationConfig?.mode&&scene.animationConfig.mode!=='camera-only')return <AnimatedBattleScene brand={brand} scene={scene} progress={props.progress}/>;
   return <Frame brand={brand} eyebrow={scene.sceneType==='intro'?'Opening title':scene.sceneType==='outro'?'Closing title':'Editorial quote'} disclaimer="Illustrative visual"><Headline>{scene.sceneType==='intro'?title:scene.onScreenText||scene.narration}</Headline>{scene.sceneType!=='intro'&&<p style={{fontSize:28,color:'#d4cec3',maxWidth:1000}}>{scene.narration}</p>}</Frame>;
 };
 
@@ -116,10 +116,12 @@ const baseSceneRegistry:Record<SceneType,SceneVisualComponent>={
 const withAnimationPreset=(fallback:SceneVisualComponent):SceneVisualComponent=>props=>{
   const id=presetIdForScene(props.scene);
   const preset=id?animationPresetById.get(id):undefined;
+  const legacyMode=props.scene.animationPresetId?undefined:props.scene.animationConfig?.mode;
+  if(legacyMode&&legacyMode!=='camera-only'&&legacyMode!=='layered-parallax')return <AnimatedBattleScene brand={props.brand} scene={props.scene} progress={props.progress} mode={legacyMode}/>;
   if(!preset)return fallback(props);
   if(preset.rendererKey==='shared-camera')return fallback(props);
   if(preset.rendererKey==='shared-parallax')return <ParallaxScene {...props}/>;
-  if(preset.rendererKey==='battlefield-scene'||preset.rendererKey==='battlefield-map'){
+  if(preset.rendererKey==='battlefield-scene'){
     const mode=legacyModeForPreset[preset.id]??props.scene.animationConfig?.mode??'tank-battle';
     return <AnimatedBattleScene brand={props.brand} scene={props.scene} progress={props.progress} mode={mode}/>;
   }

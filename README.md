@@ -22,9 +22,17 @@ The current application includes six brand profiles, manual project creation, de
 
 ### Reusable animation presets
 
-`src/animations/catalog.json` defines the allow-listed preset catalog. On server startup, preset metadata is upserted into SQLite (`animation_presets`) and is available to the editor through `GET /api/animation-presets?brandId=...`. Scene components and renderer mappings remain version-controlled React/TypeScript; the database never evaluates stored code. A selected `animationPresetId` and optional `animationConfig.settings` are stored alongside each scene in `projects.storyboard_json`. Existing `animation` and `animationConfig.mode` values still resolve through compatibility aliases.
+`src/animations/catalog.json` defines the allow-listed preset catalog. On server startup, preset and quality metadata is upserted into SQLite (`animation_presets` and `animation_preset_quality_config`) and is available through `GET /api/animation-presets?brandId=...`. The catalog is independent of projects: browse and preview presets in **Animation Library** without opening a project, then optionally apply one to the selected scene. Scene components and renderer mappings remain version-controlled React/TypeScript; the database never evaluates stored code. A scene stores only an optional `animationPresetId` reference and `animationConfig` settings. Existing `animation` and `animationConfig.mode` values remain supported.
 
-To add a preset, implement or reuse a renderer in `src/video/genericAnimationScenes.tsx`, add a descriptor with its `rendererKey` and brand scope to `src/animations/catalog.json`, and add that renderer key to the allow-listed switch. Use deterministic Remotion frame math, label reconstructions, and require citations for case-specific or measured claims. Current packs include Garibpur battlefield treatments, generic Bengal infantry/routes, KaloKhata funds and records diagrams, Delta Signal rain/storm/water treatments, and shared camera/parallax presets.
+To add a preset, implement or reuse a renderer in `src/video/genericAnimationScenes.tsx` or `src/video/battlefieldAnimations.tsx`, add a descriptor with its `rendererKey` and brand scope to `src/animations/catalog.json`, and add that renderer key to the allow-listed switch. Use deterministic Remotion frame math, label reconstructions, and require citations for case-specific or measured claims. Current brand packs are Bengal Unfolded, KaloKhata, Delta Signal, FactLens, Open Care, and CipherText Labs, plus shared camera and parallax treatments. Generic renderers take facts, locations, and data from each scene; case-specific content belongs in storyboard data.
+
+Prepare short preview props for the Garibpur portrait/landscape/square example and one demonstration per brand:
+
+```bash
+node scripts/prepare-animation-quality-samples.mjs
+```
+
+The generated props are in `out/animation-quality/props/` (ignored build output). To preview any preset, open **Animation Library**, choose a brand/preset card, and play its embedded Remotion preview. The preview is independent of the current project; use **Apply to selected scene** only when you want to add a preset reference to a project scene.
 
 Open the project in Remotion Studio at half-scale and one render worker:
 
@@ -32,16 +40,16 @@ Open the project in Remotion Studio at half-scale and one render worker:
 pnpm exec remotion studio src/video/index.tsx --props=examples/garibpur-1971.project.json --scale=0.5 --concurrency=1
 ```
 
-Render a half-scale motion preview:
+Render the Garibpur sample (the portrait props include the animated opening and cited schematic map scene):
 
 ```bash
-pnpm exec remotion render src/video/index.tsx CipherTextProject out/garibpur-preview.mp4 --props=examples/garibpur-1971.project.json --scale=0.5 --concurrency=1 --codec=h264 --crf=25
+pnpm exec remotion render src/video/index.tsx CipherTextProject examples/rendered/animation-quality/garibpur-portrait.mp4 --props=out/animation-quality/props/garibpur-portrait.json --overwrite --concurrency=1 --chrome-mode=chrome-for-testing --codec=h264 --crf=24
 ```
 
 Render the final portrait video at 1080×1920, 30 FPS:
 
 ```bash
-pnpm exec remotion render src/video/index.tsx CipherTextProject out/garibpur-1971.mp4 --props=examples/garibpur-1971.project.json --concurrency=1 --codec=h264 --crf=20
+pnpm exec remotion render src/video/index.tsx CipherTextProject out/garibpur-1971.mp4 --props=examples/garibpur-1971.project.json --concurrency=1 --chrome-mode=chrome-for-testing --codec=h264 --crf=20
 ```
 
 ## Commands

@@ -13,6 +13,7 @@ db.exec('PRAGMA journal_mode=WAL; PRAGMA foreign_keys=ON;');
 db.exec(await readFile(join(root,'migrations/001_projects.sql'),'utf8'));
 db.exec(await readFile(join(root,'migrations/002_render_jobs.sql'),'utf8'));
 db.exec(await readFile(join(root,'migrations/004_animation_presets.sql'),'utf8'));
+db.exec(await readFile(join(root,'migrations/005_animation_quality_metadata.sql'),'utf8'));
 recoverInterruptedJobs(db,new Date().toISOString());
 const nextJob=db.prepare("SELECT j.*,p.brand_id AS brandId,p.title,p.format,p.storyboard_json AS storyboard FROM render_jobs j JOIN projects p ON p.id=j.project_id WHERE j.status='queued' ORDER BY j.created_at LIMIT 1");
 const update=db.prepare('UPDATE render_jobs SET status=?,progress=?,attempt=?,updated_at=?,started_at=COALESCE(started_at,?),finished_at=?,output_path=?,metadata_json=?,error_code=?,error_message=? WHERE id=?');

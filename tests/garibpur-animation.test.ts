@@ -11,6 +11,7 @@ describe('Garibpur animation storyboard',()=>{
     expect(storyboard.scenes.every(scene=>['zoom-in','pan-left','fade','rise'].includes(scene.animation))).toBe(true);
     expect(storyboard.scenes.find(scene=>scene.id==='garibpur-clash')?.animationConfig?.mode).toBe('tank-battle');
     expect(storyboard.scenes.find(scene=>scene.id==='garibpur-map')?.animationConfig?.mode).toBe('battle-map');
+    expect(storyboard.scenes.find(scene=>scene.id==='garibpur-map')?.mapData?.scale).toBe('schematic-not-to-scale');
     expect(storyboard.targetDurationSeconds).toBe(106);
   });
 

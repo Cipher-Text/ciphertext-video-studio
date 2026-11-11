@@ -28,8 +28,9 @@ const GeoGeometry=z.discriminatedUnion('type',[
   z.object({type:z.literal('MultiPolygon'),coordinates:z.array(GeoPolygon).min(1).max(1000)}).strict(),
 ]);
 const GeoFeature=z.object({type:z.literal('Feature'),geometry:GeoGeometry,properties:z.record(z.string(),z.unknown()).optional(),id:z.union([z.string(),z.number()]).optional()}).strict();
+const ComparisonSeries=z.object({name:z.string().min(1).max(80),values:z.array(z.object({label:z.string().min(1).max(48),value:z.number().finite(),lower:z.number().finite().optional(),upper:z.number().finite().optional()}).strict()).min(2).max(24)}).strict();
 const AnimationConfig=z.object({
-  mode:z.enum(['battlefield-intro','troop-advance','tank-battle','tank-retreat','battle-map','brand-outro','layered-parallax','camera-only']),
+  mode:z.enum(['battlefield-intro','troop-advance','tank-battle','tank-retreat','battle-map','brand-outro','layered-parallax','camera-only']).optional(),
   camera:z.object({movement:z.enum(['zoom-in','zoom-out','pan-left','pan-right','track-subject','none']),intensity:z.number().min(0).max(1),subject:z.enum(['pt76','m24']).optional()}).strict().optional(),
   layers:z.array(z.object({id:z.enum(['background','midground','foreground']),depth:z.number().min(-1).max(1),offsetX:z.number().min(-500).max(500).optional(),offsetY:z.number().min(-500).max(500).optional(),scale:z.number().min(.8).max(1.4).optional(),opacity:z.number().min(0).max(1).optional()}).strict()).max(3).optional(),
   settings:z.object({intensity:z.number().min(0).max(1).optional(),speed:z.number().min(.1).max(4).optional(),labels:z.array(z.string().max(60)).max(3).optional(),sourceLabel:z.string().max(180).optional(),status:z.enum(['allegation','finding','unresolved','context']).optional()}).strict().optional(),
@@ -40,11 +41,13 @@ export const SceneSchema = z.object({
   camera:z.object({movement:z.enum(['zoom-in','zoom-out','pan-left','pan-right','rise','none']),intensity:z.number().min(0).max(1)}).optional(),
   animationConfig:AnimationConfig.optional(),
   animationPresetId:z.string().min(1).max(100).regex(/^[a-z0-9.-]+$/).optional(),
+  mapData:z.object({source:z.string().min(1).max(500),date:z.string().max(40).optional(),scale:z.enum(['geographic','schematic-not-to-scale']),locations:z.array(z.object({name:z.string().min(1).max(100),x:z.number().min(0).max(1000),y:z.number().min(0).max(1000)}).strict()).max(80),routes:z.array(z.object({name:z.string().min(1).max(100),points:z.array(z.tuple([z.number().min(0).max(1000),z.number().min(0).max(1000)])).min(2).max(1000),status:z.enum(['reported','planned','illustrative']).default('reported')}).strict()).max(20)}).strict().optional(),
   transition:z.object({type:z.enum(['cut','fade','wipe']),durationSeconds:z.number().min(0).max(2)}).optional(),
   audio:z.object({src:z.string().regex(/^(?:assets|generated-audio)\/[A-Za-z0-9._/-]+$/).refine(path=>!path.split('/').includes('..')),durationSeconds:z.number().positive(),voice:z.string(),provider:z.enum(['azure','elevenlabs']).optional(),model:z.string().optional(),cacheKey:z.string().regex(/^[a-f0-9]{64}$/)}).optional(),
   assetPath:z.string().regex(/^assets\/[A-Za-z0-9._/-]+$/).refine(path=>!path.split('/').includes('..')).optional(),
   parallaxLayers:z.array(z.object({assetPath:z.string().regex(/^assets\/[A-Za-z0-9._/-]+$/).refine(path=>!path.split('/').includes('..')),depth:z.number().min(-1).max(1),opacity:z.number().min(0).max(1)}).strict()).max(8).optional(),
   geoJson:z.object({type:z.literal('FeatureCollection'),source:z.string().min(1).max(500),features:z.array(GeoFeature).min(1).max(1000)}).strict().optional(),
+  comparisonData:z.object({source:z.string().min(1).max(500),unit:z.string().max(32),period:z.string().max(80),series:z.array(ComparisonSeries).min(2).max(2),uncertaintyNote:z.string().max(180).optional()}).strict().optional(),
   videoAsset:z.object({src:z.string().regex(/^assets\/[A-Za-z0-9._/-]+$/).refine(path=>!path.split('/').includes('..')),trimStartSeconds:z.number().min(0),trimEndSeconds:z.number().positive(),fit:z.enum(['cover','contain']),positionX:z.number().min(0).max(100),positionY:z.number().min(0).max(100)}).refine(media=>media.trimEndSeconds>media.trimStartSeconds,{message:'Video trim end must be after trim start'}).optional(),
   chartData:z.object({chartType:z.enum(['bar','line']),unit:z.string().max(24),period:z.string().max(80),source:z.string().max(500),points:z.array(z.object({label:z.string().max(48),value:z.number().finite().min(0).max(1e15)})).min(2).max(12)}).optional(),
   historyData:z.object({events:z.array(z.object({date:z.string().max(40),title:z.string().max(140),description:z.string().max(800),source:z.string().max(500),assetPath:z.string().regex(/^assets\/[A-Za-z0-9._/-]+$/).refine(path=>!path.split('/').includes('..')).optional(),illustrative:z.boolean()})).min(2).max(8)}).optional(),

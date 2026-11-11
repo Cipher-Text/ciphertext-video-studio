@@ -82,6 +82,69 @@
         "transition": {
           "type": "fade",
           "durationSeconds": 0.45
+        },
+        "mapData": {
+          "source": "MP-IDSA, “The Battle of Garibpur”; locations are relative placements from the published area-of-operations map. Route is a visual summary, not precise troop coordinates.",
+          "date": "November 1971",
+          "scale": "schematic-not-to-scale",
+          "locations": [
+            {
+              "name": "বায়রা",
+              "x": 290,
+              "y": 790
+            },
+            {
+              "name": "গরিবপুর",
+              "x": 500,
+              "y": 650
+            },
+            {
+              "name": "চৌগাছা",
+              "x": 660,
+              "y": 445
+            },
+            {
+              "name": "যশোর",
+              "x": 855,
+              "y": 245
+            }
+          ],
+          "routes": [
+            {
+              "name": "Area of operations",
+              "points": [
+                [
+                  290,
+                  790
+                ],
+                [
+                  405,
+                  710
+                ],
+                [
+                  500,
+                  650
+                ],
+                [
+                  575,
+                  540
+                ],
+                [
+                  660,
+                  445
+                ],
+                [
+                  760,
+                  365
+                ],
+                [
+                  855,
+                  245
+                ]
+              ],
+              "status": "illustrative"
+            }
+          ]
         }
       },
       {

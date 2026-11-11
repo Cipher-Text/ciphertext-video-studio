@@ -1,19 +1,1477 @@
 [
-  {"id":"bengal.battlefield-intro","brandId":"bengal-unfolded","name":"Tanks through fog","category":"Battlefield","description":"Illustrative PT-76 and M24 advance through mist; reconstruction, not archival footage.","rendererKey":"battlefield-scene","version":1,"tags":["tank","fog","history"],"defaults":{}},
-  {"id":"bengal.battle-map","brandId":"bengal-unfolded","name":"Animated battlefield map","category":"Maps","description":"Animate sourced or schematic locations and routes; label schematic geography clearly.","rendererKey":"battlefield-map","version":1,"tags":["map","route","history"],"defaults":{}},
-  {"id":"bengal.troop-advance","brandId":"bengal-unfolded","name":"Troop movement","category":"Battlefield","description":"Non-photorealistic troop silhouettes move along an illustrative route.","rendererKey":"bengal-soldiers","version":1,"tags":["troops","movement","history"],"defaults":{}},
-  {"id":"bengal.tank-battle","brandId":"bengal-unfolded","name":"PT-76 / M24 engagement","category":"Battlefield","description":"Illustrative Garibpur tank movement with historical model labels; verify details against sources.","rendererKey":"battlefield-scene","version":1,"tags":["tank","battle","history"],"defaults":{}},
-  {"id":"bengal.tank-retreat","brandId":"bengal-unfolded","name":"Armored withdrawal","category":"Battlefield","description":"Illustrative withdrawing armor; use only when supported by the cited account.","rendererKey":"battlefield-scene","version":1,"tags":["tank","retreat","history"],"defaults":{}},
-  {"id":"bengal.brand-outro","brandId":"bengal-unfolded","name":"Bengal Unfolded outro","category":"Brand","description":"Dissolve an illustrative scene into the Bengal Unfolded end card.","rendererKey":"battlefield-scene","version":1,"tags":["outro","brand"],"defaults":{}},
-  {"id":"bengal.soldier-march","brandId":"bengal-unfolded","name":"Infantry advance","category":"Battlefield","description":"Generic non-photorealistic marching figures, without unsupported unit insignia.","rendererKey":"bengal-soldiers","version":1,"tags":["infantry","march","history"],"defaults":{}},
-  {"id":"bengal.infantry-engagement","brandId":"bengal-unfolded","name":"Non-graphic infantry engagement","category":"Battlefield","description":"Abstract opposing movement and a line of contact; use only with a cited account and label as illustration.","rendererKey":"bengal-infantry-contact","version":1,"tags":["infantry","engagement","history"],"defaults":{}},
-  {"id":"bengal.river-crossing","brandId":"bengal-unfolded","name":"River crossing route","category":"Maps","description":"Animate a cited route across a river on a clearly labeled schematic map.","rendererKey":"bengal-route-map","version":1,"tags":["river","route","map"],"defaults":{}},
-  {"id":"kalokhata.money-flow","brandId":"kalokhata","name":"Funds flow diagram","category":"Financial records","description":"Conceptual movement between generic entities; does not assert a real transaction without evidence.","rendererKey":"kalokhata-flow","version":1,"tags":["finance","flow","records"],"defaults":{}},
-  {"id":"kalokhata.document-trail","brandId":"kalokhata","name":"Document and evidence trail","category":"Records","description":"Reveal dated records and citations with clear allegation, finding, or unresolved status.","rendererKey":"kalokhata-records","version":1,"tags":["documents","evidence","records"],"defaults":{}},
-  {"id":"kalokhata.non-graphic-incident","brandId":"kalokhata","name":"Non-graphic incident reconstruction","category":"Incident context","description":"Abstract location and timeline treatment; no graphic violence and no invented evidence.","rendererKey":"kalokhata-incident","version":1,"tags":["incident","timeline","reconstruction"],"defaults":{}},
-  {"id":"delta.rainfall","brandId":"delta-signal","name":"Rainfall field","category":"Weather","description":"Deterministic rain layers over a geographic or abstract delta background.","rendererKey":"delta-weather","version":1,"tags":["rain","weather","delta"],"defaults":{"intensity":0.62}},
-  {"id":"delta.storm-track","brandId":"delta-signal","name":"Storm track","category":"Weather","description":"Animate a storm path and track markers; display the source and observation time.","rendererKey":"delta-storm","version":1,"tags":["storm","track","weather"],"defaults":{}},
-  {"id":"delta.rising-water","brandId":"delta-signal","name":"Rising water level","category":"Hydrology","description":"Illustrate a rising-water cross section; provide a real data source before presenting values.","rendererKey":"delta-water","version":1,"tags":["river","flood","water"],"defaults":{}},
-  {"id":"shared.camera-drift","brandId":null,"name":"Cinematic camera drift","category":"Camera","description":"Slow deterministic pan, push, or track applied to an existing scene.","rendererKey":"shared-camera","version":1,"tags":["camera","pan","zoom"],"defaults":{}},
-  {"id":"shared.layered-parallax","brandId":null,"name":"Layered parallax","category":"Camera","description":"Depth-based motion for separate foreground, middle, and background artwork.","rendererKey":"shared-parallax","version":1,"tags":["parallax","layers","camera"],"defaults":{}}
+  {
+    "id": "bengal.battlefield-intro",
+    "brandId": "bengal-unfolded",
+    "name": "Armoured advance through fog",
+    "category": "Battlefield",
+    "description": "Atmospheric battlefield reconstruction plate with a restrained camera push; use cited scene details.",
+    "rendererKey": "battlefield-scene",
+    "version": 1,
+    "tags": [
+      "tank",
+      "fog",
+      "history"
+    ],
+    "defaults": {},
+    "requiredInputs": [
+      "scene visual description",
+      "source references"
+    ],
+    "optionalInputs": [
+      "scene image or licensed reconstruction plate",
+      "narration"
+    ],
+    "assetRequirements": [
+      "local image or video recommended"
+    ],
+    "cameraSettings": {
+      "defaultMovement": "push-in",
+      "intensity": 0.08,
+      "editable": true
+    },
+    "motionParameters": {
+      "durationSeconds": 6,
+      "easing": "inOutCubic",
+      "maxCameraIntensity": 0.16
+    },
+    "sceneTreatment": "battlefield-scene",
+    "transitionStyle": "cross-dissolve",
+    "atmosphereStyle": "editorial vignette",
+    "textAnimation": "staggered title reveal",
+    "supportedAspectRatios": [
+      "portrait",
+      "landscape",
+      "square"
+    ],
+    "estimatedRenderCost": "low",
+    "previewConfiguration": {
+      "durationSeconds": 6,
+      "aspectRatio": "9:16",
+      "posterFrame": 36
+    },
+    "qualityCriteria": [
+      "Keep titles inside the 8% safe margin",
+      "Respect source and legal status labels",
+      "Avoid unverified values or geography",
+      "Use restrained motion with readable holds"
+    ]
+  },
+  {
+    "id": "bengal.battle-map",
+    "brandId": "bengal-unfolded",
+    "name": "Campaign map and route",
+    "category": "Maps",
+    "description": "Animate sourced geographic features and routes. Requires GeoJSON and citations; no routes are invented.",
+    "rendererKey": "campaign-map",
+    "version": 1,
+    "tags": [
+      "map",
+      "route",
+      "history"
+    ],
+    "defaults": {},
+    "requiredInputs": [
+      "GeoJSON or sourced route",
+      "map source citation"
+    ],
+    "optionalInputs": [
+      "feature names",
+      "observation/date labels"
+    ],
+    "assetRequirements": [
+      "sourced geographic data"
+    ],
+    "cameraSettings": {
+      "defaultMovement": "map push and route-follow",
+      "intensity": 0.08,
+      "editable": true
+    },
+    "motionParameters": {
+      "durationSeconds": 6,
+      "easing": "inOutCubic",
+      "maxCameraIntensity": 0.16
+    },
+    "sceneTreatment": "campaign-map",
+    "transitionStyle": "cross-dissolve",
+    "atmosphereStyle": "paper texture and cartographic relief",
+    "textAnimation": "location labels with source footer",
+    "supportedAspectRatios": [
+      "portrait",
+      "landscape",
+      "square"
+    ],
+    "estimatedRenderCost": "low",
+    "previewConfiguration": {
+      "durationSeconds": 6,
+      "aspectRatio": "9:16",
+      "posterFrame": 36
+    },
+    "qualityCriteria": [
+      "Keep titles inside the 8% safe margin",
+      "Respect source and legal status labels",
+      "Avoid unverified values or geography",
+      "Use restrained motion with readable holds"
+    ]
+  },
+  {
+    "id": "bengal.troop-advance",
+    "brandId": "bengal-unfolded",
+    "name": "Troop movement",
+    "category": "Battlefield",
+    "description": "Historical illustration with only storyboard-sourced route annotations; no unverified figures or positions.",
+    "rendererKey": "bengal-soldiers",
+    "version": 1,
+    "tags": [
+      "troops",
+      "movement",
+      "history"
+    ],
+    "defaults": {},
+    "requiredInputs": [
+      "historical narration",
+      "source references"
+    ],
+    "optionalInputs": [
+      "local reconstruction image or video",
+      "sourced route data"
+    ],
+    "assetRequirements": [
+      "local reconstruction image or video recommended"
+    ],
+    "cameraSettings": {
+      "defaultMovement": "push-in",
+      "intensity": 0.08,
+      "editable": true
+    },
+    "motionParameters": {
+      "durationSeconds": 6,
+      "easing": "inOutCubic",
+      "maxCameraIntensity": 0.16
+    },
+    "sceneTreatment": "bengal-soldiers",
+    "transitionStyle": "cross-dissolve",
+    "atmosphereStyle": "editorial vignette",
+    "textAnimation": "staggered title reveal",
+    "supportedAspectRatios": [
+      "portrait",
+      "landscape",
+      "square"
+    ],
+    "estimatedRenderCost": "low",
+    "previewConfiguration": {
+      "durationSeconds": 6,
+      "aspectRatio": "9:16",
+      "posterFrame": 36
+    },
+    "qualityCriteria": [
+      "Keep titles inside the 8% safe margin",
+      "Respect source and legal status labels",
+      "Avoid unverified values or geography",
+      "Use restrained motion with readable holds"
+    ]
+  },
+  {
+    "id": "bengal.tank-battle",
+    "brandId": "bengal-unfolded",
+    "name": "Armoured engagement",
+    "category": "Battlefield",
+    "description": "Media-led battlefield reconstruction with camera tracking and atmosphere; source vehicle details and label as illustration.",
+    "rendererKey": "battlefield-scene",
+    "version": 1,
+    "tags": [
+      "tank",
+      "battle",
+      "history"
+    ],
+    "defaults": {},
+    "requiredInputs": [
+      "scene visual description",
+      "source references"
+    ],
+    "optionalInputs": [
+      "scene image or licensed reconstruction plate",
+      "narration"
+    ],
+    "assetRequirements": [
+      "local image or video recommended"
+    ],
+    "cameraSettings": {
+      "defaultMovement": "push-in",
+      "intensity": 0.08,
+      "editable": true
+    },
+    "motionParameters": {
+      "durationSeconds": 6,
+      "easing": "inOutCubic",
+      "maxCameraIntensity": 0.16
+    },
+    "sceneTreatment": "battlefield-scene",
+    "transitionStyle": "cross-dissolve",
+    "atmosphereStyle": "editorial vignette",
+    "textAnimation": "staggered title reveal",
+    "supportedAspectRatios": [
+      "portrait",
+      "landscape",
+      "square"
+    ],
+    "estimatedRenderCost": "low",
+    "previewConfiguration": {
+      "durationSeconds": 6,
+      "aspectRatio": "9:16",
+      "posterFrame": 36
+    },
+    "qualityCriteria": [
+      "Keep titles inside the 8% safe margin",
+      "Respect source and legal status labels",
+      "Avoid unverified values or geography",
+      "Use restrained motion with readable holds"
+    ]
+  },
+  {
+    "id": "bengal.tank-retreat",
+    "brandId": "bengal-unfolded",
+    "name": "Armoured withdrawal",
+    "category": "Battlefield",
+    "description": "Media-led withdrawal treatment with a slow reverse camera move; use only when supported by the cited account.",
+    "rendererKey": "battlefield-scene",
+    "version": 1,
+    "tags": [
+      "tank",
+      "retreat",
+      "history"
+    ],
+    "defaults": {},
+    "requiredInputs": [
+      "scene visual description",
+      "source references"
+    ],
+    "optionalInputs": [
+      "scene image or licensed reconstruction plate",
+      "narration"
+    ],
+    "assetRequirements": [
+      "local image or video recommended"
+    ],
+    "cameraSettings": {
+      "defaultMovement": "push-in",
+      "intensity": 0.08,
+      "editable": true
+    },
+    "motionParameters": {
+      "durationSeconds": 6,
+      "easing": "inOutCubic",
+      "maxCameraIntensity": 0.16
+    },
+    "sceneTreatment": "battlefield-scene",
+    "transitionStyle": "cross-dissolve",
+    "atmosphereStyle": "editorial vignette",
+    "textAnimation": "staggered title reveal",
+    "supportedAspectRatios": [
+      "portrait",
+      "landscape",
+      "square"
+    ],
+    "estimatedRenderCost": "low",
+    "previewConfiguration": {
+      "durationSeconds": 6,
+      "aspectRatio": "9:16",
+      "posterFrame": 36
+    },
+    "qualityCriteria": [
+      "Keep titles inside the 8% safe margin",
+      "Respect source and legal status labels",
+      "Avoid unverified values or geography",
+      "Use restrained motion with readable holds"
+    ]
+  },
+  {
+    "id": "bengal.brand-outro",
+    "brandId": "bengal-unfolded",
+    "name": "Bengal Unfolded documentary close",
+    "category": "Brand",
+    "description": "Dissolve a sourced or illustrated battlefield plate into the Bengal Unfolded end card.",
+    "rendererKey": "battlefield-scene",
+    "version": 1,
+    "tags": [
+      "outro",
+      "brand"
+    ],
+    "defaults": {},
+    "requiredInputs": [
+      "scene visual description",
+      "source references"
+    ],
+    "optionalInputs": [
+      "scene image or licensed reconstruction plate",
+      "narration"
+    ],
+    "assetRequirements": [
+      "local image or video recommended"
+    ],
+    "cameraSettings": {
+      "defaultMovement": "push-in",
+      "intensity": 0.08,
+      "editable": true
+    },
+    "motionParameters": {
+      "durationSeconds": 6,
+      "easing": "inOutCubic",
+      "maxCameraIntensity": 0.16
+    },
+    "sceneTreatment": "battlefield-scene",
+    "transitionStyle": "cross-dissolve",
+    "atmosphereStyle": "editorial vignette",
+    "textAnimation": "staggered title reveal",
+    "supportedAspectRatios": [
+      "portrait",
+      "landscape",
+      "square"
+    ],
+    "estimatedRenderCost": "low",
+    "previewConfiguration": {
+      "durationSeconds": 6,
+      "aspectRatio": "9:16",
+      "posterFrame": 36
+    },
+    "qualityCriteria": [
+      "Keep titles inside the 8% safe margin",
+      "Respect source and legal status labels",
+      "Avoid unverified values or geography",
+      "Use restrained motion with readable holds"
+    ]
+  },
+  {
+    "id": "bengal.soldier-march",
+    "brandId": "bengal-unfolded",
+    "name": "Infantry advance schematic",
+    "category": "Battlefield",
+    "description": "Editorial schematic for movement where sourced footage or licensed imagery is unavailable.",
+    "rendererKey": "bengal-soldiers",
+    "version": 1,
+    "tags": [
+      "infantry",
+      "march",
+      "history"
+    ],
+    "defaults": {},
+    "requiredInputs": [
+      "historical narration",
+      "source references"
+    ],
+    "optionalInputs": [
+      "licensed archival media",
+      "sourced unit labels"
+    ],
+    "assetRequirements": [
+      "archival media optional"
+    ],
+    "cameraSettings": {
+      "defaultMovement": "push-in",
+      "intensity": 0.08,
+      "editable": true
+    },
+    "motionParameters": {
+      "durationSeconds": 6,
+      "easing": "inOutCubic",
+      "maxCameraIntensity": 0.16
+    },
+    "sceneTreatment": "bengal-soldiers",
+    "transitionStyle": "cross-dissolve",
+    "atmosphereStyle": "editorial vignette",
+    "textAnimation": "staggered title reveal",
+    "supportedAspectRatios": [
+      "portrait",
+      "landscape",
+      "square"
+    ],
+    "estimatedRenderCost": "low",
+    "previewConfiguration": {
+      "durationSeconds": 6,
+      "aspectRatio": "9:16",
+      "posterFrame": 36
+    },
+    "qualityCriteria": [
+      "Keep titles inside the 8% safe margin",
+      "Respect source and legal status labels",
+      "Avoid unverified values or geography",
+      "Use restrained motion with readable holds"
+    ]
+  },
+  {
+    "id": "bengal.infantry-engagement",
+    "brandId": "bengal-unfolded",
+    "name": "Non-graphic contact schematic",
+    "category": "Battlefield",
+    "description": "Abstract opposing movement and a line of contact; source all positions and label as illustration.",
+    "rendererKey": "bengal-infantry-contact",
+    "version": 1,
+    "tags": [
+      "infantry",
+      "engagement",
+      "history"
+    ],
+    "defaults": {},
+    "requiredInputs": [
+      "historical narration",
+      "source references"
+    ],
+    "optionalInputs": [
+      "licensed archival media",
+      "sourced unit labels"
+    ],
+    "assetRequirements": [
+      "archival media optional"
+    ],
+    "cameraSettings": {
+      "defaultMovement": "push-in",
+      "intensity": 0.08,
+      "editable": true
+    },
+    "motionParameters": {
+      "durationSeconds": 6,
+      "easing": "inOutCubic",
+      "maxCameraIntensity": 0.16
+    },
+    "sceneTreatment": "bengal-infantry-contact",
+    "transitionStyle": "cross-dissolve",
+    "atmosphereStyle": "editorial vignette",
+    "textAnimation": "staggered title reveal",
+    "supportedAspectRatios": [
+      "portrait",
+      "landscape",
+      "square"
+    ],
+    "estimatedRenderCost": "low",
+    "previewConfiguration": {
+      "durationSeconds": 6,
+      "aspectRatio": "9:16",
+      "posterFrame": 36
+    },
+    "qualityCriteria": [
+      "Keep titles inside the 8% safe margin",
+      "Respect source and legal status labels",
+      "Avoid unverified values or geography",
+      "Use restrained motion with readable holds"
+    ]
+  },
+  {
+    "id": "bengal.river-crossing",
+    "brandId": "bengal-unfolded",
+    "name": "River crossing route",
+    "category": "Maps",
+    "description": "Animate only supplied, cited route data over a labeled schematic; the preview stays empty until data is attached.",
+    "rendererKey": "bengal-route-map",
+    "version": 1,
+    "tags": [
+      "river",
+      "route",
+      "map"
+    ],
+    "defaults": {},
+    "requiredInputs": [
+      "GeoJSON or sourced route",
+      "map source citation"
+    ],
+    "optionalInputs": [
+      "feature names",
+      "observation/date labels"
+    ],
+    "assetRequirements": [
+      "sourced geographic data"
+    ],
+    "cameraSettings": {
+      "defaultMovement": "map push and route-follow",
+      "intensity": 0.08,
+      "editable": true
+    },
+    "motionParameters": {
+      "durationSeconds": 6,
+      "easing": "inOutCubic",
+      "maxCameraIntensity": 0.16
+    },
+    "sceneTreatment": "bengal-route-map",
+    "transitionStyle": "cross-dissolve",
+    "atmosphereStyle": "paper texture and cartographic relief",
+    "textAnimation": "location labels with source footer",
+    "supportedAspectRatios": [
+      "portrait",
+      "landscape",
+      "square"
+    ],
+    "estimatedRenderCost": "low",
+    "previewConfiguration": {
+      "durationSeconds": 6,
+      "aspectRatio": "9:16",
+      "posterFrame": 36
+    },
+    "qualityCriteria": [
+      "Keep titles inside the 8% safe margin",
+      "Respect source and legal status labels",
+      "Avoid unverified values or geography",
+      "Use restrained motion with readable holds"
+    ]
+  },
+  {
+    "id": "kalokhata.money-flow",
+    "brandId": "kalokhata",
+    "name": "Funds flow diagram",
+    "category": "Financial records",
+    "description": "Investigative flow diagram for source-verified records; generic nodes never imply a real transaction by themselves.",
+    "rendererKey": "kalokhata-flow",
+    "version": 1,
+    "tags": [
+      "finance",
+      "flow",
+      "records"
+    ],
+    "defaults": {},
+    "requiredInputs": [
+      "source references",
+      "legal or evidentiary status"
+    ],
+    "optionalInputs": [
+      "node labels",
+      "dated records"
+    ],
+    "assetRequirements": [
+      "source documents optional"
+    ],
+    "cameraSettings": {
+      "defaultMovement": "locked or slow push",
+      "intensity": 0.08,
+      "editable": true
+    },
+    "motionParameters": {
+      "durationSeconds": 6,
+      "easing": "inOutCubic",
+      "maxCameraIntensity": 0.16
+    },
+    "sceneTreatment": "kalokhata-flow",
+    "transitionStyle": "cross-dissolve",
+    "atmosphereStyle": "soft document shadow",
+    "textAnimation": "record-by-record stagger",
+    "supportedAspectRatios": [
+      "portrait",
+      "landscape",
+      "square"
+    ],
+    "estimatedRenderCost": "low",
+    "previewConfiguration": {
+      "durationSeconds": 6,
+      "aspectRatio": "9:16",
+      "posterFrame": 36
+    },
+    "qualityCriteria": [
+      "Keep titles inside the 8% safe margin",
+      "Respect source and legal status labels",
+      "Avoid unverified values or geography",
+      "Use restrained motion with readable holds"
+    ]
+  },
+  {
+    "id": "kalokhata.document-trail",
+    "brandId": "kalokhata",
+    "name": "Document and evidence trail",
+    "category": "Records",
+    "description": "Reveal dated records and citations with clear allegation, finding, or unresolved status.",
+    "rendererKey": "kalokhata-records",
+    "version": 1,
+    "tags": [
+      "documents",
+      "evidence",
+      "records"
+    ],
+    "defaults": {},
+    "requiredInputs": [
+      "source references",
+      "legal or evidentiary status"
+    ],
+    "optionalInputs": [
+      "node labels",
+      "dated records"
+    ],
+    "assetRequirements": [
+      "source documents optional"
+    ],
+    "cameraSettings": {
+      "defaultMovement": "locked or slow push",
+      "intensity": 0.08,
+      "editable": true
+    },
+    "motionParameters": {
+      "durationSeconds": 6,
+      "easing": "inOutCubic",
+      "maxCameraIntensity": 0.16
+    },
+    "sceneTreatment": "kalokhata-records",
+    "transitionStyle": "cross-dissolve",
+    "atmosphereStyle": "soft document shadow",
+    "textAnimation": "record-by-record stagger",
+    "supportedAspectRatios": [
+      "portrait",
+      "landscape",
+      "square"
+    ],
+    "estimatedRenderCost": "low",
+    "previewConfiguration": {
+      "durationSeconds": 6,
+      "aspectRatio": "9:16",
+      "posterFrame": 36
+    },
+    "qualityCriteria": [
+      "Keep titles inside the 8% safe margin",
+      "Respect source and legal status labels",
+      "Avoid unverified values or geography",
+      "Use restrained motion with readable holds"
+    ]
+  },
+  {
+    "id": "kalokhata.non-graphic-incident",
+    "brandId": "kalokhata",
+    "name": "Non-graphic incident reconstruction",
+    "category": "Incident context",
+    "description": "Abstract location and timeline treatment; no graphic violence and no invented evidence.",
+    "rendererKey": "kalokhata-incident",
+    "version": 1,
+    "tags": [
+      "incident",
+      "timeline",
+      "reconstruction"
+    ],
+    "defaults": {},
+    "requiredInputs": [
+      "source references",
+      "legal or evidentiary status"
+    ],
+    "optionalInputs": [
+      "node labels",
+      "dated records"
+    ],
+    "assetRequirements": [
+      "source documents optional"
+    ],
+    "cameraSettings": {
+      "defaultMovement": "locked or slow push",
+      "intensity": 0.08,
+      "editable": true
+    },
+    "motionParameters": {
+      "durationSeconds": 6,
+      "easing": "inOutCubic",
+      "maxCameraIntensity": 0.16
+    },
+    "sceneTreatment": "kalokhata-incident",
+    "transitionStyle": "cross-dissolve",
+    "atmosphereStyle": "soft document shadow",
+    "textAnimation": "record-by-record stagger",
+    "supportedAspectRatios": [
+      "portrait",
+      "landscape",
+      "square"
+    ],
+    "estimatedRenderCost": "low",
+    "previewConfiguration": {
+      "durationSeconds": 6,
+      "aspectRatio": "9:16",
+      "posterFrame": 36
+    },
+    "qualityCriteria": [
+      "Keep titles inside the 8% safe margin",
+      "Respect source and legal status labels",
+      "Avoid unverified values or geography",
+      "Use restrained motion with readable holds"
+    ]
+  },
+  {
+    "id": "delta.rainfall",
+    "brandId": "delta-signal",
+    "name": "Rainfall field",
+    "category": "Weather",
+    "description": "Rainfall field treatment; requires sourced values, timestamps, units and geographic context.",
+    "rendererKey": "delta-weather",
+    "version": 1,
+    "tags": [
+      "rain",
+      "weather",
+      "delta"
+    ],
+    "defaults": {
+      "intensity": 0.62
+    },
+    "requiredInputs": [
+      "data values",
+      "units",
+      "source",
+      "observation timestamp"
+    ],
+    "optionalInputs": [
+      "uncertainty bounds",
+      "station coordinates"
+    ],
+    "assetRequirements": [
+      "source dataset"
+    ],
+    "cameraSettings": {
+      "defaultMovement": "data-region track",
+      "intensity": 0.08,
+      "editable": true
+    },
+    "motionParameters": {
+      "durationSeconds": 6,
+      "easing": "inOutCubic",
+      "maxCameraIntensity": 0.16
+    },
+    "sceneTreatment": "delta-weather",
+    "transitionStyle": "cross-dissolve",
+    "atmosphereStyle": "low-contrast field texture",
+    "textAnimation": "units, timestamp and uncertainty labels",
+    "supportedAspectRatios": [
+      "portrait",
+      "landscape",
+      "square"
+    ],
+    "estimatedRenderCost": "low",
+    "previewConfiguration": {
+      "durationSeconds": 6,
+      "aspectRatio": "9:16",
+      "posterFrame": 36
+    },
+    "qualityCriteria": [
+      "Keep titles inside the 8% safe margin",
+      "Respect source and legal status labels",
+      "Avoid unverified values or geography",
+      "Use restrained motion with readable holds"
+    ]
+  },
+  {
+    "id": "delta.storm-track",
+    "brandId": "delta-signal",
+    "name": "Storm track",
+    "category": "Weather",
+    "description": "Animate a sourced storm path and track markers; show source, observation time and uncertainty.",
+    "rendererKey": "delta-storm",
+    "version": 1,
+    "tags": [
+      "storm",
+      "track",
+      "weather"
+    ],
+    "defaults": {},
+    "requiredInputs": [
+      "data values",
+      "units",
+      "source",
+      "observation timestamp"
+    ],
+    "optionalInputs": [
+      "uncertainty bounds",
+      "station coordinates"
+    ],
+    "assetRequirements": [
+      "source dataset"
+    ],
+    "cameraSettings": {
+      "defaultMovement": "data-region track",
+      "intensity": 0.08,
+      "editable": true
+    },
+    "motionParameters": {
+      "durationSeconds": 6,
+      "easing": "inOutCubic",
+      "maxCameraIntensity": 0.16
+    },
+    "sceneTreatment": "delta-storm",
+    "transitionStyle": "cross-dissolve",
+    "atmosphereStyle": "low-contrast field texture",
+    "textAnimation": "units, timestamp and uncertainty labels",
+    "supportedAspectRatios": [
+      "portrait",
+      "landscape",
+      "square"
+    ],
+    "estimatedRenderCost": "low",
+    "previewConfiguration": {
+      "durationSeconds": 6,
+      "aspectRatio": "9:16",
+      "posterFrame": 36
+    },
+    "qualityCriteria": [
+      "Keep titles inside the 8% safe margin",
+      "Respect source and legal status labels",
+      "Avoid unverified values or geography",
+      "Use restrained motion with readable holds"
+    ]
+  },
+  {
+    "id": "delta.rising-water",
+    "brandId": "delta-signal",
+    "name": "Rising water level",
+    "category": "Hydrology",
+    "description": "Animate sourced water-level observations with units, station, timestamp and uncertainty.",
+    "rendererKey": "delta-water",
+    "version": 1,
+    "tags": [
+      "river",
+      "flood",
+      "water"
+    ],
+    "defaults": {},
+    "requiredInputs": [
+      "data values",
+      "units",
+      "source",
+      "observation timestamp"
+    ],
+    "optionalInputs": [
+      "uncertainty bounds",
+      "station coordinates"
+    ],
+    "assetRequirements": [
+      "source dataset"
+    ],
+    "cameraSettings": {
+      "defaultMovement": "data-region track",
+      "intensity": 0.08,
+      "editable": true
+    },
+    "motionParameters": {
+      "durationSeconds": 6,
+      "easing": "inOutCubic",
+      "maxCameraIntensity": 0.16
+    },
+    "sceneTreatment": "delta-water",
+    "transitionStyle": "cross-dissolve",
+    "atmosphereStyle": "low-contrast field texture",
+    "textAnimation": "units, timestamp and uncertainty labels",
+    "supportedAspectRatios": [
+      "portrait",
+      "landscape",
+      "square"
+    ],
+    "estimatedRenderCost": "low",
+    "previewConfiguration": {
+      "durationSeconds": 6,
+      "aspectRatio": "9:16",
+      "posterFrame": 36
+    },
+    "qualityCriteria": [
+      "Keep titles inside the 8% safe margin",
+      "Respect source and legal status labels",
+      "Avoid unverified values or geography",
+      "Use restrained motion with readable holds"
+    ]
+  },
+  {
+    "id": "shared.camera-drift",
+    "brandId": null,
+    "name": "Cinematic camera drift",
+    "category": "Camera",
+    "description": "Slow deterministic pan, push, or track applied to an existing scene.",
+    "rendererKey": "shared-camera",
+    "version": 1,
+    "tags": [
+      "camera",
+      "pan",
+      "zoom"
+    ],
+    "defaults": {},
+    "requiredInputs": [],
+    "optionalInputs": [],
+    "assetRequirements": [],
+    "cameraSettings": {
+      "defaultMovement": "push-in",
+      "intensity": 0.08,
+      "editable": true
+    },
+    "motionParameters": {
+      "durationSeconds": 6,
+      "easing": "inOutCubic",
+      "maxCameraIntensity": 0.16
+    },
+    "sceneTreatment": "shared-camera",
+    "transitionStyle": "cross-dissolve",
+    "atmosphereStyle": "editorial vignette",
+    "textAnimation": "staggered title reveal",
+    "supportedAspectRatios": [
+      "portrait",
+      "landscape",
+      "square"
+    ],
+    "estimatedRenderCost": "low",
+    "previewConfiguration": {
+      "durationSeconds": 6,
+      "aspectRatio": "9:16",
+      "posterFrame": 36
+    },
+    "qualityCriteria": [
+      "Keep titles inside the 8% safe margin",
+      "Respect source and legal status labels",
+      "Avoid unverified values or geography",
+      "Use restrained motion with readable holds"
+    ]
+  },
+  {
+    "id": "shared.layered-parallax",
+    "brandId": null,
+    "name": "Layered parallax",
+    "category": "Camera",
+    "description": "Depth-aware camera treatment for supplied foreground, middle and background media layers.",
+    "rendererKey": "shared-parallax",
+    "version": 1,
+    "tags": [
+      "parallax",
+      "layers",
+      "camera"
+    ],
+    "defaults": {},
+    "requiredInputs": [],
+    "optionalInputs": [],
+    "assetRequirements": [],
+    "cameraSettings": {
+      "defaultMovement": "push-in",
+      "intensity": 0.08,
+      "editable": true
+    },
+    "motionParameters": {
+      "durationSeconds": 6,
+      "easing": "inOutCubic",
+      "maxCameraIntensity": 0.16
+    },
+    "sceneTreatment": "shared-parallax",
+    "transitionStyle": "cross-dissolve",
+    "atmosphereStyle": "editorial vignette",
+    "textAnimation": "staggered title reveal",
+    "supportedAspectRatios": [
+      "portrait",
+      "landscape",
+      "square"
+    ],
+    "estimatedRenderCost": "low",
+    "previewConfiguration": {
+      "durationSeconds": 6,
+      "aspectRatio": "9:16",
+      "posterFrame": 36
+    },
+    "qualityCriteria": [
+      "Keep titles inside the 8% safe margin",
+      "Respect source and legal status labels",
+      "Avoid unverified values or geography",
+      "Use restrained motion with readable holds"
+    ]
+  },
+  {
+    "id": "kalokhata.status-comparison",
+    "brandId": "kalokhata",
+    "name": "Allegation and finding comparison",
+    "category": "Investigative context",
+    "description": "Compare sourced claims and official findings with explicit legal status and citation labels.",
+    "rendererKey": "kalokhata-comparison",
+    "version": 1,
+    "tags": [
+      "allegation",
+      "finding",
+      "court"
+    ],
+    "defaults": {},
+    "requiredInputs": [
+      "source references",
+      "legal or evidentiary status"
+    ],
+    "optionalInputs": [
+      "node labels",
+      "dated records"
+    ],
+    "assetRequirements": [
+      "source documents optional"
+    ],
+    "cameraSettings": {
+      "defaultMovement": "locked or slow push",
+      "intensity": 0.08,
+      "editable": true
+    },
+    "motionParameters": {
+      "durationSeconds": 6,
+      "easing": "inOutCubic",
+      "maxCameraIntensity": 0.16
+    },
+    "sceneTreatment": "kalokhata-comparison",
+    "transitionStyle": "cross-dissolve",
+    "atmosphereStyle": "soft document shadow",
+    "textAnimation": "record-by-record stagger",
+    "supportedAspectRatios": [
+      "portrait",
+      "landscape",
+      "square"
+    ],
+    "estimatedRenderCost": "low",
+    "previewConfiguration": {
+      "durationSeconds": 6,
+      "aspectRatio": "9:16",
+      "posterFrame": 36
+    },
+    "qualityCriteria": [
+      "Keep titles inside the 8% safe margin",
+      "Respect source and legal status labels",
+      "Avoid unverified values or geography",
+      "Use restrained motion with readable holds"
+    ]
+  },
+  {
+    "id": "kalokhata.relationship-map",
+    "brandId": "kalokhata",
+    "name": "Organization relationship map",
+    "category": "Investigative context",
+    "description": "Show documented relationships only; require named sources and keep allegations distinct from findings.",
+    "rendererKey": "kalokhata-network",
+    "version": 1,
+    "tags": [
+      "organization",
+      "network",
+      "records"
+    ],
+    "defaults": {},
+    "requiredInputs": [
+      "source references",
+      "legal or evidentiary status"
+    ],
+    "optionalInputs": [
+      "node labels",
+      "dated records"
+    ],
+    "assetRequirements": [
+      "source documents optional"
+    ],
+    "cameraSettings": {
+      "defaultMovement": "locked or slow push",
+      "intensity": 0.08,
+      "editable": true
+    },
+    "motionParameters": {
+      "durationSeconds": 6,
+      "easing": "inOutCubic",
+      "maxCameraIntensity": 0.16
+    },
+    "sceneTreatment": "kalokhata-network",
+    "transitionStyle": "cross-dissolve",
+    "atmosphereStyle": "soft document shadow",
+    "textAnimation": "record-by-record stagger",
+    "supportedAspectRatios": [
+      "portrait",
+      "landscape",
+      "square"
+    ],
+    "estimatedRenderCost": "low",
+    "previewConfiguration": {
+      "durationSeconds": 6,
+      "aspectRatio": "9:16",
+      "posterFrame": 36
+    },
+    "qualityCriteria": [
+      "Keep titles inside the 8% safe margin",
+      "Respect source and legal status labels",
+      "Avoid unverified values or geography",
+      "Use restrained motion with readable holds"
+    ]
+  },
+  {
+    "id": "delta.forecast-observation",
+    "brandId": "delta-signal",
+    "name": "Forecast and observation",
+    "category": "Scientific visualization",
+    "description": "Compare supplied forecast and observed series, with units, timestamps and uncertainty visible.",
+    "rendererKey": "delta-comparison",
+    "version": 1,
+    "tags": [
+      "forecast",
+      "observation",
+      "data"
+    ],
+    "defaults": {},
+    "requiredInputs": [
+      "data values",
+      "units",
+      "source",
+      "observation timestamp"
+    ],
+    "optionalInputs": [
+      "uncertainty bounds",
+      "station coordinates"
+    ],
+    "assetRequirements": [
+      "source dataset"
+    ],
+    "cameraSettings": {
+      "defaultMovement": "data-region track",
+      "intensity": 0.08,
+      "editable": true
+    },
+    "motionParameters": {
+      "durationSeconds": 6,
+      "easing": "inOutCubic",
+      "maxCameraIntensity": 0.16
+    },
+    "sceneTreatment": "delta-comparison",
+    "transitionStyle": "cross-dissolve",
+    "atmosphereStyle": "low-contrast field texture",
+    "textAnimation": "units, timestamp and uncertainty labels",
+    "supportedAspectRatios": [
+      "portrait",
+      "landscape",
+      "square"
+    ],
+    "estimatedRenderCost": "low",
+    "previewConfiguration": {
+      "durationSeconds": 6,
+      "aspectRatio": "9:16",
+      "posterFrame": 36
+    },
+    "qualityCriteria": [
+      "Keep titles inside the 8% safe margin",
+      "Respect source and legal status labels",
+      "Avoid unverified values or geography",
+      "Use restrained motion with readable holds"
+    ]
+  },
+  {
+    "id": "factlens.headline",
+    "brandId": "factlens",
+    "name": "News headline reveal",
+    "category": "Newsroom",
+    "description": "A restrained headline reveal with source context and clear editorial hierarchy.",
+    "rendererKey": "factlens-headline",
+    "version": 1,
+    "tags": [
+      "news",
+      "headline",
+      "editorial"
+    ],
+    "defaults": {},
+    "requiredInputs": [
+      "headline or claim",
+      "source references"
+    ],
+    "optionalInputs": [
+      "date",
+      "location",
+      "evidence labels"
+    ],
+    "assetRequirements": [
+      "source media optional"
+    ],
+    "cameraSettings": {
+      "defaultMovement": "push-in",
+      "intensity": 0.08,
+      "editable": true
+    },
+    "motionParameters": {
+      "durationSeconds": 6,
+      "easing": "inOutCubic",
+      "maxCameraIntensity": 0.16
+    },
+    "sceneTreatment": "factlens-headline",
+    "transitionStyle": "cross-dissolve",
+    "atmosphereStyle": "editorial vignette",
+    "textAnimation": "staggered title reveal",
+    "supportedAspectRatios": [
+      "portrait",
+      "landscape",
+      "square"
+    ],
+    "estimatedRenderCost": "low",
+    "previewConfiguration": {
+      "durationSeconds": 6,
+      "aspectRatio": "9:16",
+      "posterFrame": 36
+    },
+    "qualityCriteria": [
+      "Keep titles inside the 8% safe margin",
+      "Respect source and legal status labels",
+      "Avoid unverified values or geography",
+      "Use restrained motion with readable holds"
+    ]
+  },
+  {
+    "id": "factlens.claim-comparison",
+    "brandId": "factlens",
+    "name": "Claim and context comparison",
+    "category": "Fact checking",
+    "description": "Place a claim beside evidence and context without sensational graphics.",
+    "rendererKey": "factlens-compare",
+    "version": 1,
+    "tags": [
+      "claim",
+      "evidence",
+      "context"
+    ],
+    "defaults": {},
+    "requiredInputs": [
+      "headline or claim",
+      "source references"
+    ],
+    "optionalInputs": [
+      "date",
+      "location",
+      "evidence labels"
+    ],
+    "assetRequirements": [
+      "source media optional"
+    ],
+    "cameraSettings": {
+      "defaultMovement": "push-in",
+      "intensity": 0.08,
+      "editable": true
+    },
+    "motionParameters": {
+      "durationSeconds": 6,
+      "easing": "inOutCubic",
+      "maxCameraIntensity": 0.16
+    },
+    "sceneTreatment": "factlens-compare",
+    "transitionStyle": "cross-dissolve",
+    "atmosphereStyle": "editorial vignette",
+    "textAnimation": "staggered title reveal",
+    "supportedAspectRatios": [
+      "portrait",
+      "landscape",
+      "square"
+    ],
+    "estimatedRenderCost": "low",
+    "previewConfiguration": {
+      "durationSeconds": 6,
+      "aspectRatio": "9:16",
+      "posterFrame": 36
+    },
+    "qualityCriteria": [
+      "Keep titles inside the 8% safe margin",
+      "Respect source and legal status labels",
+      "Avoid unverified values or geography",
+      "Use restrained motion with readable holds"
+    ]
+  },
+  {
+    "id": "opencare.process",
+    "brandId": "open-care",
+    "name": "Care process explainer",
+    "category": "Health education",
+    "description": "Schematic process steps using reviewed copy; not a diagnosis or personalized care plan.",
+    "rendererKey": "opencare-process",
+    "version": 1,
+    "tags": [
+      "health",
+      "process",
+      "review"
+    ],
+    "defaults": {},
+    "requiredInputs": [
+      "medically reviewed copy",
+      "clinical source"
+    ],
+    "optionalInputs": [
+      "reviewed process labels",
+      "licensed illustration"
+    ],
+    "assetRequirements": [
+      "licensed medical media optional"
+    ],
+    "cameraSettings": {
+      "defaultMovement": "push-in",
+      "intensity": 0.08,
+      "editable": true
+    },
+    "motionParameters": {
+      "durationSeconds": 6,
+      "easing": "inOutCubic",
+      "maxCameraIntensity": 0.16
+    },
+    "sceneTreatment": "opencare-process",
+    "transitionStyle": "cross-dissolve",
+    "atmosphereStyle": "editorial vignette",
+    "textAnimation": "staggered title reveal",
+    "supportedAspectRatios": [
+      "portrait",
+      "landscape",
+      "square"
+    ],
+    "estimatedRenderCost": "low",
+    "previewConfiguration": {
+      "durationSeconds": 6,
+      "aspectRatio": "9:16",
+      "posterFrame": 36
+    },
+    "qualityCriteria": [
+      "Keep titles inside the 8% safe margin",
+      "Respect source and legal status labels",
+      "Avoid unverified values or geography",
+      "Use restrained motion with readable holds"
+    ]
+  },
+  {
+    "id": "opencare.awareness",
+    "brandId": "open-care",
+    "name": "Health awareness card",
+    "category": "Health education",
+    "description": "Accessible, calm health information card with a clinical review and source reminder.",
+    "rendererKey": "opencare-awareness",
+    "version": 1,
+    "tags": [
+      "health",
+      "awareness",
+      "source"
+    ],
+    "defaults": {},
+    "requiredInputs": [
+      "medically reviewed copy",
+      "clinical source"
+    ],
+    "optionalInputs": [
+      "reviewed process labels",
+      "licensed illustration"
+    ],
+    "assetRequirements": [
+      "licensed medical media optional"
+    ],
+    "cameraSettings": {
+      "defaultMovement": "push-in",
+      "intensity": 0.08,
+      "editable": true
+    },
+    "motionParameters": {
+      "durationSeconds": 6,
+      "easing": "inOutCubic",
+      "maxCameraIntensity": 0.16
+    },
+    "sceneTreatment": "opencare-awareness",
+    "transitionStyle": "cross-dissolve",
+    "atmosphereStyle": "editorial vignette",
+    "textAnimation": "staggered title reveal",
+    "supportedAspectRatios": [
+      "portrait",
+      "landscape",
+      "square"
+    ],
+    "estimatedRenderCost": "low",
+    "previewConfiguration": {
+      "durationSeconds": 6,
+      "aspectRatio": "9:16",
+      "posterFrame": 36
+    },
+    "qualityCriteria": [
+      "Keep titles inside the 8% safe margin",
+      "Respect source and legal status labels",
+      "Avoid unverified values or geography",
+      "Use restrained motion with readable holds"
+    ]
+  },
+  {
+    "id": "ciphertext.product-showcase",
+    "brandId": "ciphertext-labs",
+    "name": "Product showcase",
+    "category": "Product",
+    "description": "Motion-led product story using supplied screenshots or clearly labeled interface concepts.",
+    "rendererKey": "ciphertext-product",
+    "version": 1,
+    "tags": [
+      "product",
+      "software",
+      "showcase"
+    ],
+    "defaults": {},
+    "requiredInputs": [
+      "product-approved copy"
+    ],
+    "optionalInputs": [
+      "product screenshots",
+      "system diagram"
+    ],
+    "assetRequirements": [
+      "product screenshot recommended"
+    ],
+    "cameraSettings": {
+      "defaultMovement": "push-in",
+      "intensity": 0.08,
+      "editable": true
+    },
+    "motionParameters": {
+      "durationSeconds": 6,
+      "easing": "inOutCubic",
+      "maxCameraIntensity": 0.16
+    },
+    "sceneTreatment": "ciphertext-product",
+    "transitionStyle": "cross-dissolve",
+    "atmosphereStyle": "editorial vignette",
+    "textAnimation": "staggered title reveal",
+    "supportedAspectRatios": [
+      "portrait",
+      "landscape",
+      "square"
+    ],
+    "estimatedRenderCost": "low",
+    "previewConfiguration": {
+      "durationSeconds": 6,
+      "aspectRatio": "9:16",
+      "posterFrame": 36
+    },
+    "qualityCriteria": [
+      "Keep titles inside the 8% safe margin",
+      "Respect source and legal status labels",
+      "Avoid unverified values or geography",
+      "Use restrained motion with readable holds"
+    ]
+  },
+  {
+    "id": "ciphertext.system-architecture",
+    "brandId": "ciphertext-labs",
+    "name": "System architecture flow",
+    "category": "Technology",
+    "description": "Animate a sourced system diagram; conceptual nodes must be labeled as conceptual.",
+    "rendererKey": "ciphertext-architecture",
+    "version": 1,
+    "tags": [
+      "architecture",
+      "api",
+      "data"
+    ],
+    "defaults": {},
+    "requiredInputs": [
+      "product-approved copy"
+    ],
+    "optionalInputs": [
+      "product screenshots",
+      "system diagram"
+    ],
+    "assetRequirements": [
+      "product screenshot recommended"
+    ],
+    "cameraSettings": {
+      "defaultMovement": "push-in",
+      "intensity": 0.08,
+      "editable": true
+    },
+    "motionParameters": {
+      "durationSeconds": 6,
+      "easing": "inOutCubic",
+      "maxCameraIntensity": 0.16
+    },
+    "sceneTreatment": "ciphertext-architecture",
+    "transitionStyle": "cross-dissolve",
+    "atmosphereStyle": "editorial vignette",
+    "textAnimation": "staggered title reveal",
+    "supportedAspectRatios": [
+      "portrait",
+      "landscape",
+      "square"
+    ],
+    "estimatedRenderCost": "low",
+    "previewConfiguration": {
+      "durationSeconds": 6,
+      "aspectRatio": "9:16",
+      "posterFrame": 36
+    },
+    "qualityCriteria": [
+      "Keep titles inside the 8% safe margin",
+      "Respect source and legal status labels",
+      "Avoid unverified values or geography",
+      "Use restrained motion with readable holds"
+    ]
+  }
 ]

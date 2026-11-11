@@ -1,6 +1,7 @@
 import React from 'react';
-import {AbsoluteFill,interpolate,spring,useCurrentFrame,useVideoConfig} from 'remotion';
+import {AbsoluteFill,Img,interpolate,spring,staticFile,useCurrentFrame} from 'remotion';
 import type {BrandProfile,SceneAnimationConfig,Scene} from '../domain';
+import {CinematicAtmosphere,KineticTitle} from './motionSystem';
 
 const clamp={extrapolateLeft:'clamp' as const,extrapolateRight:'clamp' as const};
 const Bengali= '"Noto Sans Bengali", "Noto Sans Bengali UI", sans-serif';
@@ -53,52 +54,46 @@ export const MuzzleFlash:React.FC<{frame:number;x:number;y:number;active?:boolea
 const Haze:React.FC<{frame:number}>=({frame})=><g opacity=".2">{[0,1,2,3,4].map(i=><ellipse key={i} cx={(i*270+frame*(i%2?1.1:-.7)+140)%1500-170} cy={430+i*119} rx={210+i*31} ry={46+i*9} fill="#ded8c8"/>)}</g>;
 
 const BattlefieldStage:React.FC<{mode:SceneAnimationConfig['mode'];progress:number;frame:number;brand:BrandProfile;scene:Scene}>=({mode,progress,frame,brand,scene})=>{
-  const intro=mode==='battlefield-intro';const battle=mode==='tank-battle';const retreat=mode==='tank-retreat';const advance=mode==='troop-advance';const outro=mode==='brand-outro';
-  const opacity=outro?interpolate(progress,[0,.72,1],[1,.15,0],clamp):1;
-  const ptFrom=retreat?610:intro?-420:advance?-310:battle?100:-240;const ptTo=retreat?1380:intro?520:advance?505:battle?500:470;
-  const m24From=retreat?830:intro?1140:1090;const m24To=retreat?1490:intro?720:battle?670:610;
-  const reveal=spring({frame:Math.max(0,frame),fps:30,config:{damping:180,stiffness:38,mass:.9}});
-  const ids={sky:`${scene.id}-sky`,land:`${scene.id}-land`,vignette:`${scene.id}-vignette`,rice:`${scene.id}-rice`};
-  const layer=(id:'background'|'midground'|'foreground',fallback:number):NonNullable<SceneAnimationConfig['layers']>[number]=>scene.animationConfig?.layers?.find(item=>item.id===id)??{id,depth:fallback};
-  const backgroundLayer=layer('background',.12),midgroundLayer=layer('midground',.42),foregroundLayer=layer('foreground',.72);
-  return <AbsoluteFill style={{background:'#24251f',overflow:'hidden'}}><svg viewBox="0 0 1080 1920" preserveAspectRatio="xMidYMid slice" width="100%" height="100%" style={{opacity}}>
-    <defs><linearGradient id={ids.sky} x2="0" y2="1"><stop stopColor="#3b4039"/><stop offset=".46" stopColor="#a49a7f"/><stop offset="1" stopColor="#d3c09a"/></linearGradient><linearGradient id={ids.land} x2="0" y2="1"><stop stopColor="#777b61"/><stop offset="1" stopColor="#35382c"/></linearGradient><radialGradient id={ids.vignette}><stop offset=".45" stopColor="#090d0b" stopOpacity="0"/><stop offset="1" stopColor="#090d0b" stopOpacity=".62"/></radialGradient><pattern id={ids.rice} width="95" height="70" patternUnits="userSpaceOnUse" patternTransform="skewX(-22)"><path d="M0 0v70" stroke="#d4c39b" strokeOpacity=".18" strokeWidth="3"/></pattern></defs>
-    <g transform={`translate(${progress*backgroundLayer.depth*34+(backgroundLayer.offsetX??0)},${progress*backgroundLayer.depth*20+(backgroundLayer.offsetY??0)}) scale(${backgroundLayer.scale??1})`} opacity={backgroundLayer.opacity??1}><rect width="1080" height="1920" fill={`url(#${ids.sky})`}/><path d="M0 760 Q220 665 410 754 T810 718 T1080 750 V1920 H0Z" fill="#81856d"/></g><path d="M0 1020 Q320 910 580 1008 T1080 956 V1920 H0Z" fill={`url(#${ids.land})`}/><g transform={`translate(${progress*foregroundLayer.depth*52+(foregroundLayer.offsetX??0)},${progress*foregroundLayer.depth*8+(foregroundLayer.offsetY??0)}) scale(${foregroundLayer.scale??1})`} opacity={foregroundLayer.opacity??1}><path d="M0 1020 Q320 910 580 1008 T1080 956 V1920 H0Z" fill={`url(#${ids.rice})`}/></g>
-    <g opacity=".35" fill="#393b31">{[0,1,2,3,4,5,6].map(i=><path key={i} d={`M${i*180-40} 784 l44 -122 37 122z`}/>)}</g>
-    <g transform={`translate(${interpolate(progress,[0,1],[20,-20],clamp)+progress*midgroundLayer.depth*62+(midgroundLayer.offsetX??0)},${progress*midgroundLayer.depth*18+(midgroundLayer.offsetY??0)}) scale(${midgroundLayer.scale??1})`} opacity={midgroundLayer.opacity??1}><Haze frame={frame}/>
-      <BattlefieldSmoke frame={frame} x={260} y={910} size={1.35} opacity={battle ? .39 : .23}/><BattlefieldSmoke frame={frame} x={870} y={805} size={1.15} opacity={battle ? .32 : .16}/>
-      <g transform={`translate(${(1-reveal)*-190},${(1-reveal)*26})`}><TankMovement model="pt76" fromX={ptFrom} toX={ptTo} y={1230} scale={1.12} direction={1} progress={progress} frame={frame} firing={battle}/></g>
-      {(battle||retreat||intro)&&<g transform={`translate(${(1-reveal)*230},${(1-reveal)*10})`}><TankMovement model="m24" fromX={m24From} toX={m24To} y={1410} scale={intro ? .58 : .82} direction={-1} progress={progress} frame={frame+11} firing={battle}/></g>}
-      {advance&&<g opacity={.86} transform={`translate(${progress*160},0)`}>{[0,1,2,3,4,5].map(i=><g key={i} transform={`translate(${140+i*48},${1110+(i%2)*26})`} fill="#29332c"><circle cy="-32" r="13"/><path d="M-12 -17h24l12 60h-10l-14-36-4 38h-11l2-42-15 25-9-6z"/></g>)}</g>}
-    </g>
-    <rect width="1080" height="1920" fill={`url(#${ids.vignette})`}/><rect width="1080" height="1920" fill="#282216" opacity=".12"/>
-  </svg>
-  <div style={{position:'absolute',top:'9%',left:'7%',color:'#f0e2c4',fontFamily:'Georgia,serif',fontSize:21,letterSpacing:5,textShadow:'0 2px 12px #111',opacity:outro?opacity:1}}>BENGAL <span style={{color:brand.primaryColor}}>UNFOLDED</span></div>
-  {scene.onScreenText&&<div style={{position:'absolute',top:'16%',left:'7%',maxWidth:'84%',padding:'14px 20px',background:'#171b18bd',borderLeft:`5px solid ${brand.primaryColor}`,fontFamily:Bengali,color:'#f1e5cb',fontSize:27,fontWeight:700,opacity:outro?opacity:1}}>{scene.onScreenText}</div>}
-  <div style={{position:'absolute',bottom:'14%',left:'7%',right:'7%',padding:'14px 18px',background:'#141916cb',borderLeft:`5px solid ${brand.primaryColor}`,color:'#e3dccd',fontFamily:'Arial,sans-serif',fontSize:14,letterSpacing:2,opacity:outro?opacity:1}}>HISTORICAL ILLUSTRATION · NOT ARCHIVAL FOOTAGE</div>
-  {outro&&<AbsoluteFill style={{alignItems:'center',justifyContent:'center',background:'radial-gradient(circle,#45453c,#111916)',opacity:interpolate(progress,[.42,.68,1],[0,1,1],clamp)}}><div style={{width:148,height:148,border:`3px solid ${brand.primaryColor}`,transform:'rotate(45deg)',marginBottom:72,boxShadow:`0 0 38px ${brand.primaryColor}33`}}/><div style={{font:'700 58px Georgia,serif',letterSpacing:6,color:'#eee1c4',textAlign:'center'}}>{brand.name.toUpperCase()}</div><div style={{marginTop:28,color:'#c9b99a',fontFamily:Bengali,fontSize:25}}>ইতিহাসের পাতা উন্মোচন</div></AbsoluteFill>}
+  const intro=mode==='battlefield-intro';const retreat=mode==='tank-retreat';const outro=mode==='brand-outro';
+  const reveal=spring({frame:Math.max(0,frame),fps:30,config:{damping:200,stiffness:28,mass:1.1}});
+  const opacity=outro?interpolate(progress,[0,.72,1],[1,.2,0],clamp):1;
+  const image=scene.assetPath||'illustrations/battlefield-reconstruction-dawn-v1.png';
+  const cameraX=interpolate(progress,[0,1],retreat?[0,-42]:[-24,18],clamp);
+  const cameraY=interpolate(progress,[0,1],[14,-24],clamp);
+  const titleY=interpolate(reveal,[0,1],[20,0],clamp);
+  return <AbsoluteFill style={{background:'#171a18',overflow:'hidden',opacity}}>
+   <Img src={staticFile(image)} style={{position:'absolute',inset:'-7%',width:'114%',height:'114%',objectFit:'cover',objectPosition:'center 58%',transform:`translate(${cameraX}px,${cameraY}px) scale(${1.04+progress*.045})`,filter:'saturate(.76) contrast(1.08) brightness(.76)'}}/>
+   <AbsoluteFill style={{background:'linear-gradient(180deg,#0b101055 0%,#15201b0a 36%,#11171455 72%,#0a0e0de8 100%)'}}/>
+   <AbsoluteFill style={{background:'radial-gradient(ellipse at 65% 37%,transparent 28%,#09100e75 100%)'}}/>
+   <div style={{position:'absolute',inset:0,background:'linear-gradient(115deg,#d8cba51b 0%,transparent 38%)',mixBlendMode:'screen'}}/>
+   <svg viewBox="0 0 1080 1920" preserveAspectRatio="none" width="100%" height="100%" style={{position:'absolute',inset:0,pointerEvents:'none'}}>
+    <defs><filter id={`${scene.id}-soften`}><feGaussianBlur stdDeviation="28"/></filter><radialGradient id={`${scene.id}-film-vignette`}><stop offset="45%" stopColor="#080b0a" stopOpacity="0"/><stop offset="100%" stopColor="#080b0a" stopOpacity=".58"/></radialGradient></defs>
+    <g filter={`url(#${scene.id}-soften)`} opacity=".3" fill="#d9d6c8"><ellipse cx={120+(1-progress)*160} cy="845" rx="360" ry="85"/><ellipse cx={830-progress*90} cy="1030" rx="440" ry="110"/><ellipse cx={440+progress*65} cy="745" rx="330" ry="74"/></g>
+    <rect width="1080" height="1920" fill={`url(#${scene.id}-film-vignette)`}/>
+   </svg>
+   <CinematicAtmosphere frame={frame} seed={scene.order} strength={.24}/>
+   <div style={{position:'absolute',top:'8%',left:'7%',right:'7%',transform:`translateY(${titleY}px)`,opacity:reveal}}>
+    <div style={{font:'600 13px/1.2 Arial,sans-serif',letterSpacing:4,color:'#dfb988',textTransform:'uppercase',textShadow:'0 2px 12px #000'}}>BENGAL UNFOLDED <span style={{opacity:.55}}> / </span> HISTORICAL ILLUSTRATION</div>
+    {scene.onScreenText&&<div style={{marginTop:22,paddingLeft:18,borderLeft:`3px solid ${brand.primaryColor}`}}><KineticTitle frame={frame} fps={30} text={scene.onScreenText} color="#f5f0e6" fontFamily="Noto Serif Bengali, Noto Sans Bengali, Georgia, serif" maxWidth="900px"/></div>}
+   </div>
+   <div style={{position:'absolute',left:'7%',right:'7%',bottom:'8%',display:'flex',justifyContent:'space-between',alignItems:'end',gap:18,color:'#f3eee1',fontFamily:'Arial,sans-serif',textShadow:'0 2px 10px #000'}}><span style={{maxWidth:'72%',fontSize:'clamp(10px,1.2vw,15px)',letterSpacing:2,lineHeight:1.45}}>HISTORICAL ILLUSTRATION · NOT ARCHIVAL FOOTAGE</span><span style={{fontSize:12,letterSpacing:3,opacity:.75}}>{retreat?'WITHDRAWAL':intro?'ADVANCE':'RECONSTRUCTION'}</span></div>
+   {outro&&<AbsoluteFill style={{alignItems:'center',justifyContent:'center',background:'radial-gradient(circle,#252822dd,#111916f5)',opacity:interpolate(progress,[.42,.68,1],[0,1,1],clamp)}}><div style={{width:120,height:120,border:`1px solid ${brand.primaryColor}`,transform:'rotate(45deg)',marginBottom:58,boxShadow:`0 0 70px ${brand.primaryColor}55`}}/><div style={{font:'600 clamp(32px,5vw,58px) Georgia,serif',letterSpacing:7,color:'#eee1c4',textAlign:'center'}}>{brand.name.toUpperCase()}</div><div style={{marginTop:20,color:'#c9b99a',fontFamily:Bengali,fontSize:23,letterSpacing:1}}>ইতিহাসের পাতা উন্মোচন</div></AbsoluteFill>}
   </AbsoluteFill>;
 };
 
 export const AnimatedBattleMap:React.FC<{progress:number;frame:number;brand:BrandProfile;scene:Scene}>=({progress,frame,brand,scene})=>{
-  const lineProgress=interpolate(progress,[.08,.78],[0,1],clamp);
-  const markerPulse=1+Math.sin(frame*.12)*.16;
-  const ids={grid:`${scene.id}-map-grid`,paper:`${scene.id}-map-paper`,arrow:`${scene.id}-map-arrow`};
-  return <AbsoluteFill style={{background:'#d4c49f',overflow:'hidden'}}><svg viewBox="0 0 1080 1920" preserveAspectRatio="xMidYMid slice" width="100%" height="100%">
-    <defs><pattern id={ids.grid} width="86" height="86" patternUnits="userSpaceOnUse"><path d="M86 0H0V86" fill="none" stroke="#897759" strokeOpacity=".23" strokeWidth="2"/></pattern><linearGradient id={ids.paper} x2="0" y2="1"><stop stopColor="#e1d2ae"/><stop offset="1" stopColor="#c8b58d"/></linearGradient><marker id={ids.arrow} markerUnits="userSpaceOnUse" markerWidth="18" markerHeight="18" refX="15" refY="9" orient="auto"><path d="M2 2L16 9L2 16Z" fill="#a4463b"/></marker></defs>
-    <rect width="1080" height="1920" fill={`url(#${ids.paper})`}/><rect width="1080" height="1920" fill={`url(#${ids.grid})`}/>
-    <path d="M90 1540 C250 1450 210 1310 390 1180 S510 980 610 880" fill="none" stroke="#728c8c" strokeWidth="66" opacity=".56"/><path d="M90 1540 C250 1450 210 1310 390 1180 S510 980 610 880" fill="none" stroke="#b9d0c7" strokeWidth="5" opacity=".8"/>
-    <path d="M332 1180 C400 1030 515 946 640 835 S790 634 866 465" fill="none" stroke="#75654c" strokeWidth="10" strokeDasharray="18 19" opacity=".8"/>
-    <path d={`M520 1210 L${520+(336*lineProgress)} ${950-(375*lineProgress)}`} fill="none" stroke="#a4463b" strokeWidth="12" strokeDasharray="20 14" markerEnd={`url(#${ids.arrow})`}/>
-    <TroopMovementArrows progress={progress}/>
-    <Location x={520} y={1210} label="গরিবপুর" english="GARIBPUR" color="#a4463b" pulse={markerPulse}/>
-    <Location x={658} y={828} label="চৌগাছা" english="CHAUGACHA" color="#434e43" pulse={markerPulse}/>
-    <Location x={858} y={460} label="যশোর" english="JESSORE" color="#434e43" pulse={markerPulse}/>
-    <Location x={296} y={1500} label="বায়রা" english="BAYRA" color="#617268" pulse={markerPulse}/>
-    <path d="M95 170 L95 280 L76 248 M95 170 L114 248" fill="none" stroke="#554a39" strokeWidth="5"/><text x="95" y="150" textAnchor="middle" fill="#554a39" fontSize="28" fontFamily="Arial">N</text>
+  const map=scene.mapData;const lineProgress=interpolate(progress,[.08,.78],[0,1],clamp);const markerPulse=1+Math.sin(frame*.08)*.08;const ids={grid:`${scene.id}-map-grid`,paper:`${scene.id}-map-paper`,arrow:`${scene.id}-map-arrow`};
+  return <AbsoluteFill style={{background:'#d9cfb8',overflow:'hidden',color:'#252923'}}><svg viewBox="0 0 1000 1000" preserveAspectRatio="xMidYMid meet" width="100%" height="100%">
+    <defs><pattern id={ids.grid} width="54" height="54" patternUnits="userSpaceOnUse"><path d="M54 0H0V54" fill="none" stroke="#786f5c" strokeOpacity=".14" strokeWidth="1"/></pattern><linearGradient id={ids.paper} x2="0" y2="1"><stop stopColor="#e7dcc2"/><stop offset="1" stopColor="#c9ba98"/></linearGradient><filter id={`${scene.id}-map-shadow`} x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="4" stdDeviation="5" floodColor="#28251e" floodOpacity=".2"/></filter><marker id={ids.arrow} markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="14" refX="11" refY="7" orient="auto"><path d="M2 2L12 7L2 12Z" fill={brand.primaryColor}/></marker></defs>
+    <rect width="1000" height="1000" fill={`url(#${ids.paper})`}/><rect width="1000" height="1000" fill={`url(#${ids.grid})`}/>
+    {[0,1,2,3,4,5].map(i=><path key={i} d={`M-60 ${175+i*132} Q205 ${120+i*130} 455 ${180+i*112} T1060 ${160+i*138}`} fill="none" stroke="#8c9d83" strokeWidth="2" opacity=".22"/>)}
+    {map?.routes.map((route,index)=>{const d=route.points.map(([x,y],i)=>`${i?'L':'M'}${x} ${y}`).join(' ');return <g key={`${route.name}-${index}`} filter={`url(#${scene.id}-map-shadow)`}><path d={d} fill="none" stroke={brand.primaryColor} strokeWidth="5" strokeDasharray="11 9" strokeDashoffset={-lineProgress*320} markerEnd={`url(#${ids.arrow})`} opacity={route.status==='illustrative'?.74:1}/><path d={d} fill="none" stroke="#fff9e8" strokeWidth="1.2" strokeDasharray="2 18" strokeDashoffset={-lineProgress*320}/></g>})}
+    {map?.locations.map((location,index)=><g key={`${location.name}-${index}`} transform={`translate(${location.x},${location.y})`}><circle r={14*markerPulse} fill={brand.primaryColor} opacity=".18"/><circle r="7" fill={brand.primaryColor} stroke="#f6ead0" strokeWidth="3"/><text x="17" y="-12" fill="#252923" fontFamily={Bengali} fontWeight="700" fontSize="20">{location.name}</text></g>)}
+    {!map&&<g><text x="500" y="510" textAnchor="middle" fill="#625b4e" fontSize="17" letterSpacing="3">ADD CITED MAP DATA TO SHOW PLACES AND ROUTES</text></g>}
+    <g transform="translate(870 142)"><path d="M0 62V0M0 0L-11 21M0 0L11 21" fill="none" stroke="#514a3a" strokeWidth="3"/><text y="83" textAnchor="middle" fill="#514a3a" fontSize="12" letterSpacing="2">N</text></g>
   </svg>
-  <div style={{position:'absolute',top:'8%',left:'7%',right:'7%',padding:'20px 23px',background:'#eee4ceeb',borderTop:`5px solid ${brand.primaryColor}`,fontFamily:Bengali,color:'#252a24'}}><div style={{fontSize:28,fontWeight:700}}>{scene.onScreenText||'গরিবপুর · যশোর সেক্টর'}</div><div style={{fontFamily:'Arial,sans-serif',fontSize:12,letterSpacing:3,marginTop:8,color:'#595443'}}>AREA OF OPERATIONS · NOVEMBER 1971</div></div>
-  <div style={{position:'absolute',bottom:'9%',left:'7%',right:'7%',padding:'12px 14px',background:'#eee4ceeb',color:'#534b3c',fontFamily:'Arial,sans-serif',fontSize:12,letterSpacing:1.5}}>SCHEMATIC · RELATIVE LOCATIONS FROM MP-IDSA MAP · NOT TO SCALE · ROUTE IS ILLUSTRATIVE</div>
+  <div style={{position:'absolute',top:'7%',left:'7%',right:'7%',padding:'18px 22px',background:'#f0e8d6ed',borderTop:`4px solid ${brand.primaryColor}`,boxShadow:'0 8px 32px #17140e30'}}><div style={{fontFamily:Bengali,fontSize:'clamp(22px,3.3vw,38px)',fontWeight:700,lineHeight:1.2}}>{scene.onScreenText||scene.narration}</div><div style={{fontFamily:'Arial,sans-serif',fontSize:10,letterSpacing:2,marginTop:8,color:'#665d4c'}}>CAMPAIGN MOVEMENT {map?.date?`· ${map.date}`:''}</div></div>
+  <div style={{position:'absolute',bottom:'6%',left:'7%',right:'7%',padding:'11px 14px',background:'#f0e8d6ee',color:'#514a3a',fontFamily:'Arial,sans-serif',fontSize:10,letterSpacing:1.3,lineHeight:1.55}}>{map?<>SOURCE · {map.source} <span style={{float:'right'}}>{map.scale==='schematic-not-to-scale'?'SCHEMATIC · NOT TO SCALE':'GEOGRAPHIC'}</span></>:<>MAP SOURCE REQUIRED <span style={{float:'right'}}>NO ROUTES OR LOCATIONS ASSERTED</span></>}</div>
   </AbsoluteFill>;
 };
 

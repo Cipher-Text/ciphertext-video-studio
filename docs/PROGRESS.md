@@ -1,6 +1,18 @@
 # Implementation progress
 
-Current verification snapshot: 2026-11-08, main branch review. Existing project and SQLite schemas remain backward-compatible; new scene fields are optional. No destructive migration or application rebuild was performed.
+## Animation visual rebuild — 2026-11-11
+
+- Added an additive SQLite preset-quality configuration table; every catalog entry now records required/optional inputs, asset requirements, camera/motion defaults, treatment/transition/atmosphere/type style, supported formats, preview settings, render-cost estimate, and quality criteria. Six brand packs now have dedicated visual templates. Preset IDs still reference allow-listed renderers; renderer code is not stored or executed from SQLite.
+- Added a local, clearly labeled battlefield reconstruction plate and replaced the primary cartoon battlefield stage with image-led camera motion, atmospheric haze, deterministic dust, kinetic typography, and a “not archival footage” label. No casualties, flags, or invented vehicle insignia are shown.
+- Separated explicit preset selection from legacy animation modes: explicit `animationPresetId` wins; existing modes remain routed to their compatibility renderer. Camera movement and strength are independently configurable. New optional `mapData` and `comparisonData` fields keep old storyboard JSON valid.
+- Removed fixed locations from the reusable campaign map renderer. The Garibpur example now carries its relative, not-to-scale map labels/routes as case-specific storyboard data and cites MP-IDSA; the reusable map preset requires supplied GeoJSON/source data.
+- Replaced stick-figure infantry with media-led, non-graphic movement treatments. Added source-aware FactLens, Open Care, CipherText Labs, KaloKhata, and Delta Signal renderers. Delta comparison displays no values until two supplied data series are present.
+- Added `docs/ANIMATION_QUALITY_AUDIT.md` and expanded the independent gallery with category search, data/asset/format requirements, camera/intensity controls, and previews that use the real scene registry.
+- `pnpm typecheck` — passed. `pnpm test` — 33 tests / 12 files passed. `pnpm test:e2e` — all 9 browser/API flows passed, including independent animation browsing and preview playback. `pnpm build` — Vite and Remotion bundle passed; existing upstream Zod annotation and large JavaScript chunk warnings remain. `git diff --check` — passed.
+- One real 18-second Garibpur portrait MP4 completed all 540 frames at 1080×1920 / 30 fps with concurrency 1: `examples/rendered/animation-quality/garibpur-portrait.mp4`. Subsequent browser launches failed on macOS sandbox permissions, so landscape/square and brand MP4 samples remain pending; no contact sheet or human video-frame review is claimed. `ffprobe` is not installed in the environment.
+- Limit: the generated battlefield plate is illustration only. The repository does not yet bundle a licensed Bengali font or reviewed vehicle-specific artwork; review actual render host fonts, map coordinates, narration pacing, and rights before publication.
+
+Historical verification snapshot: 2026-11-08, main branch review. The animation-quality rebuild is separately dated 2026-11-11 above. Existing project and SQLite schemas remain backward-compatible; new scene fields are optional. No destructive migration or application rebuild was performed.
 
 ## Completed and reviewed
 

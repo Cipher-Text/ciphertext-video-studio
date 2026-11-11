@@ -24,12 +24,14 @@ db.exec(await readFile(join(root, 'migrations/001_projects.sql'), 'utf8'));
 db.exec(await readFile(join(root, 'migrations/002_render_jobs.sql'), 'utf8'));
 db.exec(await readFile(join(root, 'migrations/003_media_assets.sql'), 'utf8'));
 db.exec(await readFile(join(root, 'migrations/004_animation_presets.sql'), 'utf8'));
+db.exec(await readFile(join(root, 'migrations/005_animation_quality_metadata.sql'), 'utf8'));
 
 const animationPresetCatalog=JSON.parse(await readFile(join(root,'src/animations/catalog.json'),'utf8'));
 const saveAnimationPreset=db.prepare('INSERT INTO animation_presets(id,brand_id,name,category,description,renderer_key,version,tags_json,defaults_json,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?) ON CONFLICT(id) DO UPDATE SET brand_id=excluded.brand_id,name=excluded.name,category=excluded.category,description=excluded.description,renderer_key=excluded.renderer_key,version=excluded.version,tags_json=excluded.tags_json,defaults_json=excluded.defaults_json,updated_at=excluded.updated_at');
+const saveAnimationQualityConfig=db.prepare('INSERT INTO animation_preset_quality_config(preset_id,config_json,updated_at) VALUES(?,?,?) ON CONFLICT(preset_id) DO UPDATE SET config_json=excluded.config_json,updated_at=excluded.updated_at');
 const now=new Date().toISOString();
-for(const preset of animationPresetCatalog)saveAnimationPreset.run(preset.id,preset.brandId,preset.name,preset.category,preset.description,preset.rendererKey,preset.version,JSON.stringify(preset.tags),JSON.stringify(preset.defaults),now);
-const listAnimationPresets=db.prepare('SELECT id,brand_id AS brandId,name,category,description,renderer_key AS rendererKey,version,tags_json AS tagsJson,defaults_json AS defaultsJson FROM animation_presets WHERE brand_id IS NULL OR brand_id=? ORDER BY category,name');
+for(const preset of animationPresetCatalog){saveAnimationPreset.run(preset.id,preset.brandId,preset.name,preset.category,preset.description,preset.rendererKey,preset.version,JSON.stringify(preset.tags),JSON.stringify(preset.defaults),now);saveAnimationQualityConfig.run(preset.id,JSON.stringify(preset),now)}
+const listAnimationPresets=db.prepare('SELECT p.id,p.brand_id AS brandId,p.name,p.category,p.description,p.renderer_key AS rendererKey,p.version,p.tags_json AS tagsJson,p.defaults_json AS defaultsJson,q.config_json AS configJson FROM animation_presets p LEFT JOIN animation_preset_quality_config q ON q.preset_id=p.id WHERE p.brand_id IS NULL OR p.brand_id=? ORDER BY p.category,p.name');
 
 const fields = 'id, brand_id AS brandId, title, language, format, script, script_approved AS scriptApproved, status, updated_at AS updatedAt, storyboard_json AS storyboard';
 const decode = (row) => row && ({...row, scriptApproved: Boolean(row.scriptApproved), storyboard: row.storyboard ? JSON.parse(row.storyboard) : undefined});
@@ -91,7 +93,7 @@ const server = createServer(async (req,res) => {
     if (url.pathname === '/api/health') return send(res,200,{ok:true},origin);
     if(url.pathname==='/api/animation-presets'&&req.method==='GET'){
       const brandId=url.searchParams.get('brandId');
-      const presets=(brandId?listAnimationPresets.all(brandId):db.prepare('SELECT id,brand_id AS brandId,name,category,description,renderer_key AS rendererKey,version,tags_json AS tagsJson,defaults_json AS defaultsJson FROM animation_presets ORDER BY COALESCE(brand_id,\'\'),category,name').all()).map(preset=>({...preset,tags:JSON.parse(preset.tagsJson),defaults:JSON.parse(preset.defaultsJson),tagsJson:undefined,defaultsJson:undefined}));
+      const presets=(brandId?listAnimationPresets.all(brandId):db.prepare('SELECT p.id,p.brand_id AS brandId,p.name,p.category,p.description,p.renderer_key AS rendererKey,p.version,p.tags_json AS tagsJson,p.defaults_json AS defaultsJson,q.config_json AS configJson FROM animation_presets p LEFT JOIN animation_preset_quality_config q ON q.preset_id=p.id ORDER BY COALESCE(p.brand_id,\'\'),p.category,p.name').all()).map(preset=>({...JSON.parse(preset.configJson||'{}'),id:preset.id,brandId:preset.brandId,name:preset.name,category:preset.category,description:preset.description,rendererKey:preset.rendererKey,version:preset.version,tags:JSON.parse(preset.tagsJson),defaults:JSON.parse(preset.defaultsJson),tagsJson:undefined,defaultsJson:undefined,configJson:undefined}));
       return send(res,200,{presets},origin);
     }
     if(req.method==='GET'&&params.length===3&&params[1]==='assets'){
