@@ -2,16 +2,18 @@
 
 ## Animation quality rebuild — 2026-11-11
 
-1. **Reusable motion contracts** — Catalog entries now include source/data requirements, camera and motion defaults, compatible aspect ratios, render-cost estimates, preview configuration, and quality criteria. SQLite metadata is independent of projects. A project stores only an optional preset reference and per-scene settings.
+1. **Reusable motion contracts** — Catalog entries include source/data requirements, camera and motion defaults, compatible aspect ratios, render-cost estimates, preview configuration, and quality criteria. SQLite stores metadata independent of projects. A project stores an optional preset reference and per-scene settings. These are renderer templates, not rendered video files.
 2. **Media-led historical treatment** — The primary battlefield treatment now uses a labeled reconstruction plate, subtle atmospheric layers, restrained eased camera motion, and readable titles. Legacy tank and map modes remain accepted for old project JSON.
 3. **Source-aware maps and comparisons** — New optional scene `mapData` supports clearly labeled schematic campaign routes, and `comparisonData` supports two cited numeric series with units/period. GeoJSON remains available for geographic data. Empty map/data inputs render a required-source state, never an invented route/value.
 4. **Six brand-specific families** — Bengal Unfolded, KaloKhata, Delta Signal, FactLens, Open Care, and CipherText Labs have dedicated renderer treatments. Further templates need reviewed data/assets for clinical diagrams, live forecast uncertainty, court status, product screenshots, and high-detail historical vehicles.
-5. **Gallery workflow** — The library is browsable without a project; previews share the production scene registry. Category/brand/search filters, format/asset requirements, camera controls, and optional apply-to-scene are available.
+5. **Gallery workflow** — The library is browsable without a project; six-second synthetic previews share the production renderer registry. Category/brand/search filters, format/asset requirements, camera controls, and optional preset-to-scene binding are available. Preview props do not include project narration, media, or structured data inputs.
 
 ### Remaining animation work
 
+- **Generic animation-video binding** — Current catalog entries point to code renderers; they do not represent reusable rendered MP4 files. To support the intended clip workflow, add persistent animation-video records/assets, independent clip previews, and a scene binding that stores the clip reference separately from the current renderer preset. Keep existing preset IDs and `videoAsset` compatibility intact.
+- Add UI editors/import for source-backed `mapData` and `comparisonData`; previews should accept representative scene inputs so data-driven templates can be inspected with real routes/values.
+- Wire tank/troop motion renderers into the live scene registry with reviewed, clearly illustrative artwork. Treat the current Delta storm path as a static illustration until a source-driven track renderer is implemented.
 - Render the Garibpur sample in landscape and square, plus one short real MP4 for each brand pack; inspect output metadata and representative-frame contact sheets. The portrait 18-second sample is complete. Subsequent browser launches currently fail under the macOS Codex sandbox.
-- Add an editor UI for entering/importing source-backed `mapData` and `comparisonData`, and render uncertainty intervals for comparisons.
 - Review the generated plate and all sample copy with a historian/editor; acquire rights-cleared PT-76/M24 reference artwork before using model-specific visuals.
 - Bundle or document a licensed Bengali font for reproducible rendering across hosts.
 - Run automated checks for text bounds, blank frames, contrast, assets, source labels, and safe areas, then manually inspect motion and Bengali typography. Automated tests do not prove publication quality.

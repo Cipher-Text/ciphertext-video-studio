@@ -2,7 +2,7 @@
 
 ## Animation visual rebuild — 2026-11-11
 
-- Added an additive SQLite preset-quality configuration table; every catalog entry now records required/optional inputs, asset requirements, camera/motion defaults, treatment/transition/atmosphere/type style, supported formats, preview settings, render-cost estimate, and quality criteria. Six brand packs now have dedicated visual templates. Preset IDs still reference allow-listed renderers; renderer code is not stored or executed from SQLite.
+- Added an additive SQLite preset-quality configuration table; every catalog entry now records required/optional inputs, asset requirements, camera/motion defaults, treatment/transition/atmosphere/type style, supported formats, preview settings, render-cost estimate, and quality criteria. Six brand collections now have dedicated renderer entries. Preset IDs still reference allow-listed renderers; renderer code is not stored or executed from SQLite.
 - Added a local, clearly labeled battlefield reconstruction plate and replaced the primary cartoon battlefield stage with image-led camera motion, atmospheric haze, deterministic dust, kinetic typography, and a “not archival footage” label. No casualties, flags, or invented vehicle insignia are shown.
 - Separated explicit preset selection from legacy animation modes: explicit `animationPresetId` wins; existing modes remain routed to their compatibility renderer. Camera movement and strength are independently configurable. New optional `mapData` and `comparisonData` fields keep old storyboard JSON valid.
 - Removed fixed locations from the reusable campaign map renderer. The Garibpur example now carries its relative, not-to-scale map labels/routes as case-specific storyboard data and cites MP-IDSA; the reusable map preset requires supplied GeoJSON/source data.
@@ -13,6 +13,14 @@
 - Limit: the generated battlefield plate is illustration only. The repository does not yet bundle a licensed Bengali font or reviewed vehicle-specific artwork; review actual render host fonts, map coordinates, narration pacing, and rights before publication.
 
 Historical verification snapshot: 2026-11-08, main branch review. The animation-quality rebuild is separately dated 2026-11-11 above. Existing project and SQLite schemas remain backward-compatible; new scene fields are optional. No destructive migration or application rebuild was performed.
+
+## Animation library contract clarification — 2026-11-11
+
+- The library is independent from projects and stores renderer preset metadata in SQLite. It does not store rendered animation MP4 files. Renderer implementations remain in the application bundle.
+- The gallery preview is a six-second 360×640 synthetic scene driven by preset title, brand, camera movement, and intensity. It uses the production renderer family but omits project narration, attached media, and structured map/chart inputs.
+- Binding a preset through the optional scene selector stores `animationPresetId`, camera, and settings in the project's storyboard. This is a renderer reference, not an attached clip. Existing uploaded/trimmed `videoAsset` is a separate scene-media feature.
+- `mapData` and `comparisonData` are optional storyboard JSON fields but do not have dedicated editors in the current UI. The current Delta storm path remains a fixed illustrative graphic and must not be treated as observed storm data. Tank movement components are present as legacy exports but are not connected to the active battlefield preset renderer.
+- The intended generic animation-video workflow—persist a reusable rendered clip, preview that clip independently, and bind it as media to a scene—remains future work.
 
 ## Completed and reviewed
 
